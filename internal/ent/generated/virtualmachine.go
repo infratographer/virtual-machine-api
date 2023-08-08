@@ -38,7 +38,9 @@ type VirtualMachine struct {
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// The name of the Virtual Machine.
-	Name         string `json:"name,omitempty"`
+	Name string `json:"name,omitempty"`
+	// The ID for the owner of this Virtual Machine.
+	OwnerID      gidx.PrefixedID `json:"owner_id,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -47,7 +49,7 @@ func (*VirtualMachine) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case virtualmachine.FieldID:
+		case virtualmachine.FieldID, virtualmachine.FieldOwnerID:
 			values[i] = new(gidx.PrefixedID)
 		case virtualmachine.FieldName:
 			values[i] = new(sql.NullString)
@@ -91,6 +93,12 @@ func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				vm.Name = value.String
+			}
+		case virtualmachine.FieldOwnerID:
+			if value, ok := values[i].(*gidx.PrefixedID); !ok {
+				return fmt.Errorf("unexpected type %T for field owner_id", values[i])
+			} else if value != nil {
+				vm.OwnerID = *value
 			}
 		default:
 			vm.selectValues.Set(columns[i], values[i])
@@ -136,6 +144,9 @@ func (vm *VirtualMachine) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(vm.Name)
+	builder.WriteString(", ")
+	builder.WriteString("owner_id=")
+	builder.WriteString(fmt.Sprintf("%v", vm.OwnerID))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -51,6 +51,7 @@ type VirtualMachineMutation struct {
 	created_at    *time.Time
 	updated_at    *time.Time
 	name          *string
+	owner_id      *gidx.PrefixedID
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*VirtualMachine, error)
@@ -269,6 +270,42 @@ func (m *VirtualMachineMutation) ResetName() {
 	m.name = nil
 }
 
+// SetOwnerID sets the "owner_id" field.
+func (m *VirtualMachineMutation) SetOwnerID(gi gidx.PrefixedID) {
+	m.owner_id = &gi
+}
+
+// OwnerID returns the value of the "owner_id" field in the mutation.
+func (m *VirtualMachineMutation) OwnerID() (r gidx.PrefixedID, exists bool) {
+	v := m.owner_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerID returns the old "owner_id" field's value of the VirtualMachine entity.
+// If the VirtualMachine object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineMutation) OldOwnerID(ctx context.Context) (v gidx.PrefixedID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerID: %w", err)
+	}
+	return oldValue.OwnerID, nil
+}
+
+// ResetOwnerID resets all changes to the "owner_id" field.
+func (m *VirtualMachineMutation) ResetOwnerID() {
+	m.owner_id = nil
+}
+
 // Where appends a list predicates to the VirtualMachineMutation builder.
 func (m *VirtualMachineMutation) Where(ps ...predicate.VirtualMachine) {
 	m.predicates = append(m.predicates, ps...)
@@ -303,7 +340,7 @@ func (m *VirtualMachineMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VirtualMachineMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, virtualmachine.FieldCreatedAt)
 	}
@@ -312,6 +349,9 @@ func (m *VirtualMachineMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, virtualmachine.FieldName)
+	}
+	if m.owner_id != nil {
+		fields = append(fields, virtualmachine.FieldOwnerID)
 	}
 	return fields
 }
@@ -327,6 +367,8 @@ func (m *VirtualMachineMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case virtualmachine.FieldName:
 		return m.Name()
+	case virtualmachine.FieldOwnerID:
+		return m.OwnerID()
 	}
 	return nil, false
 }
@@ -342,6 +384,8 @@ func (m *VirtualMachineMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldUpdatedAt(ctx)
 	case virtualmachine.FieldName:
 		return m.OldName(ctx)
+	case virtualmachine.FieldOwnerID:
+		return m.OldOwnerID(ctx)
 	}
 	return nil, fmt.Errorf("unknown VirtualMachine field %s", name)
 }
@@ -371,6 +415,13 @@ func (m *VirtualMachineMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case virtualmachine.FieldOwnerID:
+		v, ok := value.(gidx.PrefixedID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)
@@ -429,6 +480,9 @@ func (m *VirtualMachineMutation) ResetField(name string) error {
 		return nil
 	case virtualmachine.FieldName:
 		m.ResetName()
+		return nil
+	case virtualmachine.FieldOwnerID:
+		m.ResetOwnerID()
 		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)

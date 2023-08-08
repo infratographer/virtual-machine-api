@@ -36,12 +36,20 @@ func (VirtualMachine) Fields() []ent.Field {
 				entgql.OrderField("ID"),
 			).
 			DefaultFunc(func() gidx.PrefixedID { return gidx.MustNewID(VirtualMachinePrefix) }),
-		field.Text("name").
+		field.String("name").
 			NotEmpty().
 			Comment("The name of the Virtual Machine.").
 			Annotations(
-				entgql.Type("String"),
 				entgql.OrderField("NAME"),
+			),
+		field.String("owner_id").
+			GoType(gidx.PrefixedID("")).
+			Immutable().
+			Comment("The ID for the owner of this Virtual Machine.").
+			Annotations(
+				entgql.Type("ID"),
+				entgql.Skip(^entgql.SkipMutationCreateInput),
+				entx.EventsHookAdditionalSubject(),
 			),
 	}
 }
@@ -54,7 +62,7 @@ func (VirtualMachine) Edges() []ent.Edge {
 // Indexes of VirtualMachine
 func (VirtualMachine) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("name"), /* XXX think this is wrong -ians */
+		index.Fields("owner_id"),
 	}
 }
 
@@ -67,8 +75,9 @@ func (VirtualMachine) Annotations() []schema.Annotation {
 		entgql.RelayConnection(),
 		entgql.Mutations(
 			entgql.MutationCreate().Description("Create a new virtual machine."),
-			entgql.MutationUpdate().Description("Update an existing virtual machine."), /* XXX */
+			entgql.MutationUpdate().Description("Update an existing virtual machine."),
 		),
+		entx.EventsHookSubjectName("virtual-machine"),
 	}
 }
 

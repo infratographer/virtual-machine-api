@@ -4,6 +4,8 @@ directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | 
 input CreateVirtualMachineInput {
   """The name of the Virtual Machine."""
   name: String!
+  """The ID for the owner of this Virtual Machine."""
+  ownerID: ID!
 }
 """
 Define a Relay Cursor type:
@@ -41,27 +43,7 @@ type PageInfo @shareable {
   """When paginating forwards, the cursor to continue."""
   endCursor: Cursor
 }
-type Query {
-  virtualMachines(
-    """Returns the elements in the list that come after the specified cursor."""
-    after: Cursor
-
-    """Returns the first _n_ elements from the list."""
-    first: Int
-
-    """Returns the elements in the list that come before the specified cursor."""
-    before: Cursor
-
-    """Returns the last _n_ elements from the list."""
-    last: Int
-
-    """Ordering options for VirtualMachines returned from the connection."""
-    orderBy: VirtualMachineOrder
-
-    """Filtering options for VirtualMachines returned from the connection."""
-    where: VirtualMachineWhereInput
-  ): VirtualMachineConnection!
-}
+type Query
 """The builtin Time type"""
 scalar Time
 """Update an existing virtual machine."""
@@ -69,7 +51,7 @@ input UpdateVirtualMachineInput {
   """The name of the Virtual Machine."""
   name: String
 }
-type VirtualMachine implements Node @key(fields: "id") {
+type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
   """The ID of the VirtualMachine."""
   id: ID!
   createdAt: Time!

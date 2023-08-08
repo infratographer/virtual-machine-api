@@ -69,6 +69,12 @@ func (vmc *VirtualMachineCreate) SetName(s string) *VirtualMachineCreate {
 	return vmc
 }
 
+// SetOwnerID sets the "owner_id" field.
+func (vmc *VirtualMachineCreate) SetOwnerID(gi gidx.PrefixedID) *VirtualMachineCreate {
+	vmc.mutation.SetOwnerID(gi)
+	return vmc
+}
+
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -148,6 +154,9 @@ func (vmc *VirtualMachineCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
+	if _, ok := vmc.mutation.OwnerID(); !ok {
+		return &ValidationError{Name: "owner_id", err: errors.New(`generated: missing required field "VirtualMachine.owner_id"`)}
+	}
 	return nil
 }
 
@@ -194,6 +203,10 @@ func (vmc *VirtualMachineCreate) createSpec() (*VirtualMachine, *sqlgraph.Create
 	if value, ok := vmc.mutation.Name(); ok {
 		_spec.SetField(virtualmachine.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := vmc.mutation.OwnerID(); ok {
+		_spec.SetField(virtualmachine.FieldOwnerID, field.TypeString, value)
+		_node.OwnerID = value
 	}
 	return _node, _spec
 }

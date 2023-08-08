@@ -1,0 +1,45 @@
+type ResourceOwner @key(fields: "id") @interfaceObject {
+  id: ID!
+  annotationNamespaces(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+
+    """
+    Ordering options for AnnotationNamespaces returned from the connection.
+    """
+    orderBy: AnnotationNamespaceOrder
+
+    """
+    Filtering options for AnnotationNamespaces returned from the connection.
+    """
+    where: AnnotationNamespaceWhereInput
+  ): AnnotationNamespaceConnection! @goField(forceResolver: true)
+  """
+  Metadata about this node, including annotations and statuses.
+  """
+  metadata: Metadata @shareable @goField(forceResolver: true)
+}
+
+extend type AnnotationNamespace {
+  """
+  The owner of the annotation namespace.
+  """
+  owner: ResourceOwner! @goField(forceResolver: true)
+}

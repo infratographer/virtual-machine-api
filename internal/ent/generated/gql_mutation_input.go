@@ -16,14 +16,20 @@
 
 package generated
 
+import (
+	"go.infratographer.com/x/gidx"
+)
+
 // CreateVirtualMachineInput represents a mutation input for creating virtualmachines.
 type CreateVirtualMachineInput struct {
-	Name string
+	Name    string
+	OwnerID gidx.PrefixedID
 }
 
 // Mutate applies the CreateVirtualMachineInput on the VirtualMachineMutation builder.
 func (i *CreateVirtualMachineInput) Mutate(m *VirtualMachineMutation) {
 	m.SetName(i.Name)
+	m.SetOwnerID(i.OwnerID)
 }
 
 // SetInput applies the change-set in the CreateVirtualMachineInput on the VirtualMachineCreate builder.

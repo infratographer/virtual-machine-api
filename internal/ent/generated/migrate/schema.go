@@ -27,7 +27,8 @@ var (
 		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "name", Type: field.TypeString, Size: 2147483647},
+		{Name: "name", Type: field.TypeString},
+		{Name: "owner_id", Type: field.TypeString},
 	}
 	// VirtualMachinesTable holds the schema information for the "virtual_machines" table.
 	VirtualMachinesTable = &schema.Table{
@@ -46,9 +47,9 @@ var (
 				Columns: []*schema.Column{VirtualMachinesColumns[2]},
 			},
 			{
-				Name:    "virtualmachine_name",
+				Name:    "virtualmachine_owner_id",
 				Unique:  false,
-				Columns: []*schema.Column{VirtualMachinesColumns[3]},
+				Columns: []*schema.Column{VirtualMachinesColumns[4]},
 			},
 		},
 	}
