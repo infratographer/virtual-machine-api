@@ -1,3 +1,4 @@
+// Package config provides a struct to store the applications config
 package config
 
 import (

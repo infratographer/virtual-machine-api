@@ -5,7 +5,6 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 	"github.com/spf13/cobra"
@@ -22,6 +21,7 @@ import (
 	"go.infratographer.com/virtual-machine-api/internal/api"
 	"go.infratographer.com/virtual-machine-api/internal/config"
 	ent "go.infratographer.com/virtual-machine-api/internal/ent/generated"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/eventhooks"
 )
 
 const (
@@ -101,16 +101,15 @@ func serve(ctx context.Context) error {
 
 	eventhooks.EventHooks(client)
 
-	var middleware []echo.MiddlewareFunc
+	// var middleware []echo.MiddlewareFunc
 
 	// jwt auth middleware
 	if viper.GetBool("oidc.enabled") {
-		auth, err := echojwtx.NewAuth(ctx, config.AppConfig.OIDC)
+		// auth, err := echojwtx.NewAuth(ctx, config.AppConfig.OIDC)
 		if err != nil {
 			logger.Fatal("failed to initialize jwt authentication", zap.Error(err))
 		}
-
-		middleware = append(middleware, auth.Middleware())
+		// middleware = append(middleware, auth.Middleware())
 	}
 
 	srv, err := echox.NewServer(logger.Desugar(), config.AppConfig.Server, versionx.BuildDetails())
@@ -118,19 +117,17 @@ func serve(ctx context.Context) error {
 		logger.Error("failed to create server", zap.Error(err))
 	}
 
-	perms, err := permissions.New(config.AppConfig.Permissions,
+	/*perms, err := permissions.New(config.AppConfig.Permissions,
 		permissions.WithLogger(logger),
 		permissions.WithDefaultChecker(permissions.DefaultAllowChecker),
-	)
-
-	middleware = append(middleware, perms.Middleware())
-
+	)*/
+	// middleware = append(middleware, perms.Middleware())
 	if err != nil {
 		logger.Fatal("failed to initialize permissions", zap.Error(err))
 	}
 
 	r := api.NewResolver(client, logger.Named("resolvers"))
-	handler := r.Handler(enablePlayground, middleware...)
+	handler := r.Handler(enablePlayground)
 
 	srv.AddHandler(handler)
 

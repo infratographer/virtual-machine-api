@@ -11,16 +11,19 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
+// VirtualMachine holds the schema definition for the VM entity
 type VirtualMachine struct {
 	ent.Schema
 }
 
+// Mixin of VirtualMachine
 func (VirtualMachine) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		entx.NewTimestampMixin(),
 	}
 }
 
+// Fields of VirtualMachine
 func (VirtualMachine) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").
@@ -43,16 +46,19 @@ func (VirtualMachine) Fields() []ent.Field {
 	}
 }
 
+// Edges of VirtualMachine
 func (VirtualMachine) Edges() []ent.Edge {
 	return nil
 }
 
+// Indexes of VirtualMachine
 func (VirtualMachine) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("name"), /* XXX think this is wrong -ians */
 	}
 }
 
+// Annotations of VirtualMachine
 func (VirtualMachine) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entx.GraphKeyDirective("id"),
