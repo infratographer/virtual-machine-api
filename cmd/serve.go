@@ -109,8 +109,8 @@ func serve(ctx context.Context) error {
 		if err != nil {
 			logger.Fatal("failed to initialize jwt authentication", zap.Error(err))
 		}
-		// middleware = append(middleware, auth.Middleware())
 	}
+	// middleware = append(middleware, auth.Middleware())
 
 	srv, err := echox.NewServer(logger.Desugar(), config.AppConfig.Server, versionx.BuildDetails())
 	if err != nil {
