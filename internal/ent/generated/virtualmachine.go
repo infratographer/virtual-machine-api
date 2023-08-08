@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,35 +23,35 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/x/gidx"
 )
 
 // Represents a virtual machine on the graph.
-type VirtM struct {
+type VirtualMachine struct {
 	config `json:"-"`
 	// ID of the ent.
-	// The ID of the VirtM.
+	// The ID of the VirtualMachine.
 	ID gidx.PrefixedID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// The name of the VirtM.
-	Hostname     string `json:"hostname,omitempty"`
+	// The name of the Virtual Machine.
+	Name         string `json:"name,omitempty"`
 	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*VirtM) scanValues(columns []string) ([]any, error) {
+func (*VirtualMachine) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case virtm.FieldID:
+		case virtualmachine.FieldID:
 			values[i] = new(gidx.PrefixedID)
-		case virtm.FieldHostname:
+		case virtualmachine.FieldName:
 			values[i] = new(sql.NullString)
-		case virtm.FieldCreatedAt, virtm.FieldUpdatedAt:
+		case virtualmachine.FieldCreatedAt, virtualmachine.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -61,87 +61,87 @@ func (*VirtM) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the VirtM fields.
-func (v *VirtM) assignValues(columns []string, values []any) error {
+// to the VirtualMachine fields.
+func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case virtm.FieldID:
+		case virtualmachine.FieldID:
 			if value, ok := values[i].(*gidx.PrefixedID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				v.ID = *value
+				vm.ID = *value
 			}
-		case virtm.FieldCreatedAt:
+		case virtualmachine.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				v.CreatedAt = value.Time
+				vm.CreatedAt = value.Time
 			}
-		case virtm.FieldUpdatedAt:
+		case virtualmachine.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				v.UpdatedAt = value.Time
+				vm.UpdatedAt = value.Time
 			}
-		case virtm.FieldHostname:
+		case virtualmachine.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field hostname", values[i])
+				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				v.Hostname = value.String
+				vm.Name = value.String
 			}
 		default:
-			v.selectValues.Set(columns[i], values[i])
+			vm.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the VirtM.
+// Value returns the ent.Value that was dynamically selected and assigned to the VirtualMachine.
 // This includes values selected through modifiers, order, etc.
-func (v *VirtM) Value(name string) (ent.Value, error) {
-	return v.selectValues.Get(name)
+func (vm *VirtualMachine) Value(name string) (ent.Value, error) {
+	return vm.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this VirtM.
-// Note that you need to call VirtM.Unwrap() before calling this method if this VirtM
+// Update returns a builder for updating this VirtualMachine.
+// Note that you need to call VirtualMachine.Unwrap() before calling this method if this VirtualMachine
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (v *VirtM) Update() *VirtMUpdateOne {
-	return NewVirtMClient(v.config).UpdateOne(v)
+func (vm *VirtualMachine) Update() *VirtualMachineUpdateOne {
+	return NewVirtualMachineClient(vm.config).UpdateOne(vm)
 }
 
-// Unwrap unwraps the VirtM entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the VirtualMachine entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (v *VirtM) Unwrap() *VirtM {
-	_tx, ok := v.config.driver.(*txDriver)
+func (vm *VirtualMachine) Unwrap() *VirtualMachine {
+	_tx, ok := vm.config.driver.(*txDriver)
 	if !ok {
-		panic("generated: VirtM is not a transactional entity")
+		panic("generated: VirtualMachine is not a transactional entity")
 	}
-	v.config.driver = _tx.drv
-	return v
+	vm.config.driver = _tx.drv
+	return vm
 }
 
 // String implements the fmt.Stringer.
-func (v *VirtM) String() string {
+func (vm *VirtualMachine) String() string {
 	var builder strings.Builder
-	builder.WriteString("VirtM(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", v.ID))
+	builder.WriteString("VirtualMachine(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", vm.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(v.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(vm.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(v.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(vm.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("hostname=")
-	builder.WriteString(v.Hostname)
+	builder.WriteString("name=")
+	builder.WriteString(vm.Name)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // IsEntity implement fedruntime.Entity
-func (v VirtM) IsEntity() {}
+func (vm VirtualMachine) IsEntity() {}
 
-// VirtMs is a parsable slice of VirtM.
-type VirtMs []*VirtM
+// VirtualMachines is a parsable slice of VirtualMachine.
+type VirtualMachines []*VirtualMachine

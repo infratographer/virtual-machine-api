@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// VirtM is the client for interacting with the VirtM builders.
-	VirtM *VirtMClient
+	// VirtualMachine is the client for interacting with the VirtualMachine builders.
+	VirtualMachine *VirtualMachineClient
 
 	// lazily loaded.
 	client     *Client
@@ -159,7 +159,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.VirtM = NewVirtMClient(tx.config)
+	tx.VirtualMachine = NewVirtualMachineClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -169,7 +169,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: VirtM.QueryXXX(), the query will be executed
+// applies a query, for example: VirtualMachine.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

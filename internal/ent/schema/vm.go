@@ -11,49 +11,49 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
-type VirtM struct {
+type VirtualMachine struct {
 	ent.Schema
 }
 
-func (VirtM) Mixin() []ent.Mixin {
+func (VirtualMachine) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		entx.NewTimestampMixin(),
 	}
 }
 
-func (VirtM) Fields() []ent.Field {
+func (VirtualMachine) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").
 			GoType(gidx.PrefixedID("")).
 			Unique().
 			Immutable().
-			Comment("The ID of the VirtM.").
+			Comment("The ID of the VirtualMachine.").
 			Annotations(
 				entgql.OrderField("ID"),
 			).
-			DefaultFunc(func() gidx.PrefixedID { return gidx.MustNewID(VirtMPrefix) }),
-		field.Text("hostname").
+			DefaultFunc(func() gidx.PrefixedID { return gidx.MustNewID(VirtualMachinePrefix) }),
+		field.Text("name").
 			NotEmpty().
-			Comment("The name of the VirtM.").
+			Comment("The name of the Virtual Machine.").
 			Annotations(
 				entgql.QueryField(),
 				entgql.Type("String"),
-				entgql.OrderField("HOSTNAME"),
+				entgql.OrderField("NAME"),
 			),
 	}
 }
 
-func (VirtM) Edges() []ent.Edge {
+func (VirtualMachine) Edges() []ent.Edge {
 	return nil
 }
 
-func (VirtM) Indexes() []ent.Index {
+func (VirtualMachine) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("hostname"), /* XXX think this is wrong -ians */
+		index.Fields("name"), /* XXX think this is wrong -ians */
 	}
 }
 
-func (VirtM) Annotations() []schema.Annotation {
+func (VirtualMachine) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entx.GraphKeyDirective("id"),
 		schema.Comment("Represents a virtual machine on the graph."),

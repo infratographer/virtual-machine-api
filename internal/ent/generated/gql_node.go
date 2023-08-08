@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import (
 	"entgo.io/contrib/entgql"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/hashicorp/go-multierror"
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -33,7 +33,7 @@ type Noder interface {
 }
 
 // IsNode implements the Node interface check for GQLGen.
-func (n *VirtM) IsNode() {}
+func (n *VirtualMachine) IsNode() {}
 
 var errNodeInvalidID = &NotFoundError{"node"}
 
@@ -93,14 +93,14 @@ func (c *Client) Noder(ctx context.Context, id gidx.PrefixedID, opts ...NodeOpti
 
 func (c *Client) noder(ctx context.Context, table string, id gidx.PrefixedID) (Noder, error) {
 	switch table {
-	case virtm.Table:
+	case virtualmachine.Table:
 		var uid gidx.PrefixedID
 		if err := uid.UnmarshalGQL(id); err != nil {
 			return nil, err
 		}
-		query := c.VirtM.Query().
-			Where(virtm.ID(uid))
-		query, err := query.CollectFields(ctx, "VirtM")
+		query := c.VirtualMachine.Query().
+			Where(virtualmachine.ID(uid))
+		query, err := query.CollectFields(ctx, "VirtualMachine")
 		if err != nil {
 			return nil, err
 		}
@@ -182,10 +182,10 @@ func (c *Client) noders(ctx context.Context, table string, ids []gidx.PrefixedID
 		idmap[id] = append(idmap[id], &noders[i])
 	}
 	switch table {
-	case virtm.Table:
-		query := c.VirtM.Query().
-			Where(virtm.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "VirtM")
+	case virtualmachine.Table:
+		query := c.VirtualMachine.Query().
+			Where(virtualmachine.IDIn(ids...))
+		query, err := query.CollectFields(ctx, "VirtualMachine")
 		if err != nil {
 			return nil, err
 		}

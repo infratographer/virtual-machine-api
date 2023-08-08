@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/errcode"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -113,20 +113,20 @@ func paginateLimit(first, last *int) int {
 	return limit
 }
 
-// VirtMEdge is the edge representation of VirtM.
-type VirtMEdge struct {
-	Node   *VirtM `json:"node"`
-	Cursor Cursor `json:"cursor"`
+// VirtualMachineEdge is the edge representation of VirtualMachine.
+type VirtualMachineEdge struct {
+	Node   *VirtualMachine `json:"node"`
+	Cursor Cursor          `json:"cursor"`
 }
 
-// VirtMConnection is the connection containing edges to VirtM.
-type VirtMConnection struct {
-	Edges      []*VirtMEdge `json:"edges"`
-	PageInfo   PageInfo     `json:"pageInfo"`
-	TotalCount int          `json:"totalCount"`
+// VirtualMachineConnection is the connection containing edges to VirtualMachine.
+type VirtualMachineConnection struct {
+	Edges      []*VirtualMachineEdge `json:"edges"`
+	PageInfo   PageInfo              `json:"pageInfo"`
+	TotalCount int                   `json:"totalCount"`
 }
 
-func (c *VirtMConnection) build(nodes []*VirtM, pager *virtmPager, after *Cursor, first *int, before *Cursor, last *int) {
+func (c *VirtualMachineConnection) build(nodes []*VirtualMachine, pager *virtualmachinePager, after *Cursor, first *int, before *Cursor, last *int) {
 	c.PageInfo.HasNextPage = before != nil
 	c.PageInfo.HasPreviousPage = after != nil
 	if first != nil && *first+1 == len(nodes) {
@@ -136,21 +136,21 @@ func (c *VirtMConnection) build(nodes []*VirtM, pager *virtmPager, after *Cursor
 		c.PageInfo.HasPreviousPage = true
 		nodes = nodes[:len(nodes)-1]
 	}
-	var nodeAt func(int) *VirtM
+	var nodeAt func(int) *VirtualMachine
 	if last != nil {
 		n := len(nodes) - 1
-		nodeAt = func(i int) *VirtM {
+		nodeAt = func(i int) *VirtualMachine {
 			return nodes[n-i]
 		}
 	} else {
-		nodeAt = func(i int) *VirtM {
+		nodeAt = func(i int) *VirtualMachine {
 			return nodes[i]
 		}
 	}
-	c.Edges = make([]*VirtMEdge, len(nodes))
+	c.Edges = make([]*VirtualMachineEdge, len(nodes))
 	for i := range nodes {
 		node := nodeAt(i)
-		c.Edges[i] = &VirtMEdge{
+		c.Edges[i] = &VirtualMachineEdge{
 			Node:   node,
 			Cursor: pager.toCursor(node),
 		}
@@ -164,87 +164,87 @@ func (c *VirtMConnection) build(nodes []*VirtM, pager *virtmPager, after *Cursor
 	}
 }
 
-// VirtMPaginateOption enables pagination customization.
-type VirtMPaginateOption func(*virtmPager) error
+// VirtualMachinePaginateOption enables pagination customization.
+type VirtualMachinePaginateOption func(*virtualmachinePager) error
 
-// WithVirtMOrder configures pagination ordering.
-func WithVirtMOrder(order *VirtMOrder) VirtMPaginateOption {
+// WithVirtualMachineOrder configures pagination ordering.
+func WithVirtualMachineOrder(order *VirtualMachineOrder) VirtualMachinePaginateOption {
 	if order == nil {
-		order = DefaultVirtMOrder
+		order = DefaultVirtualMachineOrder
 	}
 	o := *order
-	return func(pager *virtmPager) error {
+	return func(pager *virtualmachinePager) error {
 		if err := o.Direction.Validate(); err != nil {
 			return err
 		}
 		if o.Field == nil {
-			o.Field = DefaultVirtMOrder.Field
+			o.Field = DefaultVirtualMachineOrder.Field
 		}
 		pager.order = &o
 		return nil
 	}
 }
 
-// WithVirtMFilter configures pagination filter.
-func WithVirtMFilter(filter func(*VirtMQuery) (*VirtMQuery, error)) VirtMPaginateOption {
-	return func(pager *virtmPager) error {
+// WithVirtualMachineFilter configures pagination filter.
+func WithVirtualMachineFilter(filter func(*VirtualMachineQuery) (*VirtualMachineQuery, error)) VirtualMachinePaginateOption {
+	return func(pager *virtualmachinePager) error {
 		if filter == nil {
-			return errors.New("VirtMQuery filter cannot be nil")
+			return errors.New("VirtualMachineQuery filter cannot be nil")
 		}
 		pager.filter = filter
 		return nil
 	}
 }
 
-type virtmPager struct {
+type virtualmachinePager struct {
 	reverse bool
-	order   *VirtMOrder
-	filter  func(*VirtMQuery) (*VirtMQuery, error)
+	order   *VirtualMachineOrder
+	filter  func(*VirtualMachineQuery) (*VirtualMachineQuery, error)
 }
 
-func newVirtMPager(opts []VirtMPaginateOption, reverse bool) (*virtmPager, error) {
-	pager := &virtmPager{reverse: reverse}
+func newVirtualMachinePager(opts []VirtualMachinePaginateOption, reverse bool) (*virtualmachinePager, error) {
+	pager := &virtualmachinePager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
 		}
 	}
 	if pager.order == nil {
-		pager.order = DefaultVirtMOrder
+		pager.order = DefaultVirtualMachineOrder
 	}
 	return pager, nil
 }
 
-func (p *virtmPager) applyFilter(query *VirtMQuery) (*VirtMQuery, error) {
+func (p *virtualmachinePager) applyFilter(query *VirtualMachineQuery) (*VirtualMachineQuery, error) {
 	if p.filter != nil {
 		return p.filter(query)
 	}
 	return query, nil
 }
 
-func (p *virtmPager) toCursor(v *VirtM) Cursor {
-	return p.order.Field.toCursor(v)
+func (p *virtualmachinePager) toCursor(vm *VirtualMachine) Cursor {
+	return p.order.Field.toCursor(vm)
 }
 
-func (p *virtmPager) applyCursors(query *VirtMQuery, after, before *Cursor) (*VirtMQuery, error) {
+func (p *virtualmachinePager) applyCursors(query *VirtualMachineQuery, after, before *Cursor) (*VirtualMachineQuery, error) {
 	direction := p.order.Direction
 	if p.reverse {
 		direction = direction.Reverse()
 	}
-	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultVirtMOrder.Field.column, p.order.Field.column, direction) {
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultVirtualMachineOrder.Field.column, p.order.Field.column, direction) {
 		query = query.Where(predicate)
 	}
 	return query, nil
 }
 
-func (p *virtmPager) applyOrder(query *VirtMQuery) *VirtMQuery {
+func (p *virtualmachinePager) applyOrder(query *VirtualMachineQuery) *VirtualMachineQuery {
 	direction := p.order.Direction
 	if p.reverse {
 		direction = direction.Reverse()
 	}
 	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
-	if p.order.Field != DefaultVirtMOrder.Field {
-		query = query.Order(DefaultVirtMOrder.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultVirtualMachineOrder.Field {
+		query = query.Order(DefaultVirtualMachineOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(p.order.Field.column)
@@ -252,7 +252,7 @@ func (p *virtmPager) applyOrder(query *VirtMQuery) *VirtMQuery {
 	return query
 }
 
-func (p *virtmPager) orderExpr(query *VirtMQuery) sql.Querier {
+func (p *virtualmachinePager) orderExpr(query *VirtualMachineQuery) sql.Querier {
 	direction := p.order.Direction
 	if p.reverse {
 		direction = direction.Reverse()
@@ -262,33 +262,33 @@ func (p *virtmPager) orderExpr(query *VirtMQuery) sql.Querier {
 	}
 	return sql.ExprFunc(func(b *sql.Builder) {
 		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
-		if p.order.Field != DefaultVirtMOrder.Field {
-			b.Comma().Ident(DefaultVirtMOrder.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultVirtualMachineOrder.Field {
+			b.Comma().Ident(DefaultVirtualMachineOrder.Field.column).Pad().WriteString(string(direction))
 		}
 	})
 }
 
-// Paginate executes the query and returns a relay based cursor connection to VirtM.
-func (v *VirtMQuery) Paginate(
+// Paginate executes the query and returns a relay based cursor connection to VirtualMachine.
+func (vm *VirtualMachineQuery) Paginate(
 	ctx context.Context, after *Cursor, first *int,
-	before *Cursor, last *int, opts ...VirtMPaginateOption,
-) (*VirtMConnection, error) {
+	before *Cursor, last *int, opts ...VirtualMachinePaginateOption,
+) (*VirtualMachineConnection, error) {
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newVirtMPager(opts, last != nil)
+	pager, err := newVirtualMachinePager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
-	if v, err = pager.applyFilter(v); err != nil {
+	if vm, err = pager.applyFilter(vm); err != nil {
 		return nil, err
 	}
-	conn := &VirtMConnection{Edges: []*VirtMEdge{}}
+	conn := &VirtualMachineConnection{Edges: []*VirtualMachineEdge{}}
 	ignoredEdges := !hasCollectedField(ctx, edgesField)
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
 		if hasPagination || ignoredEdges {
-			if conn.TotalCount, err = v.Clone().Count(ctx); err != nil {
+			if conn.TotalCount, err = vm.Clone().Count(ctx); err != nil {
 				return nil, err
 			}
 			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
@@ -298,19 +298,19 @@ func (v *VirtMQuery) Paginate(
 	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
 		return conn, nil
 	}
-	if v, err = pager.applyCursors(v, after, before); err != nil {
+	if vm, err = pager.applyCursors(vm, after, before); err != nil {
 		return nil, err
 	}
 	if limit := paginateLimit(first, last); limit != 0 {
-		v.Limit(limit)
+		vm.Limit(limit)
 	}
 	if field := collectedField(ctx, edgesField, nodeField); field != nil {
-		if err := v.collectField(ctx, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+		if err := vm.collectField(ctx, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
 			return nil, err
 		}
 	}
-	v = pager.applyOrder(v)
-	nodes, err := v.All(ctx)
+	vm = pager.applyOrder(vm)
+	nodes, err := vm.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -319,143 +319,143 @@ func (v *VirtMQuery) Paginate(
 }
 
 var (
-	// VirtMOrderFieldID orders VirtM by id.
-	VirtMOrderFieldID = &VirtMOrderField{
-		Value: func(v *VirtM) (ent.Value, error) {
-			return v.ID, nil
+	// VirtualMachineOrderFieldID orders VirtualMachine by id.
+	VirtualMachineOrderFieldID = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.ID, nil
 		},
-		column: virtm.FieldID,
-		toTerm: virtm.ByID,
-		toCursor: func(v *VirtM) Cursor {
+		column: virtualmachine.FieldID,
+		toTerm: virtualmachine.ByID,
+		toCursor: func(vm *VirtualMachine) Cursor {
 			return Cursor{
-				ID:    v.ID,
-				Value: v.ID,
+				ID:    vm.ID,
+				Value: vm.ID,
 			}
 		},
 	}
-	// VirtMOrderFieldCreatedAt orders VirtM by created_at.
-	VirtMOrderFieldCreatedAt = &VirtMOrderField{
-		Value: func(v *VirtM) (ent.Value, error) {
-			return v.CreatedAt, nil
+	// VirtualMachineOrderFieldCreatedAt orders VirtualMachine by created_at.
+	VirtualMachineOrderFieldCreatedAt = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.CreatedAt, nil
 		},
-		column: virtm.FieldCreatedAt,
-		toTerm: virtm.ByCreatedAt,
-		toCursor: func(v *VirtM) Cursor {
+		column: virtualmachine.FieldCreatedAt,
+		toTerm: virtualmachine.ByCreatedAt,
+		toCursor: func(vm *VirtualMachine) Cursor {
 			return Cursor{
-				ID:    v.ID,
-				Value: v.CreatedAt,
+				ID:    vm.ID,
+				Value: vm.CreatedAt,
 			}
 		},
 	}
-	// VirtMOrderFieldUpdatedAt orders VirtM by updated_at.
-	VirtMOrderFieldUpdatedAt = &VirtMOrderField{
-		Value: func(v *VirtM) (ent.Value, error) {
-			return v.UpdatedAt, nil
+	// VirtualMachineOrderFieldUpdatedAt orders VirtualMachine by updated_at.
+	VirtualMachineOrderFieldUpdatedAt = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.UpdatedAt, nil
 		},
-		column: virtm.FieldUpdatedAt,
-		toTerm: virtm.ByUpdatedAt,
-		toCursor: func(v *VirtM) Cursor {
+		column: virtualmachine.FieldUpdatedAt,
+		toTerm: virtualmachine.ByUpdatedAt,
+		toCursor: func(vm *VirtualMachine) Cursor {
 			return Cursor{
-				ID:    v.ID,
-				Value: v.UpdatedAt,
+				ID:    vm.ID,
+				Value: vm.UpdatedAt,
 			}
 		},
 	}
-	// VirtMOrderFieldHostname orders VirtM by hostname.
-	VirtMOrderFieldHostname = &VirtMOrderField{
-		Value: func(v *VirtM) (ent.Value, error) {
-			return v.Hostname, nil
+	// VirtualMachineOrderFieldName orders VirtualMachine by name.
+	VirtualMachineOrderFieldName = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.Name, nil
 		},
-		column: virtm.FieldHostname,
-		toTerm: virtm.ByHostname,
-		toCursor: func(v *VirtM) Cursor {
+		column: virtualmachine.FieldName,
+		toTerm: virtualmachine.ByName,
+		toCursor: func(vm *VirtualMachine) Cursor {
 			return Cursor{
-				ID:    v.ID,
-				Value: v.Hostname,
+				ID:    vm.ID,
+				Value: vm.Name,
 			}
 		},
 	}
 )
 
 // String implement fmt.Stringer interface.
-func (f VirtMOrderField) String() string {
+func (f VirtualMachineOrderField) String() string {
 	var str string
 	switch f.column {
-	case VirtMOrderFieldID.column:
+	case VirtualMachineOrderFieldID.column:
 		str = "ID"
-	case VirtMOrderFieldCreatedAt.column:
+	case VirtualMachineOrderFieldCreatedAt.column:
 		str = "CREATED_AT"
-	case VirtMOrderFieldUpdatedAt.column:
+	case VirtualMachineOrderFieldUpdatedAt.column:
 		str = "UPDATED_AT"
-	case VirtMOrderFieldHostname.column:
-		str = "HOSTNAME"
+	case VirtualMachineOrderFieldName.column:
+		str = "NAME"
 	}
 	return str
 }
 
 // MarshalGQL implements graphql.Marshaler interface.
-func (f VirtMOrderField) MarshalGQL(w io.Writer) {
+func (f VirtualMachineOrderField) MarshalGQL(w io.Writer) {
 	io.WriteString(w, strconv.Quote(f.String()))
 }
 
 // UnmarshalGQL implements graphql.Unmarshaler interface.
-func (f *VirtMOrderField) UnmarshalGQL(v interface{}) error {
+func (f *VirtualMachineOrderField) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
-		return fmt.Errorf("VirtMOrderField %T must be a string", v)
+		return fmt.Errorf("VirtualMachineOrderField %T must be a string", v)
 	}
 	switch str {
 	case "ID":
-		*f = *VirtMOrderFieldID
+		*f = *VirtualMachineOrderFieldID
 	case "CREATED_AT":
-		*f = *VirtMOrderFieldCreatedAt
+		*f = *VirtualMachineOrderFieldCreatedAt
 	case "UPDATED_AT":
-		*f = *VirtMOrderFieldUpdatedAt
-	case "HOSTNAME":
-		*f = *VirtMOrderFieldHostname
+		*f = *VirtualMachineOrderFieldUpdatedAt
+	case "NAME":
+		*f = *VirtualMachineOrderFieldName
 	default:
-		return fmt.Errorf("%s is not a valid VirtMOrderField", str)
+		return fmt.Errorf("%s is not a valid VirtualMachineOrderField", str)
 	}
 	return nil
 }
 
-// VirtMOrderField defines the ordering field of VirtM.
-type VirtMOrderField struct {
-	// Value extracts the ordering value from the given VirtM.
-	Value    func(*VirtM) (ent.Value, error)
+// VirtualMachineOrderField defines the ordering field of VirtualMachine.
+type VirtualMachineOrderField struct {
+	// Value extracts the ordering value from the given VirtualMachine.
+	Value    func(*VirtualMachine) (ent.Value, error)
 	column   string // field or computed.
-	toTerm   func(...sql.OrderTermOption) virtm.OrderOption
-	toCursor func(*VirtM) Cursor
+	toTerm   func(...sql.OrderTermOption) virtualmachine.OrderOption
+	toCursor func(*VirtualMachine) Cursor
 }
 
-// VirtMOrder defines the ordering of VirtM.
-type VirtMOrder struct {
-	Direction OrderDirection   `json:"direction"`
-	Field     *VirtMOrderField `json:"field"`
+// VirtualMachineOrder defines the ordering of VirtualMachine.
+type VirtualMachineOrder struct {
+	Direction OrderDirection            `json:"direction"`
+	Field     *VirtualMachineOrderField `json:"field"`
 }
 
-// DefaultVirtMOrder is the default ordering of VirtM.
-var DefaultVirtMOrder = &VirtMOrder{
+// DefaultVirtualMachineOrder is the default ordering of VirtualMachine.
+var DefaultVirtualMachineOrder = &VirtualMachineOrder{
 	Direction: entgql.OrderDirectionAsc,
-	Field: &VirtMOrderField{
-		Value: func(v *VirtM) (ent.Value, error) {
-			return v.ID, nil
+	Field: &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.ID, nil
 		},
-		column: virtm.FieldID,
-		toTerm: virtm.ByID,
-		toCursor: func(v *VirtM) Cursor {
-			return Cursor{ID: v.ID}
+		column: virtualmachine.FieldID,
+		toTerm: virtualmachine.ByID,
+		toCursor: func(vm *VirtualMachine) Cursor {
+			return Cursor{ID: vm.ID}
 		},
 	},
 }
 
-// ToEdge converts VirtM into VirtMEdge.
-func (v *VirtM) ToEdge(order *VirtMOrder) *VirtMEdge {
+// ToEdge converts VirtualMachine into VirtualMachineEdge.
+func (vm *VirtualMachine) ToEdge(order *VirtualMachineOrder) *VirtualMachineEdge {
 	if order == nil {
-		order = DefaultVirtMOrder
+		order = DefaultVirtualMachineOrder
 	}
-	return &VirtMEdge{
-		Node:   v,
-		Cursor: order.Field.toCursor(v),
+	return &VirtualMachineEdge{
+		Node:   vm,
+		Cursor: order.Field.toCursor(vm),
 	}
 }

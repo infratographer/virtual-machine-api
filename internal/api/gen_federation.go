@@ -80,21 +80,21 @@ func (ec *executionContext) __resolve_entities(ctx context.Context, representati
 		}()
 
 		switch typeName {
-		case "VirtM":
-			resolverName, err := entityResolverNameForVirtM(ctx, rep)
+		case "VirtualMachine":
+			resolverName, err := entityResolverNameForVirtualMachine(ctx, rep)
 			if err != nil {
-				return fmt.Errorf(`finding resolver for Entity "VirtM": %w`, err)
+				return fmt.Errorf(`finding resolver for Entity "VirtualMachine": %w`, err)
 			}
 			switch resolverName {
 
-			case "findVirtMByID":
+			case "findVirtualMachineByID":
 				id0, err := ec.unmarshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, rep["id"])
 				if err != nil {
-					return fmt.Errorf(`unmarshalling param 0 for findVirtMByID(): %w`, err)
+					return fmt.Errorf(`unmarshalling param 0 for findVirtualMachineByID(): %w`, err)
 				}
-				entity, err := ec.resolvers.Entity().FindVirtMByID(ctx, id0)
+				entity, err := ec.resolvers.Entity().FindVirtualMachineByID(ctx, id0)
 				if err != nil {
-					return fmt.Errorf(`resolving Entity "VirtM": %w`, err)
+					return fmt.Errorf(`resolving Entity "VirtualMachine": %w`, err)
 				}
 
 				list[idx[i]] = entity
@@ -169,7 +169,7 @@ func (ec *executionContext) __resolve_entities(ctx context.Context, representati
 	}
 }
 
-func entityResolverNameForVirtM(ctx context.Context, rep map[string]interface{}) (string, error) {
+func entityResolverNameForVirtualMachine(ctx context.Context, rep map[string]interface{}) (string, error) {
 	for {
 		var (
 			m   map[string]interface{}
@@ -181,7 +181,7 @@ func entityResolverNameForVirtM(ctx context.Context, rep map[string]interface{})
 		if _, ok = m["id"]; !ok {
 			break
 		}
-		return "findVirtMByID", nil
+		return "findVirtualMachineByID", nil
 	}
-	return "", fmt.Errorf("%w for VirtM", ErrTypeNotFound)
+	return "", fmt.Errorf("%w for VirtualMachine", ErrTypeNotFound)
 }

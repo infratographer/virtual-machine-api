@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -87,7 +87,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			virtm.Table: virtm.ValidColumn,
+			virtualmachine.Table: virtualmachine.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

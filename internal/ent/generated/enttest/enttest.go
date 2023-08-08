@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,12 +19,12 @@ package enttest
 import (
 	"context"
 
-	"go.infratographer.com/example-api/internal/ent/generated"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
 	// required by schema hooks.
-	_ "go.infratographer.com/example-api/internal/ent/generated/runtime"
+	_ "go.infratographer.com/virtual-machine-api/internal/ent/generated/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"go.infratographer.com/example-api/internal/ent/generated/migrate"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/migrate"
 )
 
 type (

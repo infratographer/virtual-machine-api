@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,19 +20,19 @@ import (
 	"context"
 	"fmt"
 
-	"go.infratographer.com/example-api/internal/ent/generated"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
 )
 
-// The VirtMFunc type is an adapter to allow the use of ordinary
-// function as VirtM mutator.
-type VirtMFunc func(context.Context, *generated.VirtMMutation) (generated.Value, error)
+// The VirtualMachineFunc type is an adapter to allow the use of ordinary
+// function as VirtualMachine mutator.
+type VirtualMachineFunc func(context.Context, *generated.VirtualMachineMutation) (generated.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f VirtMFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
-	if mv, ok := m.(*generated.VirtMMutation); ok {
+func (f VirtualMachineFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.VirtualMachineMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.VirtMMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.VirtualMachineMutation", m)
 }
 
 // Condition is a hook condition function.

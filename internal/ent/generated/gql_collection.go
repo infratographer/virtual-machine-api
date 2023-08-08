@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,44 +22,44 @@ import (
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/dialect/sql"
 	"github.com/99designs/gqlgen/graphql"
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 )
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (v *VirtMQuery) CollectFields(ctx context.Context, satisfies ...string) (*VirtMQuery, error) {
+func (vm *VirtualMachineQuery) CollectFields(ctx context.Context, satisfies ...string) (*VirtualMachineQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
-		return v, nil
+		return vm, nil
 	}
-	if err := v.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := vm.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
-	return v, nil
+	return vm, nil
 }
 
-func (v *VirtMQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (vm *VirtualMachineQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
-		fieldSeen      = make(map[string]struct{}, len(virtm.Columns))
-		selectedFields = []string{virtm.FieldID}
+		fieldSeen      = make(map[string]struct{}, len(virtualmachine.Columns))
+		selectedFields = []string{virtualmachine.FieldID}
 	)
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
 		case "createdAt":
-			if _, ok := fieldSeen[virtm.FieldCreatedAt]; !ok {
-				selectedFields = append(selectedFields, virtm.FieldCreatedAt)
-				fieldSeen[virtm.FieldCreatedAt] = struct{}{}
+			if _, ok := fieldSeen[virtualmachine.FieldCreatedAt]; !ok {
+				selectedFields = append(selectedFields, virtualmachine.FieldCreatedAt)
+				fieldSeen[virtualmachine.FieldCreatedAt] = struct{}{}
 			}
 		case "updatedAt":
-			if _, ok := fieldSeen[virtm.FieldUpdatedAt]; !ok {
-				selectedFields = append(selectedFields, virtm.FieldUpdatedAt)
-				fieldSeen[virtm.FieldUpdatedAt] = struct{}{}
+			if _, ok := fieldSeen[virtualmachine.FieldUpdatedAt]; !ok {
+				selectedFields = append(selectedFields, virtualmachine.FieldUpdatedAt)
+				fieldSeen[virtualmachine.FieldUpdatedAt] = struct{}{}
 			}
-		case "hostname":
-			if _, ok := fieldSeen[virtm.FieldHostname]; !ok {
-				selectedFields = append(selectedFields, virtm.FieldHostname)
-				fieldSeen[virtm.FieldHostname] = struct{}{}
+		case "name":
+			if _, ok := fieldSeen[virtualmachine.FieldName]; !ok {
+				selectedFields = append(selectedFields, virtualmachine.FieldName)
+				fieldSeen[virtualmachine.FieldName] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -68,19 +68,19 @@ func (v *VirtMQuery) collectField(ctx context.Context, opCtx *graphql.OperationC
 		}
 	}
 	if !unknownSeen {
-		v.Select(selectedFields...)
+		vm.Select(selectedFields...)
 	}
 	return nil
 }
 
-type virtmPaginateArgs struct {
+type virtualmachinePaginateArgs struct {
 	first, last   *int
 	after, before *Cursor
-	opts          []VirtMPaginateOption
+	opts          []VirtualMachinePaginateOption
 }
 
-func newVirtMPaginateArgs(rv map[string]any) *virtmPaginateArgs {
-	args := &virtmPaginateArgs{}
+func newVirtualMachinePaginateArgs(rv map[string]any) *virtualmachinePaginateArgs {
+	args := &virtualmachinePaginateArgs{}
 	if rv == nil {
 		return args
 	}
@@ -101,7 +101,7 @@ func newVirtMPaginateArgs(rv map[string]any) *virtmPaginateArgs {
 		case map[string]any:
 			var (
 				err1, err2 error
-				order      = &VirtMOrder{Field: &VirtMOrderField{}, Direction: entgql.OrderDirectionAsc}
+				order      = &VirtualMachineOrder{Field: &VirtualMachineOrderField{}, Direction: entgql.OrderDirectionAsc}
 			)
 			if d, ok := v[directionField]; ok {
 				err1 = order.Direction.UnmarshalGQL(d)
@@ -110,16 +110,16 @@ func newVirtMPaginateArgs(rv map[string]any) *virtmPaginateArgs {
 				err2 = order.Field.UnmarshalGQL(f)
 			}
 			if err1 == nil && err2 == nil {
-				args.opts = append(args.opts, WithVirtMOrder(order))
+				args.opts = append(args.opts, WithVirtualMachineOrder(order))
 			}
-		case *VirtMOrder:
+		case *VirtualMachineOrder:
 			if v != nil {
-				args.opts = append(args.opts, WithVirtMOrder(v))
+				args.opts = append(args.opts, WithVirtualMachineOrder(v))
 			}
 		}
 	}
-	if v, ok := rv[whereField].(*VirtMWhereInput); ok {
-		args.opts = append(args.opts, WithVirtMFilter(v.Filter))
+	if v, ok := rv[whereField].(*VirtualMachineWhereInput); ok {
+		args.opts = append(args.opts, WithVirtualMachineFilter(v.Filter))
 	}
 	return args
 }

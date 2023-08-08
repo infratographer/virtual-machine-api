@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,17 +21,17 @@ import (
 	"fmt"
 	"time"
 
-	"go.infratographer.com/example-api/internal/ent/generated/predicate"
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/x/gidx"
 )
 
-// VirtMWhereInput represents a where input for filtering VirtM queries.
-type VirtMWhereInput struct {
-	Predicates []predicate.VirtM  `json:"-"`
-	Not        *VirtMWhereInput   `json:"not,omitempty"`
-	Or         []*VirtMWhereInput `json:"or,omitempty"`
-	And        []*VirtMWhereInput `json:"and,omitempty"`
+// VirtualMachineWhereInput represents a where input for filtering VirtualMachine queries.
+type VirtualMachineWhereInput struct {
+	Predicates []predicate.VirtualMachine  `json:"-"`
+	Not        *VirtualMachineWhereInput   `json:"not,omitempty"`
+	Or         []*VirtualMachineWhereInput `json:"or,omitempty"`
+	And        []*VirtualMachineWhereInput `json:"and,omitempty"`
 
 	// "id" field predicates.
 	ID      *gidx.PrefixedID  `json:"id,omitempty"`
@@ -63,35 +63,35 @@ type VirtMWhereInput struct {
 	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
 	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
 
-	// "hostname" field predicates.
-	Hostname             *string  `json:"hostname,omitempty"`
-	HostnameNEQ          *string  `json:"hostnameNEQ,omitempty"`
-	HostnameIn           []string `json:"hostnameIn,omitempty"`
-	HostnameNotIn        []string `json:"hostnameNotIn,omitempty"`
-	HostnameGT           *string  `json:"hostnameGT,omitempty"`
-	HostnameGTE          *string  `json:"hostnameGTE,omitempty"`
-	HostnameLT           *string  `json:"hostnameLT,omitempty"`
-	HostnameLTE          *string  `json:"hostnameLTE,omitempty"`
-	HostnameContains     *string  `json:"hostnameContains,omitempty"`
-	HostnameHasPrefix    *string  `json:"hostnameHasPrefix,omitempty"`
-	HostnameHasSuffix    *string  `json:"hostnameHasSuffix,omitempty"`
-	HostnameEqualFold    *string  `json:"hostnameEqualFold,omitempty"`
-	HostnameContainsFold *string  `json:"hostnameContainsFold,omitempty"`
+	// "name" field predicates.
+	Name             *string  `json:"name,omitempty"`
+	NameNEQ          *string  `json:"nameNEQ,omitempty"`
+	NameIn           []string `json:"nameIn,omitempty"`
+	NameNotIn        []string `json:"nameNotIn,omitempty"`
+	NameGT           *string  `json:"nameGT,omitempty"`
+	NameGTE          *string  `json:"nameGTE,omitempty"`
+	NameLT           *string  `json:"nameLT,omitempty"`
+	NameLTE          *string  `json:"nameLTE,omitempty"`
+	NameContains     *string  `json:"nameContains,omitempty"`
+	NameHasPrefix    *string  `json:"nameHasPrefix,omitempty"`
+	NameHasSuffix    *string  `json:"nameHasSuffix,omitempty"`
+	NameEqualFold    *string  `json:"nameEqualFold,omitempty"`
+	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
-func (i *VirtMWhereInput) AddPredicates(predicates ...predicate.VirtM) {
+func (i *VirtualMachineWhereInput) AddPredicates(predicates ...predicate.VirtualMachine) {
 	i.Predicates = append(i.Predicates, predicates...)
 }
 
-// Filter applies the VirtMWhereInput filter on the VirtMQuery builder.
-func (i *VirtMWhereInput) Filter(q *VirtMQuery) (*VirtMQuery, error) {
+// Filter applies the VirtualMachineWhereInput filter on the VirtualMachineQuery builder.
+func (i *VirtualMachineWhereInput) Filter(q *VirtualMachineQuery) (*VirtualMachineQuery, error) {
 	if i == nil {
 		return q, nil
 	}
 	p, err := i.P()
 	if err != nil {
-		if err == ErrEmptyVirtMWhereInput {
+		if err == ErrEmptyVirtualMachineWhereInput {
 			return q, nil
 		}
 		return nil, err
@@ -99,19 +99,19 @@ func (i *VirtMWhereInput) Filter(q *VirtMQuery) (*VirtMQuery, error) {
 	return q.Where(p), nil
 }
 
-// ErrEmptyVirtMWhereInput is returned in case the VirtMWhereInput is empty.
-var ErrEmptyVirtMWhereInput = errors.New("generated: empty predicate VirtMWhereInput")
+// ErrEmptyVirtualMachineWhereInput is returned in case the VirtualMachineWhereInput is empty.
+var ErrEmptyVirtualMachineWhereInput = errors.New("generated: empty predicate VirtualMachineWhereInput")
 
-// P returns a predicate for filtering virtms.
+// P returns a predicate for filtering virtualmachines.
 // An error is returned if the input is empty or invalid.
-func (i *VirtMWhereInput) P() (predicate.VirtM, error) {
-	var predicates []predicate.VirtM
+func (i *VirtualMachineWhereInput) P() (predicate.VirtualMachine, error) {
+	var predicates []predicate.VirtualMachine
 	if i.Not != nil {
 		p, err := i.Not.P()
 		if err != nil {
 			return nil, fmt.Errorf("%w: field 'not'", err)
 		}
-		predicates = append(predicates, virtm.Not(p))
+		predicates = append(predicates, virtualmachine.Not(p))
 	}
 	switch n := len(i.Or); {
 	case n == 1:
@@ -121,7 +121,7 @@ func (i *VirtMWhereInput) P() (predicate.VirtM, error) {
 		}
 		predicates = append(predicates, p)
 	case n > 1:
-		or := make([]predicate.VirtM, 0, n)
+		or := make([]predicate.VirtualMachine, 0, n)
 		for _, w := range i.Or {
 			p, err := w.P()
 			if err != nil {
@@ -129,7 +129,7 @@ func (i *VirtMWhereInput) P() (predicate.VirtM, error) {
 			}
 			or = append(or, p)
 		}
-		predicates = append(predicates, virtm.Or(or...))
+		predicates = append(predicates, virtualmachine.Or(or...))
 	}
 	switch n := len(i.And); {
 	case n == 1:
@@ -139,7 +139,7 @@ func (i *VirtMWhereInput) P() (predicate.VirtM, error) {
 		}
 		predicates = append(predicates, p)
 	case n > 1:
-		and := make([]predicate.VirtM, 0, n)
+		and := make([]predicate.VirtualMachine, 0, n)
 		for _, w := range i.And {
 			p, err := w.P()
 			if err != nil {
@@ -147,127 +147,127 @@ func (i *VirtMWhereInput) P() (predicate.VirtM, error) {
 			}
 			and = append(and, p)
 		}
-		predicates = append(predicates, virtm.And(and...))
+		predicates = append(predicates, virtualmachine.And(and...))
 	}
 	predicates = append(predicates, i.Predicates...)
 	if i.ID != nil {
-		predicates = append(predicates, virtm.IDEQ(*i.ID))
+		predicates = append(predicates, virtualmachine.IDEQ(*i.ID))
 	}
 	if i.IDNEQ != nil {
-		predicates = append(predicates, virtm.IDNEQ(*i.IDNEQ))
+		predicates = append(predicates, virtualmachine.IDNEQ(*i.IDNEQ))
 	}
 	if len(i.IDIn) > 0 {
-		predicates = append(predicates, virtm.IDIn(i.IDIn...))
+		predicates = append(predicates, virtualmachine.IDIn(i.IDIn...))
 	}
 	if len(i.IDNotIn) > 0 {
-		predicates = append(predicates, virtm.IDNotIn(i.IDNotIn...))
+		predicates = append(predicates, virtualmachine.IDNotIn(i.IDNotIn...))
 	}
 	if i.IDGT != nil {
-		predicates = append(predicates, virtm.IDGT(*i.IDGT))
+		predicates = append(predicates, virtualmachine.IDGT(*i.IDGT))
 	}
 	if i.IDGTE != nil {
-		predicates = append(predicates, virtm.IDGTE(*i.IDGTE))
+		predicates = append(predicates, virtualmachine.IDGTE(*i.IDGTE))
 	}
 	if i.IDLT != nil {
-		predicates = append(predicates, virtm.IDLT(*i.IDLT))
+		predicates = append(predicates, virtualmachine.IDLT(*i.IDLT))
 	}
 	if i.IDLTE != nil {
-		predicates = append(predicates, virtm.IDLTE(*i.IDLTE))
+		predicates = append(predicates, virtualmachine.IDLTE(*i.IDLTE))
 	}
 	if i.CreatedAt != nil {
-		predicates = append(predicates, virtm.CreatedAtEQ(*i.CreatedAt))
+		predicates = append(predicates, virtualmachine.CreatedAtEQ(*i.CreatedAt))
 	}
 	if i.CreatedAtNEQ != nil {
-		predicates = append(predicates, virtm.CreatedAtNEQ(*i.CreatedAtNEQ))
+		predicates = append(predicates, virtualmachine.CreatedAtNEQ(*i.CreatedAtNEQ))
 	}
 	if len(i.CreatedAtIn) > 0 {
-		predicates = append(predicates, virtm.CreatedAtIn(i.CreatedAtIn...))
+		predicates = append(predicates, virtualmachine.CreatedAtIn(i.CreatedAtIn...))
 	}
 	if len(i.CreatedAtNotIn) > 0 {
-		predicates = append(predicates, virtm.CreatedAtNotIn(i.CreatedAtNotIn...))
+		predicates = append(predicates, virtualmachine.CreatedAtNotIn(i.CreatedAtNotIn...))
 	}
 	if i.CreatedAtGT != nil {
-		predicates = append(predicates, virtm.CreatedAtGT(*i.CreatedAtGT))
+		predicates = append(predicates, virtualmachine.CreatedAtGT(*i.CreatedAtGT))
 	}
 	if i.CreatedAtGTE != nil {
-		predicates = append(predicates, virtm.CreatedAtGTE(*i.CreatedAtGTE))
+		predicates = append(predicates, virtualmachine.CreatedAtGTE(*i.CreatedAtGTE))
 	}
 	if i.CreatedAtLT != nil {
-		predicates = append(predicates, virtm.CreatedAtLT(*i.CreatedAtLT))
+		predicates = append(predicates, virtualmachine.CreatedAtLT(*i.CreatedAtLT))
 	}
 	if i.CreatedAtLTE != nil {
-		predicates = append(predicates, virtm.CreatedAtLTE(*i.CreatedAtLTE))
+		predicates = append(predicates, virtualmachine.CreatedAtLTE(*i.CreatedAtLTE))
 	}
 	if i.UpdatedAt != nil {
-		predicates = append(predicates, virtm.UpdatedAtEQ(*i.UpdatedAt))
+		predicates = append(predicates, virtualmachine.UpdatedAtEQ(*i.UpdatedAt))
 	}
 	if i.UpdatedAtNEQ != nil {
-		predicates = append(predicates, virtm.UpdatedAtNEQ(*i.UpdatedAtNEQ))
+		predicates = append(predicates, virtualmachine.UpdatedAtNEQ(*i.UpdatedAtNEQ))
 	}
 	if len(i.UpdatedAtIn) > 0 {
-		predicates = append(predicates, virtm.UpdatedAtIn(i.UpdatedAtIn...))
+		predicates = append(predicates, virtualmachine.UpdatedAtIn(i.UpdatedAtIn...))
 	}
 	if len(i.UpdatedAtNotIn) > 0 {
-		predicates = append(predicates, virtm.UpdatedAtNotIn(i.UpdatedAtNotIn...))
+		predicates = append(predicates, virtualmachine.UpdatedAtNotIn(i.UpdatedAtNotIn...))
 	}
 	if i.UpdatedAtGT != nil {
-		predicates = append(predicates, virtm.UpdatedAtGT(*i.UpdatedAtGT))
+		predicates = append(predicates, virtualmachine.UpdatedAtGT(*i.UpdatedAtGT))
 	}
 	if i.UpdatedAtGTE != nil {
-		predicates = append(predicates, virtm.UpdatedAtGTE(*i.UpdatedAtGTE))
+		predicates = append(predicates, virtualmachine.UpdatedAtGTE(*i.UpdatedAtGTE))
 	}
 	if i.UpdatedAtLT != nil {
-		predicates = append(predicates, virtm.UpdatedAtLT(*i.UpdatedAtLT))
+		predicates = append(predicates, virtualmachine.UpdatedAtLT(*i.UpdatedAtLT))
 	}
 	if i.UpdatedAtLTE != nil {
-		predicates = append(predicates, virtm.UpdatedAtLTE(*i.UpdatedAtLTE))
+		predicates = append(predicates, virtualmachine.UpdatedAtLTE(*i.UpdatedAtLTE))
 	}
-	if i.Hostname != nil {
-		predicates = append(predicates, virtm.HostnameEQ(*i.Hostname))
+	if i.Name != nil {
+		predicates = append(predicates, virtualmachine.NameEQ(*i.Name))
 	}
-	if i.HostnameNEQ != nil {
-		predicates = append(predicates, virtm.HostnameNEQ(*i.HostnameNEQ))
+	if i.NameNEQ != nil {
+		predicates = append(predicates, virtualmachine.NameNEQ(*i.NameNEQ))
 	}
-	if len(i.HostnameIn) > 0 {
-		predicates = append(predicates, virtm.HostnameIn(i.HostnameIn...))
+	if len(i.NameIn) > 0 {
+		predicates = append(predicates, virtualmachine.NameIn(i.NameIn...))
 	}
-	if len(i.HostnameNotIn) > 0 {
-		predicates = append(predicates, virtm.HostnameNotIn(i.HostnameNotIn...))
+	if len(i.NameNotIn) > 0 {
+		predicates = append(predicates, virtualmachine.NameNotIn(i.NameNotIn...))
 	}
-	if i.HostnameGT != nil {
-		predicates = append(predicates, virtm.HostnameGT(*i.HostnameGT))
+	if i.NameGT != nil {
+		predicates = append(predicates, virtualmachine.NameGT(*i.NameGT))
 	}
-	if i.HostnameGTE != nil {
-		predicates = append(predicates, virtm.HostnameGTE(*i.HostnameGTE))
+	if i.NameGTE != nil {
+		predicates = append(predicates, virtualmachine.NameGTE(*i.NameGTE))
 	}
-	if i.HostnameLT != nil {
-		predicates = append(predicates, virtm.HostnameLT(*i.HostnameLT))
+	if i.NameLT != nil {
+		predicates = append(predicates, virtualmachine.NameLT(*i.NameLT))
 	}
-	if i.HostnameLTE != nil {
-		predicates = append(predicates, virtm.HostnameLTE(*i.HostnameLTE))
+	if i.NameLTE != nil {
+		predicates = append(predicates, virtualmachine.NameLTE(*i.NameLTE))
 	}
-	if i.HostnameContains != nil {
-		predicates = append(predicates, virtm.HostnameContains(*i.HostnameContains))
+	if i.NameContains != nil {
+		predicates = append(predicates, virtualmachine.NameContains(*i.NameContains))
 	}
-	if i.HostnameHasPrefix != nil {
-		predicates = append(predicates, virtm.HostnameHasPrefix(*i.HostnameHasPrefix))
+	if i.NameHasPrefix != nil {
+		predicates = append(predicates, virtualmachine.NameHasPrefix(*i.NameHasPrefix))
 	}
-	if i.HostnameHasSuffix != nil {
-		predicates = append(predicates, virtm.HostnameHasSuffix(*i.HostnameHasSuffix))
+	if i.NameHasSuffix != nil {
+		predicates = append(predicates, virtualmachine.NameHasSuffix(*i.NameHasSuffix))
 	}
-	if i.HostnameEqualFold != nil {
-		predicates = append(predicates, virtm.HostnameEqualFold(*i.HostnameEqualFold))
+	if i.NameEqualFold != nil {
+		predicates = append(predicates, virtualmachine.NameEqualFold(*i.NameEqualFold))
 	}
-	if i.HostnameContainsFold != nil {
-		predicates = append(predicates, virtm.HostnameContainsFold(*i.HostnameContainsFold))
+	if i.NameContainsFold != nil {
+		predicates = append(predicates, virtualmachine.NameContainsFold(*i.NameContainsFold))
 	}
 
 	switch len(predicates) {
 	case 0:
-		return nil, ErrEmptyVirtMWhereInput
+		return nil, ErrEmptyVirtualMachineWhereInput
 	case 1:
 		return predicates[0], nil
 	default:
-		return virtm.And(predicates...), nil
+		return virtualmachine.And(predicates...), nil
 	}
 }

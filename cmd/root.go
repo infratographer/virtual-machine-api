@@ -10,17 +10,19 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.infratographer.com/x/crdbx"
+	"go.infratographer.com/x/goosex"
 	"go.infratographer.com/x/loggingx"
 	"go.infratographer.com/x/otelx"
 	"go.infratographer.com/x/versionx"
 	"go.infratographer.com/x/viperx"
 	"go.uber.org/zap"
 
-	"go.infratographer.com/example-api/internal/config"
+	dbm "go.infratographer.com/virtual-machine-api/db"
+	"go.infratographer.com/virtual-machine-api/internal/config"
 )
 
 // TODO: update app name
-const appName = "example-api"
+const appName = "virtual-machine-api"
 
 var (
 	cfgFile string
@@ -30,7 +32,7 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   appName,
-	Short: "An example graph api for todo items",
+	Short: "Virtual Machine creation frontend API",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -45,18 +47,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/."+appName+".yaml)")
 	viperx.MustBindFlag(viper.GetViper(), "config", rootCmd.PersistentFlags().Lookup("config"))
 
-	rootCmd.PersistentFlags().String("nats-url", "nats://nats:4222", "NATS server connection url")
-	viperx.MustBindFlag(viper.GetViper(), "nats.url", rootCmd.PersistentFlags().Lookup("nats-url"))
-
-	rootCmd.PersistentFlags().String("nats-creds-file", "", "Path to the file containing the NATS nkey keypair")
-	viperx.MustBindFlag(viper.GetViper(), "nats.creds-file", rootCmd.PersistentFlags().Lookup("nats-creds-file"))
-
-	rootCmd.PersistentFlags().String("nats-subject-prefix", "com.infratographer.events", "prefix for NATS subjects")
-	viperx.MustBindFlag(viper.GetViper(), "nats.subject-prefix", rootCmd.PersistentFlags().Lookup("nats-subject-prefix"))
-
-	rootCmd.PersistentFlags().String("nats-stream-name", "example-api", "nats stream name")
-	viperx.MustBindFlag(viper.GetViper(), "nats.stream-name", rootCmd.PersistentFlags().Lookup("nats-stream-name"))
-
 	// Logging flags
 	loggingx.MustViperFlags(viper.GetViper(), rootCmd.PersistentFlags())
 
@@ -64,6 +54,13 @@ func init() {
 	versionx.RegisterCobraCommand(rootCmd, func() { versionx.PrintVersion(logger) })
 	otelx.MustViperFlags(viper.GetViper(), rootCmd.Flags())
 	crdbx.MustViperFlags(viper.GetViper(), rootCmd.Flags())
+
+	// Setup migrate command
+	goosex.RegisterCobraCommand(rootCmd, func() {
+		goosex.SetBaseFS(dbm.Migrations)
+		goosex.SetDBURI(config.AppConfig.CRDB.URI)
+		goosex.SetLogger(logger)
+	})
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -82,7 +79,7 @@ func initConfig() {
 	}
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
-	viper.SetEnvPrefix("exampleapi")
+	viper.SetEnvPrefix("virtualmachineapi")
 
 	viper.AutomaticEnv() // read in environment variables that match
 

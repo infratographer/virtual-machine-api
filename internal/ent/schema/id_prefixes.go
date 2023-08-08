@@ -1,6 +1,6 @@
 package schema
 
 const (
-	ApplicationPrefix = "vm"
-	VirtMPrefix       = ApplicationPrefix + "aas"
+	ApplicationPrefix    = "virt"
+	VirtualMachinePrefix = ApplicationPrefix + "mac"
 )

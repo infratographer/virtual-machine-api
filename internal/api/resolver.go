@@ -9,7 +9,7 @@ import (
 	"github.com/wundergraph/graphql-go-tools/pkg/playground"
 	"go.uber.org/zap"
 
-	ent "go.infratographer.com/example-api/internal/ent/generated"
+	ent "go.infratographer.com/virtual-machine-api/internal/ent/generated"
 )
 
 // This file will not be regenerated automatically.

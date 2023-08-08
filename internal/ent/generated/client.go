@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,13 +22,13 @@ import (
 	"fmt"
 	"log"
 
-	"go.infratographer.com/example-api/internal/ent/generated/migrate"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/migrate"
 	"go.infratographer.com/x/gidx"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 )
 
 // Client is the client that holds all ent builders.
@@ -36,8 +36,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// VirtM is the client for interacting with the VirtM builders.
-	VirtM *VirtMClient
+	// VirtualMachine is the client for interacting with the VirtualMachine builders.
+	VirtualMachine *VirtualMachineClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -51,7 +51,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.VirtM = NewVirtMClient(c.config)
+	c.VirtualMachine = NewVirtualMachineClient(c.config)
 }
 
 type (
@@ -132,9 +132,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		VirtM:  NewVirtMClient(cfg),
+		ctx:            ctx,
+		config:         cfg,
+		VirtualMachine: NewVirtualMachineClient(cfg),
 	}, nil
 }
 
@@ -152,16 +152,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		VirtM:  NewVirtMClient(cfg),
+		ctx:            ctx,
+		config:         cfg,
+		VirtualMachine: NewVirtualMachineClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		VirtM.
+//		VirtualMachine.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -183,111 +183,111 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.VirtM.Use(hooks...)
+	c.VirtualMachine.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.VirtM.Intercept(interceptors...)
+	c.VirtualMachine.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *VirtMMutation:
-		return c.VirtM.mutate(ctx, m)
+	case *VirtualMachineMutation:
+		return c.VirtualMachine.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("generated: unknown mutation type %T", m)
 	}
 }
 
-// VirtMClient is a client for the VirtM schema.
-type VirtMClient struct {
+// VirtualMachineClient is a client for the VirtualMachine schema.
+type VirtualMachineClient struct {
 	config
 }
 
-// NewVirtMClient returns a client for the VirtM from the given config.
-func NewVirtMClient(c config) *VirtMClient {
-	return &VirtMClient{config: c}
+// NewVirtualMachineClient returns a client for the VirtualMachine from the given config.
+func NewVirtualMachineClient(c config) *VirtualMachineClient {
+	return &VirtualMachineClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `virtm.Hooks(f(g(h())))`.
-func (c *VirtMClient) Use(hooks ...Hook) {
-	c.hooks.VirtM = append(c.hooks.VirtM, hooks...)
+// A call to `Use(f, g, h)` equals to `virtualmachine.Hooks(f(g(h())))`.
+func (c *VirtualMachineClient) Use(hooks ...Hook) {
+	c.hooks.VirtualMachine = append(c.hooks.VirtualMachine, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `virtm.Intercept(f(g(h())))`.
-func (c *VirtMClient) Intercept(interceptors ...Interceptor) {
-	c.inters.VirtM = append(c.inters.VirtM, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `virtualmachine.Intercept(f(g(h())))`.
+func (c *VirtualMachineClient) Intercept(interceptors ...Interceptor) {
+	c.inters.VirtualMachine = append(c.inters.VirtualMachine, interceptors...)
 }
 
-// Create returns a builder for creating a VirtM entity.
-func (c *VirtMClient) Create() *VirtMCreate {
-	mutation := newVirtMMutation(c.config, OpCreate)
-	return &VirtMCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a VirtualMachine entity.
+func (c *VirtualMachineClient) Create() *VirtualMachineCreate {
+	mutation := newVirtualMachineMutation(c.config, OpCreate)
+	return &VirtualMachineCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of VirtM entities.
-func (c *VirtMClient) CreateBulk(builders ...*VirtMCreate) *VirtMCreateBulk {
-	return &VirtMCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of VirtualMachine entities.
+func (c *VirtualMachineClient) CreateBulk(builders ...*VirtualMachineCreate) *VirtualMachineCreateBulk {
+	return &VirtualMachineCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for VirtM.
-func (c *VirtMClient) Update() *VirtMUpdate {
-	mutation := newVirtMMutation(c.config, OpUpdate)
-	return &VirtMUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for VirtualMachine.
+func (c *VirtualMachineClient) Update() *VirtualMachineUpdate {
+	mutation := newVirtualMachineMutation(c.config, OpUpdate)
+	return &VirtualMachineUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *VirtMClient) UpdateOne(v *VirtM) *VirtMUpdateOne {
-	mutation := newVirtMMutation(c.config, OpUpdateOne, withVirtM(v))
-	return &VirtMUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *VirtualMachineClient) UpdateOne(vm *VirtualMachine) *VirtualMachineUpdateOne {
+	mutation := newVirtualMachineMutation(c.config, OpUpdateOne, withVirtualMachine(vm))
+	return &VirtualMachineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *VirtMClient) UpdateOneID(id gidx.PrefixedID) *VirtMUpdateOne {
-	mutation := newVirtMMutation(c.config, OpUpdateOne, withVirtMID(id))
-	return &VirtMUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *VirtualMachineClient) UpdateOneID(id gidx.PrefixedID) *VirtualMachineUpdateOne {
+	mutation := newVirtualMachineMutation(c.config, OpUpdateOne, withVirtualMachineID(id))
+	return &VirtualMachineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for VirtM.
-func (c *VirtMClient) Delete() *VirtMDelete {
-	mutation := newVirtMMutation(c.config, OpDelete)
-	return &VirtMDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for VirtualMachine.
+func (c *VirtualMachineClient) Delete() *VirtualMachineDelete {
+	mutation := newVirtualMachineMutation(c.config, OpDelete)
+	return &VirtualMachineDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *VirtMClient) DeleteOne(v *VirtM) *VirtMDeleteOne {
-	return c.DeleteOneID(v.ID)
+func (c *VirtualMachineClient) DeleteOne(vm *VirtualMachine) *VirtualMachineDeleteOne {
+	return c.DeleteOneID(vm.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *VirtMClient) DeleteOneID(id gidx.PrefixedID) *VirtMDeleteOne {
-	builder := c.Delete().Where(virtm.ID(id))
+func (c *VirtualMachineClient) DeleteOneID(id gidx.PrefixedID) *VirtualMachineDeleteOne {
+	builder := c.Delete().Where(virtualmachine.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &VirtMDeleteOne{builder}
+	return &VirtualMachineDeleteOne{builder}
 }
 
-// Query returns a query builder for VirtM.
-func (c *VirtMClient) Query() *VirtMQuery {
-	return &VirtMQuery{
+// Query returns a query builder for VirtualMachine.
+func (c *VirtualMachineClient) Query() *VirtualMachineQuery {
+	return &VirtualMachineQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeVirtM},
+		ctx:    &QueryContext{Type: TypeVirtualMachine},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a VirtM entity by its id.
-func (c *VirtMClient) Get(ctx context.Context, id gidx.PrefixedID) (*VirtM, error) {
-	return c.Query().Where(virtm.ID(id)).Only(ctx)
+// Get returns a VirtualMachine entity by its id.
+func (c *VirtualMachineClient) Get(ctx context.Context, id gidx.PrefixedID) (*VirtualMachine, error) {
+	return c.Query().Where(virtualmachine.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *VirtMClient) GetX(ctx context.Context, id gidx.PrefixedID) *VirtM {
+func (c *VirtualMachineClient) GetX(ctx context.Context, id gidx.PrefixedID) *VirtualMachine {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -296,36 +296,36 @@ func (c *VirtMClient) GetX(ctx context.Context, id gidx.PrefixedID) *VirtM {
 }
 
 // Hooks returns the client hooks.
-func (c *VirtMClient) Hooks() []Hook {
-	return c.hooks.VirtM
+func (c *VirtualMachineClient) Hooks() []Hook {
+	return c.hooks.VirtualMachine
 }
 
 // Interceptors returns the client interceptors.
-func (c *VirtMClient) Interceptors() []Interceptor {
-	return c.inters.VirtM
+func (c *VirtualMachineClient) Interceptors() []Interceptor {
+	return c.inters.VirtualMachine
 }
 
-func (c *VirtMClient) mutate(ctx context.Context, m *VirtMMutation) (Value, error) {
+func (c *VirtualMachineClient) mutate(ctx context.Context, m *VirtualMachineMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&VirtMCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&VirtualMachineCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&VirtMUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&VirtualMachineUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&VirtMUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&VirtualMachineUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&VirtMDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&VirtualMachineDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("generated: unknown VirtM mutation op: %q", m.Op())
+		return nil, fmt.Errorf("generated: unknown VirtualMachine mutation op: %q", m.Op())
 	}
 }
 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		VirtM []ent.Hook
+		VirtualMachine []ent.Hook
 	}
 	inters struct {
-		VirtM []ent.Interceptor
+		VirtualMachine []ent.Interceptor
 	}
 )

@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,8 @@ package generated
 import (
 	"time"
 
-	"go.infratographer.com/example-api/internal/ent/generated/virtm"
-	"go.infratographer.com/example-api/internal/ent/schema"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/schema"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -28,27 +28,27 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	virtmMixin := schema.VirtM{}.Mixin()
-	virtmMixinFields0 := virtmMixin[0].Fields()
-	_ = virtmMixinFields0
-	virtmFields := schema.VirtM{}.Fields()
-	_ = virtmFields
-	// virtmDescCreatedAt is the schema descriptor for created_at field.
-	virtmDescCreatedAt := virtmMixinFields0[0].Descriptor()
-	// virtm.DefaultCreatedAt holds the default value on creation for the created_at field.
-	virtm.DefaultCreatedAt = virtmDescCreatedAt.Default.(func() time.Time)
-	// virtmDescUpdatedAt is the schema descriptor for updated_at field.
-	virtmDescUpdatedAt := virtmMixinFields0[1].Descriptor()
-	// virtm.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	virtm.DefaultUpdatedAt = virtmDescUpdatedAt.Default.(func() time.Time)
-	// virtm.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	virtm.UpdateDefaultUpdatedAt = virtmDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// virtmDescHostname is the schema descriptor for hostname field.
-	virtmDescHostname := virtmFields[1].Descriptor()
-	// virtm.HostnameValidator is a validator for the "hostname" field. It is called by the builders before save.
-	virtm.HostnameValidator = virtmDescHostname.Validators[0].(func(string) error)
-	// virtmDescID is the schema descriptor for id field.
-	virtmDescID := virtmFields[0].Descriptor()
-	// virtm.DefaultID holds the default value on creation for the id field.
-	virtm.DefaultID = virtmDescID.Default.(func() gidx.PrefixedID)
+	virtualmachineMixin := schema.VirtualMachine{}.Mixin()
+	virtualmachineMixinFields0 := virtualmachineMixin[0].Fields()
+	_ = virtualmachineMixinFields0
+	virtualmachineFields := schema.VirtualMachine{}.Fields()
+	_ = virtualmachineFields
+	// virtualmachineDescCreatedAt is the schema descriptor for created_at field.
+	virtualmachineDescCreatedAt := virtualmachineMixinFields0[0].Descriptor()
+	// virtualmachine.DefaultCreatedAt holds the default value on creation for the created_at field.
+	virtualmachine.DefaultCreatedAt = virtualmachineDescCreatedAt.Default.(func() time.Time)
+	// virtualmachineDescUpdatedAt is the schema descriptor for updated_at field.
+	virtualmachineDescUpdatedAt := virtualmachineMixinFields0[1].Descriptor()
+	// virtualmachine.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	virtualmachine.DefaultUpdatedAt = virtualmachineDescUpdatedAt.Default.(func() time.Time)
+	// virtualmachine.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	virtualmachine.UpdateDefaultUpdatedAt = virtualmachineDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// virtualmachineDescName is the schema descriptor for name field.
+	virtualmachineDescName := virtualmachineFields[1].Descriptor()
+	// virtualmachine.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	virtualmachine.NameValidator = virtualmachineDescName.Validators[0].(func(string) error)
+	// virtualmachineDescID is the schema descriptor for id field.
+	virtualmachineDescID := virtualmachineFields[0].Descriptor()
+	// virtualmachine.DefaultID holds the default value on creation for the id field.
+	virtualmachine.DefaultID = virtualmachineDescID.Default.(func() gidx.PrefixedID)
 }

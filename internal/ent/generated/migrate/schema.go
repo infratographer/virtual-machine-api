@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,39 +22,39 @@ import (
 )
 
 var (
-	// VirtMsColumns holds the columns for the "virt_ms" table.
-	VirtMsColumns = []*schema.Column{
+	// VirtualMachinesColumns holds the columns for the "virtual_machines" table.
+	VirtualMachinesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "hostname", Type: field.TypeString, Size: 2147483647},
+		{Name: "name", Type: field.TypeString, Size: 2147483647},
 	}
-	// VirtMsTable holds the schema information for the "virt_ms" table.
-	VirtMsTable = &schema.Table{
-		Name:       "virt_ms",
-		Columns:    VirtMsColumns,
-		PrimaryKey: []*schema.Column{VirtMsColumns[0]},
+	// VirtualMachinesTable holds the schema information for the "virtual_machines" table.
+	VirtualMachinesTable = &schema.Table{
+		Name:       "virtual_machines",
+		Columns:    VirtualMachinesColumns,
+		PrimaryKey: []*schema.Column{VirtualMachinesColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "virtm_created_at",
+				Name:    "virtualmachine_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{VirtMsColumns[1]},
+				Columns: []*schema.Column{VirtualMachinesColumns[1]},
 			},
 			{
-				Name:    "virtm_updated_at",
+				Name:    "virtualmachine_updated_at",
 				Unique:  false,
-				Columns: []*schema.Column{VirtMsColumns[2]},
+				Columns: []*schema.Column{VirtualMachinesColumns[2]},
 			},
 			{
-				Name:    "virtm_hostname",
+				Name:    "virtualmachine_name",
 				Unique:  false,
-				Columns: []*schema.Column{VirtMsColumns[3]},
+				Columns: []*schema.Column{VirtualMachinesColumns[3]},
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		VirtMsTable,
+		VirtualMachinesTable,
 	}
 )
 

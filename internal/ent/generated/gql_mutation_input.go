@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// 	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,42 +16,42 @@
 
 package generated
 
-// CreateVirtMInput represents a mutation input for creating virtms.
-type CreateVirtMInput struct {
-	Hostname string
+// CreateVirtualMachineInput represents a mutation input for creating virtualmachines.
+type CreateVirtualMachineInput struct {
+	Name string
 }
 
-// Mutate applies the CreateVirtMInput on the VirtMMutation builder.
-func (i *CreateVirtMInput) Mutate(m *VirtMMutation) {
-	m.SetHostname(i.Hostname)
+// Mutate applies the CreateVirtualMachineInput on the VirtualMachineMutation builder.
+func (i *CreateVirtualMachineInput) Mutate(m *VirtualMachineMutation) {
+	m.SetName(i.Name)
 }
 
-// SetInput applies the change-set in the CreateVirtMInput on the VirtMCreate builder.
-func (c *VirtMCreate) SetInput(i CreateVirtMInput) *VirtMCreate {
+// SetInput applies the change-set in the CreateVirtualMachineInput on the VirtualMachineCreate builder.
+func (c *VirtualMachineCreate) SetInput(i CreateVirtualMachineInput) *VirtualMachineCreate {
 	i.Mutate(c.Mutation())
 	return c
 }
 
-// UpdateVirtMInput represents a mutation input for updating virtms.
-type UpdateVirtMInput struct {
-	Hostname *string
+// UpdateVirtualMachineInput represents a mutation input for updating virtualmachines.
+type UpdateVirtualMachineInput struct {
+	Name *string
 }
 
-// Mutate applies the UpdateVirtMInput on the VirtMMutation builder.
-func (i *UpdateVirtMInput) Mutate(m *VirtMMutation) {
-	if v := i.Hostname; v != nil {
-		m.SetHostname(*v)
+// Mutate applies the UpdateVirtualMachineInput on the VirtualMachineMutation builder.
+func (i *UpdateVirtualMachineInput) Mutate(m *VirtualMachineMutation) {
+	if v := i.Name; v != nil {
+		m.SetName(*v)
 	}
 }
 
-// SetInput applies the change-set in the UpdateVirtMInput on the VirtMUpdate builder.
-func (c *VirtMUpdate) SetInput(i UpdateVirtMInput) *VirtMUpdate {
+// SetInput applies the change-set in the UpdateVirtualMachineInput on the VirtualMachineUpdate builder.
+func (c *VirtualMachineUpdate) SetInput(i UpdateVirtualMachineInput) *VirtualMachineUpdate {
 	i.Mutate(c.Mutation())
 	return c
 }
 
-// SetInput applies the change-set in the UpdateVirtMInput on the VirtMUpdateOne builder.
-func (c *VirtMUpdateOne) SetInput(i UpdateVirtMInput) *VirtMUpdateOne {
+// SetInput applies the change-set in the UpdateVirtualMachineInput on the VirtualMachineUpdateOne builder.
+func (c *VirtualMachineUpdateOne) SetInput(i UpdateVirtualMachineInput) *VirtualMachineUpdateOne {
 	i.Mutate(c.Mutation())
 	return c
 }
