@@ -1,0 +1,12 @@
+extend type Query {
+ """
+  Lookup a virtual machine by ID.
+  """
+  virtualMachine(
+    """
+    The virtual machine ID.
+    """
+    id: ID!
+  ): VirtualMachine!
+}
+
