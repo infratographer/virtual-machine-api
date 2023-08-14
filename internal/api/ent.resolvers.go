@@ -13,12 +13,27 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
-// VirtualMachines is the resolver for the virtualMachines field.
-func (r *queryResolver) VirtualMachines(ctx context.Context, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) (*generated.VirtualMachineConnection, error) {
-	panic(fmt.Errorf("not implemented: VirtualMachines - virtualMachines"))
+// Node is the resolver for the node field.
+func (r *queryResolver) Node(ctx context.Context, id gidx.PrefixedID) (generated.Noder, error) {
+	panic(fmt.Errorf("not implemented: Node - node"))
+}
+
+// Nodes is the resolver for the nodes field.
+func (r *queryResolver) Nodes(ctx context.Context, ids []gidx.PrefixedID) ([]generated.Noder, error) {
+	panic(fmt.Errorf("not implemented: Nodes - nodes"))
 }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) VirtualMachines(ctx context.Context, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) (*generated.VirtualMachineConnection, error) {
+	panic(fmt.Errorf("not implemented: VirtualMachines - virtualMachines"))
+}

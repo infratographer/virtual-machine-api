@@ -29,6 +29,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
 		{Name: "owner_id", Type: field.TypeString},
+		{Name: "location_id", Type: field.TypeString},
 	}
 	// VirtualMachinesTable holds the schema information for the "virtual_machines" table.
 	VirtualMachinesTable = &schema.Table{

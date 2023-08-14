@@ -20,7 +20,9 @@ func NewClient(cli *http.Client, baseURL string, options ...client.HTTPRequestOp
 }
 
 type Query struct {
-	VirtualMachines VirtualMachineConnection "json:\"virtualMachines\" graphql:\"virtualMachines\""
-	Entities        []Entity                 "json:\"_entities\" graphql:\"_entities\""
-	Service         Service                  "json:\"_service\" graphql:\"_service\""
+	Node           Node           "json:\"node\" graphql:\"node\""
+	Nodes          []Node         "json:\"nodes\" graphql:\"nodes\""
+	VirtualMachine VirtualMachine "json:\"virtualMachine\" graphql:\"virtualMachine\""
+	Entities       []Entity       "json:\"_entities\" graphql:\"_entities\""
+	Service        Service        "json:\"_service\" graphql:\"_service\""
 }

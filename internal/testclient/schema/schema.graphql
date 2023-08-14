@@ -6,14 +6,20 @@ directive @interfaceObject on OBJECT
 directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 directive @link(import: [String!], url: String!) repeatable on SCHEMA
 directive @override(from: String!) on FIELD_DEFINITION
+"""This directive is used to prefix the ID of an object with a given string."""
+directive @prefixedID(prefix: String!) on OBJECT
 directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 directive @shareable repeatable on FIELD_DEFINITION | OBJECT
 directive @tag(name: String!) repeatable on ARGUMENT_DEFINITION | ENUM | ENUM_VALUE | FIELD_DEFINITION | INPUT_FIELD_DEFINITION | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
-	"""The name of the Virtual Machine."""
+	"""The ID for the owner of this Virtual Machine."""
 	name: String!
+	"""The name of the Virtual Machine."""
+	ownerID: ID!
+	"""The ID for the location of this virtual machine."""
+	locationID: ID!
 }
 """
 Define a Relay Cursor type:
@@ -21,8 +27,6 @@ https://relay.dev/graphql/connections.htm#sec-Cursor
 """
 scalar Cursor
 scalar FieldSet
-"""A valid JSON string."""
-scalar JSON
 """
 An object with an ID.
 Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
@@ -42,7 +46,7 @@ enum OrderDirection {
 Information about pagination in a connection.
 https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
 """
-type PageInfo @shareable {
+type PageInfo {
 	"""When paginating forwards, are there more items?"""
 	hasNextPage: Boolean!
 	"""When paginating backwards, are there more items?"""
@@ -53,7 +57,27 @@ type PageInfo @shareable {
 	endCursor: Cursor
 }
 type Query {
-	virtualMachines(
+	"""Fetches an object given its ID."""
+	node(
+		"""ID of the object."""
+		id: ID!
+	): Node
+	"""Lookup nodes by a list of IDs."""
+	nodes(
+		"""The list of node IDs."""
+		ids: [ID!]!
+	): [Node]!
+	"""Lookup a virtual machine by ID."""
+	virtualMachine(
+		"""The virtual machine ID."""
+		id: ID!
+	): VirtualMachine!
+	_entities(representations: [_Any!]!): [_Entity]!
+	_service: _Service!
+}
+type ResourceOwner @key(fields: "id") @interfaceObject {
+	id: ID!
+	virtualMachine(
 		"""Returns the elements in the list that come after the specified cursor."""
 		after: Cursor
 
@@ -72,22 +96,20 @@ type Query {
 		"""Filtering options for VirtualMachines returned from the connection."""
 		where: VirtualMachineWhereInput
 	): VirtualMachineConnection!
-	_entities(representations: [_Any!]!): [_Entity]!
-	_service: _Service!
 }
 """The builtin Time type"""
 scalar Time
 """Update an existing virtual machine."""
 input UpdateVirtualMachineInput {
-	"""The name of the Virtual Machine."""
+	"""The ID for the owner of this Virtual Machine."""
 	name: String
 }
-type VirtualMachine implements Node @key(fields: "id") {
+type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
 	"""The ID of the VirtualMachine."""
 	id: ID!
 	createdAt: Time!
 	updatedAt: Time!
-	"""The name of the Virtual Machine."""
+	"""The ID for the owner of this Virtual Machine."""
 	name: String!
 }
 """A connection to a list of items."""
@@ -119,6 +141,7 @@ enum VirtualMachineOrderField {
 	CREATED_AT
 	UPDATED_AT
 	NAME
+	OWNER
 }
 """
 VirtualMachineWhereInput is used for filtering VirtualMachine objects.
@@ -171,7 +194,7 @@ input VirtualMachineWhereInput {
 	nameContainsFold: String
 }
 scalar _Any
-union _Entity = VirtualMachine
+union _Entity = ResourceOwner | VirtualMachine
 type _Service {
 	sdl: String
 }

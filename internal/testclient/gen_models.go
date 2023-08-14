@@ -25,8 +25,12 @@ type Entity interface {
 
 // Create a new virtual machine.
 type CreateVirtualMachineInput struct {
-	// The name of the Virtual Machine.
+	// The ID for the owner of this Virtual Machine.
 	Name string `json:"name"`
+	// The name of the Virtual Machine.
+	OwnerID gidx.PrefixedID `json:"ownerID"`
+	// The ID for the location of this virtual machine.
+	LocationID gidx.PrefixedID `json:"locationID"`
 }
 
 // Information about pagination in a connection.
@@ -42,9 +46,16 @@ type PageInfo struct {
 	EndCursor *string `json:"endCursor,omitempty"`
 }
 
+type ResourceOwner struct {
+	ID             gidx.PrefixedID          `json:"id"`
+	VirtualMachine VirtualMachineConnection `json:"virtualMachine"`
+}
+
+func (ResourceOwner) IsEntity() {}
+
 // Update an existing virtual machine.
 type UpdateVirtualMachineInput struct {
-	// The name of the Virtual Machine.
+	// The ID for the owner of this Virtual Machine.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -53,7 +64,7 @@ type VirtualMachine struct {
 	ID        gidx.PrefixedID `json:"id"`
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
-	// The name of the Virtual Machine.
+	// The ID for the owner of this Virtual Machine.
 	Name string `json:"name"`
 }
 
@@ -195,6 +206,7 @@ const (
 	VirtualMachineOrderFieldCreatedAt VirtualMachineOrderField = "CREATED_AT"
 	VirtualMachineOrderFieldUpdatedAt VirtualMachineOrderField = "UPDATED_AT"
 	VirtualMachineOrderFieldName      VirtualMachineOrderField = "NAME"
+	VirtualMachineOrderFieldOwner     VirtualMachineOrderField = "OWNER"
 )
 
 var AllVirtualMachineOrderField = []VirtualMachineOrderField{
@@ -202,11 +214,12 @@ var AllVirtualMachineOrderField = []VirtualMachineOrderField{
 	VirtualMachineOrderFieldCreatedAt,
 	VirtualMachineOrderFieldUpdatedAt,
 	VirtualMachineOrderFieldName,
+	VirtualMachineOrderFieldOwner,
 }
 
 func (e VirtualMachineOrderField) IsValid() bool {
 	switch e {
-	case VirtualMachineOrderFieldID, VirtualMachineOrderFieldCreatedAt, VirtualMachineOrderFieldUpdatedAt, VirtualMachineOrderFieldName:
+	case VirtualMachineOrderFieldID, VirtualMachineOrderFieldCreatedAt, VirtualMachineOrderFieldUpdatedAt, VirtualMachineOrderFieldName, VirtualMachineOrderFieldOwner:
 		return true
 	}
 	return false
