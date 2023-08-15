@@ -7,14 +7,9 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
-type AnnotationNamespace struct {
-	// The owner of the annotation namespace.
-	Owner *ResourceOwner `json:"owner"`
-}
-
 type Location struct {
-	ID             gidx.PrefixedID                     `json:"id"`
-	VirtualMachine *generated.VirtualMachineConnection `json:"virtualMachine"`
+	ID              gidx.PrefixedID                     `json:"id"`
+	VirtualMachines *generated.VirtualMachineConnection `json:"virtualMachines"`
 }
 
 func (Location) IsEntity() {}

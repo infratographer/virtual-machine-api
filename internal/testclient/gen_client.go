@@ -3,12 +3,15 @@
 package testclient
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/Yamashou/gqlgenc/client"
+	"go.infratographer.com/x/gidx"
 )
 
 type TestClient interface {
+	GetVirtualMachineByID(ctx context.Context, id gidx.PrefixedID, httpRequestOptions ...client.HTTPRequestOption) (*GetVirtualMachineByID, error)
 }
 
 type Client struct {
@@ -23,4 +26,43 @@ type Query struct {
 	VirtualMachine VirtualMachine "json:\"virtualMachine\" graphql:\"virtualMachine\""
 	Entities       []Entity       "json:\"_entities\" graphql:\"_entities\""
 	Service        Service        "json:\"_service\" graphql:\"_service\""
+}
+type GetVirtualMachineByID struct {
+	VirtualMachine struct {
+		ID    gidx.PrefixedID "json:\"id\" graphql:\"id\""
+		Name  string          "json:\"name\" graphql:\"name\""
+		Owner struct {
+			ID gidx.PrefixedID "json:\"id\" graphql:\"id\""
+		} "json:\"owner\" graphql:\"owner\""
+		Location struct {
+			ID gidx.PrefixedID "json:\"id\" graphql:\"id\""
+		} "json:\"location\" graphql:\"location\""
+	} "json:\"virtualMachine\" graphql:\"virtualMachine\""
+}
+
+const GetVirtualMachineByIDDocument = `query GetVirtualMachineByID ($id: ID!) {
+	virtualMachine(id: $id) {
+		id
+		name
+		owner {
+			id
+		}
+		location {
+			id
+		}
+	}
+}
+`
+
+func (c *Client) GetVirtualMachineByID(ctx context.Context, id gidx.PrefixedID, httpRequestOptions ...client.HTTPRequestOption) (*GetVirtualMachineByID, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetVirtualMachineByID
+	if err := c.Client.Post(ctx, "GetVirtualMachineByID", GetVirtualMachineByIDDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }

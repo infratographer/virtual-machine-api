@@ -13,23 +13,17 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
-// Owner is the resolver for the owner field.
-func (r *annotationNamespaceResolver) Owner(ctx context.Context, obj *AnnotationNamespace) (*ResourceOwner, error) {
-	panic(fmt.Errorf("not implemented: Owner - owner"))
-}
-
 // VirtualMachine is the resolver for the virtualMachine field.
 func (r *resourceOwnerResolver) VirtualMachine(ctx context.Context, obj *ResourceOwner, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) (*generated.VirtualMachineConnection, error) {
 	panic(fmt.Errorf("not implemented: VirtualMachine - virtualMachine"))
 }
 
-// AnnotationNamespace returns AnnotationNamespaceResolver implementation.
-func (r *Resolver) AnnotationNamespace() AnnotationNamespaceResolver {
-	return &annotationNamespaceResolver{r}
+// Owner is the resolver for the owner field.
+func (r *virtualMachineResolver) Owner(ctx context.Context, obj *generated.VirtualMachine) (*ResourceOwner, error) {
+	return &ResourceOwner{ID: obj.OwnerID}, nil
 }
 
 // ResourceOwner returns ResourceOwnerResolver implementation.
 func (r *Resolver) ResourceOwner() ResourceOwnerResolver { return &resourceOwnerResolver{r} }
 
-type annotationNamespaceResolver struct{ *Resolver }
 type resourceOwnerResolver struct{ *Resolver }
