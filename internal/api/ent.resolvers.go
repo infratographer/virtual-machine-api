@@ -13,14 +13,41 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
+// Userdata is the resolver for the userdata field.
+func (r *virtualMachineResolver) Userdata(ctx context.Context, obj *generated.VirtualMachine) ([]*int, error) {
+	panic(fmt.Errorf("not implemented: Userdata - userdata"))
+}
+
+// Userdata is the resolver for the userdata field.
+func (r *createVirtualMachineInputResolver) Userdata(ctx context.Context, obj *generated.CreateVirtualMachineInput, data []*int) error {
+	panic(fmt.Errorf("not implemented: Userdata - userdata"))
+}
+
+// Userdata is the resolver for the userdata field.
+func (r *updateVirtualMachineInputResolver) Userdata(ctx context.Context, obj *generated.UpdateVirtualMachineInput, data []*int) error {
+	panic(fmt.Errorf("not implemented: Userdata - userdata"))
+}
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 // VirtualMachine returns VirtualMachineResolver implementation.
 func (r *Resolver) VirtualMachine() VirtualMachineResolver { return &virtualMachineResolver{r} }
 
+// CreateVirtualMachineInput returns CreateVirtualMachineInputResolver implementation.
+func (r *Resolver) CreateVirtualMachineInput() CreateVirtualMachineInputResolver {
+	return &createVirtualMachineInputResolver{r}
+}
+
+// UpdateVirtualMachineInput returns UpdateVirtualMachineInputResolver implementation.
+func (r *Resolver) UpdateVirtualMachineInput() UpdateVirtualMachineInputResolver {
+	return &updateVirtualMachineInputResolver{r}
+}
+
 type queryResolver struct{ *Resolver }
 type virtualMachineResolver struct{ *Resolver }
+type createVirtualMachineInputResolver struct{ *Resolver }
+type updateVirtualMachineInputResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have

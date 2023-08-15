@@ -36,6 +36,8 @@ type CreateVirtualMachineInput struct {
 	OwnerID gidx.PrefixedID `json:"ownerID"`
 	// The ID for the location of this virtual machine.
 	LocationID gidx.PrefixedID `json:"locationID"`
+	// The userdata for this victual machine.
+	Userdata []*int64 `json:"userdata"`
 }
 
 type Location struct {
@@ -69,6 +71,8 @@ func (ResourceOwner) IsEntity() {}
 type UpdateVirtualMachineInput struct {
 	// The name of the Virtual Machine.
 	Name *string `json:"name,omitempty"`
+	// The userdata for this victual machine.
+	Userdata []*int64 `json:"userdata,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -78,6 +82,8 @@ type VirtualMachine struct {
 	UpdatedAt time.Time       `json:"updatedAt"`
 	// The name of the Virtual Machine.
 	Name string `json:"name"`
+	// The userdata for this victual machine.
+	Userdata []*int64 `json:"userdata"`
 	// The location of the load balancer.
 	Location Location `json:"location"`
 }

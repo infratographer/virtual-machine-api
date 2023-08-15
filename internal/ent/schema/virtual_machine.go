@@ -14,6 +14,10 @@ import (
 	"go.infratographer.com/virtual-machine-api/x/pubsubinfo"
 )
 
+const (
+	maxUserDataLen = 512
+)
+
 // VirtualMachine holds the schema definition for the VM entity
 type VirtualMachine struct {
 	ent.Schema
@@ -64,6 +68,13 @@ func (VirtualMachine) Fields() []ent.Field {
 				entgql.Type("ID"),
 				entgql.Skip(^entgql.SkipMutationCreateInput),
 				pubsubinfo.AdditionalSubject(),
+			),
+		field.Bytes("userdata").
+			GoType([]byte{}).
+			MaxLen(maxUserDataLen).
+			Comment("The userdata for this victual machine.").
+			Annotations(
+				entgql.Type("[Int]"),
 			),
 	}
 }

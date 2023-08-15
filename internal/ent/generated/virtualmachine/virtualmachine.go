@@ -38,6 +38,8 @@ const (
 	FieldOwnerID = "owner_id"
 	// FieldLocationID holds the string denoting the location_id field in the database.
 	FieldLocationID = "location_id"
+	// FieldUserdata holds the string denoting the userdata field in the database.
+	FieldUserdata = "userdata"
 	// Table holds the table name of the virtualmachine in the database.
 	Table = "virtual_machines"
 )
@@ -50,6 +52,7 @@ var Columns = []string{
 	FieldName,
 	FieldOwnerID,
 	FieldLocationID,
+	FieldUserdata,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -73,6 +76,8 @@ var (
 	NameValidator func(string) error
 	// LocationIDValidator is a validator for the "location_id" field. It is called by the builders before save.
 	LocationIDValidator func(string) error
+	// UserdataValidator is a validator for the "userdata" field. It is called by the builders before save.
+	UserdataValidator func([]byte) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() gidx.PrefixedID
 )

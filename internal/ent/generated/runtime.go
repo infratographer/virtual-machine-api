@@ -51,6 +51,10 @@ func init() {
 	virtualmachineDescLocationID := virtualmachineFields[3].Descriptor()
 	// virtualmachine.LocationIDValidator is a validator for the "location_id" field. It is called by the builders before save.
 	virtualmachine.LocationIDValidator = virtualmachineDescLocationID.Validators[0].(func(string) error)
+	// virtualmachineDescUserdata is the schema descriptor for userdata field.
+	virtualmachineDescUserdata := virtualmachineFields[4].Descriptor()
+	// virtualmachine.UserdataValidator is a validator for the "userdata" field. It is called by the builders before save.
+	virtualmachine.UserdataValidator = virtualmachineDescUserdata.Validators[0].(func([]byte) error)
 	// virtualmachineDescID is the schema descriptor for id field.
 	virtualmachineDescID := virtualmachineFields[0].Descriptor()
 	// virtualmachine.DefaultID holds the default value on creation for the id field.

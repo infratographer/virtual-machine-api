@@ -42,7 +42,9 @@ type VirtualMachine struct {
 	// The ID for the owner of this Virtual Machine.
 	OwnerID gidx.PrefixedID `json:"owner_id,omitempty"`
 	// The ID for the location of this virtual machine.
-	LocationID   gidx.PrefixedID `json:"location_id,omitempty"`
+	LocationID gidx.PrefixedID `json:"location_id,omitempty"`
+	// The userdata for this victual machine.
+	Userdata     []uint8 `json:"userdata,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -51,6 +53,8 @@ func (*VirtualMachine) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case virtualmachine.FieldUserdata:
+			values[i] = new([]byte)
 		case virtualmachine.FieldID, virtualmachine.FieldOwnerID, virtualmachine.FieldLocationID:
 			values[i] = new(gidx.PrefixedID)
 		case virtualmachine.FieldName:
@@ -108,6 +112,12 @@ func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				vm.LocationID = *value
 			}
+		case virtualmachine.FieldUserdata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field userdata", values[i])
+			} else if value != nil {
+				vm.Userdata = *value
+			}
 		default:
 			vm.selectValues.Set(columns[i], values[i])
 		}
@@ -158,6 +168,9 @@ func (vm *VirtualMachine) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("location_id=")
 	builder.WriteString(fmt.Sprintf("%v", vm.LocationID))
+	builder.WriteString(", ")
+	builder.WriteString("userdata=")
+	builder.WriteString(fmt.Sprintf("%v", vm.Userdata))
 	builder.WriteByte(')')
 	return builder.String()
 }
