@@ -1,9 +1,9 @@
 name: Release
 on:
   push:
-    branches:
-      - main
-      - dev
+    tags:
+      - v**
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
