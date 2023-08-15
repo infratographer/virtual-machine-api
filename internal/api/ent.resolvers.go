@@ -10,7 +10,5 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // VirtualMachine returns VirtualMachineResolver implementation.
 func (r *Resolver) VirtualMachine() VirtualMachineResolver { return &virtualMachineResolver{r} }
 
-type (
-	queryResolver          struct{ *Resolver }
-	virtualMachineResolver struct{ *Resolver }
-)
+type queryResolver struct{ *Resolver }
+type virtualMachineResolver struct{ *Resolver }

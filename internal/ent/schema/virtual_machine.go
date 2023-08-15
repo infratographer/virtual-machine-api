@@ -66,7 +66,6 @@ func (VirtualMachine) Fields() []ent.Field {
 				pubsubinfo.AdditionalSubject(),
 			),
 		field.String("userdata").
-			Sensitive().
 			Comment("The userdata for this virtual machine.").
 			Annotations(
 				entgql.Skip(entgql.SkipWhereInput),
