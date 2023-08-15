@@ -439,6 +439,16 @@ func UserdataHasSuffix(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldHasSuffix(FieldUserdata, v))
 }
 
+// UserdataIsNil applies the IsNil predicate on the "userdata" field.
+func UserdataIsNil() predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIsNull(FieldUserdata))
+}
+
+// UserdataNotNil applies the NotNil predicate on the "userdata" field.
+func UserdataNotNil() predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotNull(FieldUserdata))
+}
+
 // UserdataEqualFold applies the EqualFold predicate on the "userdata" field.
 func UserdataEqualFold(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEqualFold(FieldUserdata, v))

@@ -375,9 +375,22 @@ func (m *VirtualMachineMutation) OldUserdata(ctx context.Context) (v string, err
 	return oldValue.Userdata, nil
 }
 
+// ClearUserdata clears the value of the "userdata" field.
+func (m *VirtualMachineMutation) ClearUserdata() {
+	m.userdata = nil
+	m.clearedFields[virtualmachine.FieldUserdata] = struct{}{}
+}
+
+// UserdataCleared returns if the "userdata" field was cleared in this mutation.
+func (m *VirtualMachineMutation) UserdataCleared() bool {
+	_, ok := m.clearedFields[virtualmachine.FieldUserdata]
+	return ok
+}
+
 // ResetUserdata resets all changes to the "userdata" field.
 func (m *VirtualMachineMutation) ResetUserdata() {
 	m.userdata = nil
+	delete(m.clearedFields, virtualmachine.FieldUserdata)
 }
 
 // Where appends a list predicates to the VirtualMachineMutation builder.
@@ -554,7 +567,11 @@ func (m *VirtualMachineMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *VirtualMachineMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(virtualmachine.FieldUserdata) {
+		fields = append(fields, virtualmachine.FieldUserdata)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -567,6 +584,11 @@ func (m *VirtualMachineMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *VirtualMachineMutation) ClearField(name string) error {
+	switch name {
+	case virtualmachine.FieldUserdata:
+		m.ClearUserdata()
+		return nil
+	}
 	return fmt.Errorf("unknown VirtualMachine nullable field %s", name)
 }
 

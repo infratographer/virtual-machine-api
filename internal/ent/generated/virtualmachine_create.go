@@ -87,6 +87,14 @@ func (vmc *VirtualMachineCreate) SetUserdata(s string) *VirtualMachineCreate {
 	return vmc
 }
 
+// SetNillableUserdata sets the "userdata" field if the given value is not nil.
+func (vmc *VirtualMachineCreate) SetNillableUserdata(s *string) *VirtualMachineCreate {
+	if s != nil {
+		vmc.SetUserdata(*s)
+	}
+	return vmc
+}
+
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -176,9 +184,6 @@ func (vmc *VirtualMachineCreate) check() error {
 		if err := virtualmachine.LocationIDValidator(string(v)); err != nil {
 			return &ValidationError{Name: "location_id", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.location_id": %w`, err)}
 		}
-	}
-	if _, ok := vmc.mutation.Userdata(); !ok {
-		return &ValidationError{Name: "userdata", err: errors.New(`generated: missing required field "VirtualMachine.userdata"`)}
 	}
 	return nil
 }

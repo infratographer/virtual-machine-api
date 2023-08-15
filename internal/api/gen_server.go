@@ -476,7 +476,7 @@ input CreateVirtualMachineInput {
   """The ID for the location of this virtual machine."""
   locationID: ID!
   """The userdata for this virtual machine."""
-  userdata: String!
+  userdata: String
 }
 """
 Define a Relay Cursor type:
@@ -523,6 +523,7 @@ input UpdateVirtualMachineInput {
   name: String
   """The userdata for this virtual machine."""
   userdata: String
+  clearUserdata: Boolean
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
   """The ID of the VirtualMachine."""
@@ -532,7 +533,7 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   """The name of the Virtual Machine."""
   name: String!
   """The userdata for this virtual machine."""
-  userdata: String!
+  userdata: String
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -2165,14 +2166,11 @@ func (ec *executionContext) _VirtualMachine_userdata(ctx context.Context, field 
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VirtualMachine_userdata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4341,7 +4339,7 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userdata"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4359,7 +4357,7 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "userdata"}
+	fieldsInOrder := [...]string{"name", "userdata", "clearUserdata"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4384,6 +4382,15 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.Userdata = data
+		case "clearUserdata":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearUserdata"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClearUserdata = data
 		}
 	}
 
@@ -5389,9 +5396,6 @@ func (ec *executionContext) _VirtualMachine(ctx context.Context, sel ast.Selecti
 			}
 		case "userdata":
 			out.Values[i] = ec._VirtualMachine_userdata(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "location":
 			field := field
 
