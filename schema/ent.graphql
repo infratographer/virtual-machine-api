@@ -9,7 +9,7 @@ input CreateVirtualMachineInput {
   """The ID for the location of this virtual machine."""
   locationID: ID!
   """The userdata for this victual machine."""
-  userdata: [Int]!
+  userdata: String
 }
 """
 Define a Relay Cursor type:
@@ -54,8 +54,6 @@ scalar Time
 input UpdateVirtualMachineInput {
   """The name of the Virtual Machine."""
   name: String
-  """The userdata for this victual machine."""
-  userdata: [Int]
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
   """The ID of the VirtualMachine."""
@@ -64,8 +62,6 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   updatedAt: Time!
   """The name of the Virtual Machine."""
   name: String!
-  """The userdata for this victual machine."""
-  userdata: [Int]!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {

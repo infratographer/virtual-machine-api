@@ -48,8 +48,16 @@ func (vmu *VirtualMachineUpdate) SetName(s string) *VirtualMachineUpdate {
 }
 
 // SetUserdata sets the "userdata" field.
-func (vmu *VirtualMachineUpdate) SetUserdata(u []uint8) *VirtualMachineUpdate {
-	vmu.mutation.SetUserdata(u)
+func (vmu *VirtualMachineUpdate) SetUserdata(s string) *VirtualMachineUpdate {
+	vmu.mutation.SetUserdata(s)
+	return vmu
+}
+
+// SetNillableUserdata sets the "userdata" field if the given value is not nil.
+func (vmu *VirtualMachineUpdate) SetNillableUserdata(s *string) *VirtualMachineUpdate {
+	if s != nil {
+		vmu.SetUserdata(*s)
+	}
 	return vmu
 }
 
@@ -101,11 +109,6 @@ func (vmu *VirtualMachineUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
-	if v, ok := vmu.mutation.Userdata(); ok {
-		if err := virtualmachine.UserdataValidator([]byte(v)); err != nil {
-			return &ValidationError{Name: "userdata", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.userdata": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -128,7 +131,7 @@ func (vmu *VirtualMachineUpdate) sqlSave(ctx context.Context) (n int, err error)
 		_spec.SetField(virtualmachine.FieldName, field.TypeString, value)
 	}
 	if value, ok := vmu.mutation.Userdata(); ok {
-		_spec.SetField(virtualmachine.FieldUserdata, field.TypeBytes, value)
+		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, vmu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -157,8 +160,16 @@ func (vmuo *VirtualMachineUpdateOne) SetName(s string) *VirtualMachineUpdateOne 
 }
 
 // SetUserdata sets the "userdata" field.
-func (vmuo *VirtualMachineUpdateOne) SetUserdata(u []uint8) *VirtualMachineUpdateOne {
-	vmuo.mutation.SetUserdata(u)
+func (vmuo *VirtualMachineUpdateOne) SetUserdata(s string) *VirtualMachineUpdateOne {
+	vmuo.mutation.SetUserdata(s)
+	return vmuo
+}
+
+// SetNillableUserdata sets the "userdata" field if the given value is not nil.
+func (vmuo *VirtualMachineUpdateOne) SetNillableUserdata(s *string) *VirtualMachineUpdateOne {
+	if s != nil {
+		vmuo.SetUserdata(*s)
+	}
 	return vmuo
 }
 
@@ -223,11 +234,6 @@ func (vmuo *VirtualMachineUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
-	if v, ok := vmuo.mutation.Userdata(); ok {
-		if err := virtualmachine.UserdataValidator([]byte(v)); err != nil {
-			return &ValidationError{Name: "userdata", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.userdata": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -267,7 +273,7 @@ func (vmuo *VirtualMachineUpdateOne) sqlSave(ctx context.Context) (_node *Virtua
 		_spec.SetField(virtualmachine.FieldName, field.TypeString, value)
 	}
 	if value, ok := vmuo.mutation.Userdata(); ok {
-		_spec.SetField(virtualmachine.FieldUserdata, field.TypeBytes, value)
+		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
 	}
 	_node = &VirtualMachine{config: vmuo.config}
 	_spec.Assign = _node.assignValues

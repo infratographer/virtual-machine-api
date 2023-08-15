@@ -76,8 +76,8 @@ var (
 	NameValidator func(string) error
 	// LocationIDValidator is a validator for the "location_id" field. It is called by the builders before save.
 	LocationIDValidator func(string) error
-	// UserdataValidator is a validator for the "userdata" field. It is called by the builders before save.
-	UserdataValidator func([]byte) error
+	// DefaultUserdata holds the default value on creation for the "userdata" field.
+	DefaultUserdata string
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() gidx.PrefixedID
 )
@@ -113,4 +113,9 @@ func ByOwnerID(opts ...sql.OrderTermOption) OrderOption {
 // ByLocationID orders the results by the location_id field.
 func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLocationID, opts...).ToFunc()
+}
+
+// ByUserdata orders the results by the userdata field.
+func ByUserdata(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserdata, opts...).ToFunc()
 }

@@ -53,7 +53,7 @@ type VirtualMachineMutation struct {
 	name          *string
 	owner_id      *gidx.PrefixedID
 	location_id   *gidx.PrefixedID
-	userdata      *[]uint8
+	userdata      *string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*VirtualMachine, error)
@@ -345,12 +345,12 @@ func (m *VirtualMachineMutation) ResetLocationID() {
 }
 
 // SetUserdata sets the "userdata" field.
-func (m *VirtualMachineMutation) SetUserdata(u []uint8) {
-	m.userdata = &u
+func (m *VirtualMachineMutation) SetUserdata(s string) {
+	m.userdata = &s
 }
 
 // Userdata returns the value of the "userdata" field in the mutation.
-func (m *VirtualMachineMutation) Userdata() (r []uint8, exists bool) {
+func (m *VirtualMachineMutation) Userdata() (r string, exists bool) {
 	v := m.userdata
 	if v == nil {
 		return
@@ -361,7 +361,7 @@ func (m *VirtualMachineMutation) Userdata() (r []uint8, exists bool) {
 // OldUserdata returns the old "userdata" field's value of the VirtualMachine entity.
 // If the VirtualMachine object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VirtualMachineMutation) OldUserdata(ctx context.Context) (v []uint8, err error) {
+func (m *VirtualMachineMutation) OldUserdata(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserdata is only allowed on UpdateOne operations")
 	}
@@ -519,7 +519,7 @@ func (m *VirtualMachineMutation) SetField(name string, value ent.Value) error {
 		m.SetLocationID(v)
 		return nil
 	case virtualmachine.FieldUserdata:
-		v, ok := value.([]uint8)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

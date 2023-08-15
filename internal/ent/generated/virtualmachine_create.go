@@ -82,8 +82,16 @@ func (vmc *VirtualMachineCreate) SetLocationID(gi gidx.PrefixedID) *VirtualMachi
 }
 
 // SetUserdata sets the "userdata" field.
-func (vmc *VirtualMachineCreate) SetUserdata(u []uint8) *VirtualMachineCreate {
-	vmc.mutation.SetUserdata(u)
+func (vmc *VirtualMachineCreate) SetUserdata(s string) *VirtualMachineCreate {
+	vmc.mutation.SetUserdata(s)
+	return vmc
+}
+
+// SetNillableUserdata sets the "userdata" field if the given value is not nil.
+func (vmc *VirtualMachineCreate) SetNillableUserdata(s *string) *VirtualMachineCreate {
+	if s != nil {
+		vmc.SetUserdata(*s)
+	}
 	return vmc
 }
 
@@ -144,6 +152,10 @@ func (vmc *VirtualMachineCreate) defaults() {
 		v := virtualmachine.DefaultUpdatedAt()
 		vmc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := vmc.mutation.Userdata(); !ok {
+		v := virtualmachine.DefaultUserdata
+		vmc.mutation.SetUserdata(v)
+	}
 	if _, ok := vmc.mutation.ID(); !ok {
 		v := virtualmachine.DefaultID()
 		vmc.mutation.SetID(v)
@@ -179,11 +191,6 @@ func (vmc *VirtualMachineCreate) check() error {
 	}
 	if _, ok := vmc.mutation.Userdata(); !ok {
 		return &ValidationError{Name: "userdata", err: errors.New(`generated: missing required field "VirtualMachine.userdata"`)}
-	}
-	if v, ok := vmc.mutation.Userdata(); ok {
-		if err := virtualmachine.UserdataValidator([]byte(v)); err != nil {
-			return &ValidationError{Name: "userdata", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.userdata": %w`, err)}
-		}
 	}
 	return nil
 }
@@ -241,7 +248,7 @@ func (vmc *VirtualMachineCreate) createSpec() (*VirtualMachine, *sqlgraph.Create
 		_node.LocationID = value
 	}
 	if value, ok := vmc.mutation.Userdata(); ok {
-		_spec.SetField(virtualmachine.FieldUserdata, field.TypeBytes, value)
+		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
 		_node.Userdata = value
 	}
 	return _node, _spec
