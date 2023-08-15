@@ -1,0 +1,41 @@
+type Location @key(fields: "id") {
+  id: ID!
+  virtualMachine(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+
+    """
+    Ordering options for VirtualMachine returned from the connection.
+    """
+    orderBy: VirtualMachineOrder
+
+    """
+    Filtering options for VirtualMachine returned from the connection.
+    """
+    where: VirtualMachineWhereInput
+  ): VirtualMachineConnection! @goField(forceResolver: true)
+}
+
+extend type VirtualMachine {
+  """
+  The location of the load balancer.
+  """
+  location: Location! @goField(forceResolver: true)
+}

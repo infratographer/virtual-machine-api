@@ -1,6 +1,6 @@
 type ResourceOwner @key(fields: "id") @interfaceObject {
   id: ID!
-  annotationNamespaces(
+  virtualMachine(
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -22,19 +22,15 @@ type ResourceOwner @key(fields: "id") @interfaceObject {
     last: Int
 
     """
-    Ordering options for AnnotationNamespaces returned from the connection.
+    Ordering options for VirtualMachines returned from the connection.
     """
-    orderBy: AnnotationNamespaceOrder
+    orderBy: VirtualMachineOrder
 
     """
-    Filtering options for AnnotationNamespaces returned from the connection.
+    Filtering options for VirtualMachines returned from the connection.
     """
-    where: AnnotationNamespaceWhereInput
-  ): AnnotationNamespaceConnection! @goField(forceResolver: true)
-  """
-  Metadata about this node, including annotations and statuses.
-  """
-  metadata: Metadata @shareable @goField(forceResolver: true)
+    where: VirtualMachineWhereInput
+  ): VirtualMachineConnection! @goField(forceResolver: true)
 }
 
 extend type AnnotationNamespace {

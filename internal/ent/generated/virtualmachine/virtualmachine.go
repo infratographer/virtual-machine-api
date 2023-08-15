@@ -36,6 +36,8 @@ const (
 	FieldName = "name"
 	// FieldOwnerID holds the string denoting the owner_id field in the database.
 	FieldOwnerID = "owner_id"
+	// FieldLocationID holds the string denoting the location_id field in the database.
+	FieldLocationID = "location_id"
 	// Table holds the table name of the virtualmachine in the database.
 	Table = "virtual_machines"
 )
@@ -47,6 +49,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldName,
 	FieldOwnerID,
+	FieldLocationID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -68,6 +71,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// LocationIDValidator is a validator for the "location_id" field. It is called by the builders before save.
+	LocationIDValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() gidx.PrefixedID
 )
@@ -98,4 +103,9 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByOwnerID orders the results by the owner_id field.
 func ByOwnerID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOwnerID, opts...).ToFunc()
+}
+
+// ByLocationID orders the results by the location_id field.
+func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLocationID, opts...).ToFunc()
 }

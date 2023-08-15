@@ -10,6 +10,8 @@ import (
 
 	"go.infratographer.com/x/entx"
 	"go.infratographer.com/x/gidx"
+
+	"go.infratographer.com/virtual-machine-api/x/pubsubinfo"
 )
 
 // VirtualMachine holds the schema definition for the VM entity
@@ -44,12 +46,24 @@ func (VirtualMachine) Fields() []ent.Field {
 			),
 		field.String("owner_id").
 			GoType(gidx.PrefixedID("")).
-			Immutable().
 			Comment("The ID for the owner of this Virtual Machine.").
+			Immutable().
+			Annotations(
+				entgql.QueryField(),
+				entgql.Type("ID"),
+				entgql.Skip(entgql.SkipWhereInput, entgql.SkipMutationUpdateInput, entgql.SkipType),
+				entgql.OrderField("OWNER"),
+				pubsubinfo.AdditionalSubject(),
+			),
+		field.String("location_id").
+			GoType(gidx.PrefixedID("")).
+			Immutable().
+			NotEmpty().
+			Comment("The ID for the location of this virtual machine.").
 			Annotations(
 				entgql.Type("ID"),
 				entgql.Skip(^entgql.SkipMutationCreateInput),
-				entx.EventsHookAdditionalSubject(),
+				pubsubinfo.AdditionalSubject(),
 			),
 	}
 }
@@ -77,7 +91,8 @@ func (VirtualMachine) Annotations() []schema.Annotation {
 			entgql.MutationCreate().Description("Create a new virtual machine."),
 			entgql.MutationUpdate().Description("Update an existing virtual machine."),
 		),
-		entx.EventsHookSubjectName("virtual-machine"),
+		pubsubinfo.Annotation{},
+		// entx.EventsHookSubjectName("virtual-machine"),
 	}
 }
 

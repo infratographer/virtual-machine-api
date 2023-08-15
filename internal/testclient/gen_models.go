@@ -23,11 +23,27 @@ type Entity interface {
 	IsEntity()
 }
 
+type AnnotationNamespace struct {
+	// The owner of the annotation namespace.
+	Owner ResourceOwner `json:"owner"`
+}
+
 // Create a new virtual machine.
 type CreateVirtualMachineInput struct {
 	// The name of the Virtual Machine.
 	Name string `json:"name"`
+	// The ID for the owner of this Virtual Machine.
+	OwnerID gidx.PrefixedID `json:"ownerID"`
+	// The ID for the location of this virtual machine.
+	LocationID gidx.PrefixedID `json:"locationID"`
 }
+
+type Location struct {
+	ID             gidx.PrefixedID          `json:"id"`
+	VirtualMachine VirtualMachineConnection `json:"virtualMachine"`
+}
+
+func (Location) IsEntity() {}
 
 // Information about pagination in a connection.
 // https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
@@ -42,6 +58,13 @@ type PageInfo struct {
 	EndCursor *string `json:"endCursor,omitempty"`
 }
 
+type ResourceOwner struct {
+	ID             gidx.PrefixedID          `json:"id"`
+	VirtualMachine VirtualMachineConnection `json:"virtualMachine"`
+}
+
+func (ResourceOwner) IsEntity() {}
+
 // Update an existing virtual machine.
 type UpdateVirtualMachineInput struct {
 	// The name of the Virtual Machine.
@@ -55,6 +78,8 @@ type VirtualMachine struct {
 	UpdatedAt time.Time       `json:"updatedAt"`
 	// The name of the Virtual Machine.
 	Name string `json:"name"`
+	// The location of the load balancer.
+	Location Location `json:"location"`
 }
 
 func (VirtualMachine) IsNode() {}
@@ -195,6 +220,7 @@ const (
 	VirtualMachineOrderFieldCreatedAt VirtualMachineOrderField = "CREATED_AT"
 	VirtualMachineOrderFieldUpdatedAt VirtualMachineOrderField = "UPDATED_AT"
 	VirtualMachineOrderFieldName      VirtualMachineOrderField = "NAME"
+	VirtualMachineOrderFieldOwner     VirtualMachineOrderField = "OWNER"
 )
 
 var AllVirtualMachineOrderField = []VirtualMachineOrderField{
@@ -202,11 +228,12 @@ var AllVirtualMachineOrderField = []VirtualMachineOrderField{
 	VirtualMachineOrderFieldCreatedAt,
 	VirtualMachineOrderFieldUpdatedAt,
 	VirtualMachineOrderFieldName,
+	VirtualMachineOrderFieldOwner,
 }
 
 func (e VirtualMachineOrderField) IsValid() bool {
 	switch e {
-	case VirtualMachineOrderFieldID, VirtualMachineOrderFieldCreatedAt, VirtualMachineOrderFieldUpdatedAt, VirtualMachineOrderFieldName:
+	case VirtualMachineOrderFieldID, VirtualMachineOrderFieldCreatedAt, VirtualMachineOrderFieldUpdatedAt, VirtualMachineOrderFieldName, VirtualMachineOrderFieldOwner:
 		return true
 	}
 	return false

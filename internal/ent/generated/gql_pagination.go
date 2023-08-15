@@ -375,6 +375,20 @@ var (
 			}
 		},
 	}
+	// VirtualMachineOrderFieldOwnerID orders VirtualMachine by owner_id.
+	VirtualMachineOrderFieldOwnerID = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.OwnerID, nil
+		},
+		column: virtualmachine.FieldOwnerID,
+		toTerm: virtualmachine.ByOwnerID,
+		toCursor: func(vm *VirtualMachine) Cursor {
+			return Cursor{
+				ID:    vm.ID,
+				Value: vm.OwnerID,
+			}
+		},
+	}
 )
 
 // String implement fmt.Stringer interface.
@@ -389,6 +403,8 @@ func (f VirtualMachineOrderField) String() string {
 		str = "UPDATED_AT"
 	case VirtualMachineOrderFieldName.column:
 		str = "NAME"
+	case VirtualMachineOrderFieldOwnerID.column:
+		str = "OWNER"
 	}
 	return str
 }
@@ -413,6 +429,8 @@ func (f *VirtualMachineOrderField) UnmarshalGQL(v interface{}) error {
 		*f = *VirtualMachineOrderFieldUpdatedAt
 	case "NAME":
 		*f = *VirtualMachineOrderFieldName
+	case "OWNER":
+		*f = *VirtualMachineOrderFieldOwnerID
 	default:
 		return fmt.Errorf("%s is not a valid VirtualMachineOrderField", str)
 	}

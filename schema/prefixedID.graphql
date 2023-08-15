@@ -1,0 +1,4 @@
+"""
+This directive is used to prefix the ID of an object with a given string.
+"""
+directive @prefixedID(prefix: String!) on OBJECT
