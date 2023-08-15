@@ -89,6 +89,11 @@ func OwnerID(v gidx.PrefixedID) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldOwnerID, v))
 }
 
+// LocationID applies equality check predicate on the "location_id" field. It's identical to LocationIDEQ.
+func LocationID(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldLocationID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldCreatedAt, v))
@@ -302,6 +307,76 @@ func OwnerIDEqualFold(v gidx.PrefixedID) predicate.VirtualMachine {
 func OwnerIDContainsFold(v gidx.PrefixedID) predicate.VirtualMachine {
 	vc := string(v)
 	return predicate.VirtualMachine(sql.FieldContainsFold(FieldOwnerID, vc))
+}
+
+// LocationIDEQ applies the EQ predicate on the "location_id" field.
+func LocationIDEQ(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldLocationID, v))
+}
+
+// LocationIDNEQ applies the NEQ predicate on the "location_id" field.
+func LocationIDNEQ(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNEQ(FieldLocationID, v))
+}
+
+// LocationIDIn applies the In predicate on the "location_id" field.
+func LocationIDIn(vs ...gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIn(FieldLocationID, vs...))
+}
+
+// LocationIDNotIn applies the NotIn predicate on the "location_id" field.
+func LocationIDNotIn(vs ...gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotIn(FieldLocationID, vs...))
+}
+
+// LocationIDGT applies the GT predicate on the "location_id" field.
+func LocationIDGT(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGT(FieldLocationID, v))
+}
+
+// LocationIDGTE applies the GTE predicate on the "location_id" field.
+func LocationIDGTE(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGTE(FieldLocationID, v))
+}
+
+// LocationIDLT applies the LT predicate on the "location_id" field.
+func LocationIDLT(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLT(FieldLocationID, v))
+}
+
+// LocationIDLTE applies the LTE predicate on the "location_id" field.
+func LocationIDLTE(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLTE(FieldLocationID, v))
+}
+
+// LocationIDContains applies the Contains predicate on the "location_id" field.
+func LocationIDContains(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldContains(FieldLocationID, vc))
+}
+
+// LocationIDHasPrefix applies the HasPrefix predicate on the "location_id" field.
+func LocationIDHasPrefix(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldHasPrefix(FieldLocationID, vc))
+}
+
+// LocationIDHasSuffix applies the HasSuffix predicate on the "location_id" field.
+func LocationIDHasSuffix(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldHasSuffix(FieldLocationID, vc))
+}
+
+// LocationIDEqualFold applies the EqualFold predicate on the "location_id" field.
+func LocationIDEqualFold(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldEqualFold(FieldLocationID, vc))
+}
+
+// LocationIDContainsFold applies the ContainsFold predicate on the "location_id" field.
+func LocationIDContainsFold(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldContainsFold(FieldLocationID, vc))
 }
 
 // And groups predicates with the AND operator between them.

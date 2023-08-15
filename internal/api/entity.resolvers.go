@@ -12,6 +12,16 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
+// FindLocationByID is the resolver for the findLocationByID field.
+func (r *entityResolver) FindLocationByID(ctx context.Context, id gidx.PrefixedID) (*Location, error) {
+	panic(fmt.Errorf("not implemented: FindLocationByID - findLocationByID"))
+}
+
+// FindResourceOwnerByID is the resolver for the findResourceOwnerByID field.
+func (r *entityResolver) FindResourceOwnerByID(ctx context.Context, id gidx.PrefixedID) (*ResourceOwner, error) {
+	panic(fmt.Errorf("not implemented: FindResourceOwnerByID - findResourceOwnerByID"))
+}
+
 // FindVirtualMachineByID is the resolver for the findVirtualMachineByID field.
 func (r *entityResolver) FindVirtualMachineByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error) {
 	panic(fmt.Errorf("not implemented: FindVirtualMachineByID - findVirtualMachineByID"))

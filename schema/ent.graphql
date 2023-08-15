@@ -6,6 +6,8 @@ input CreateVirtualMachineInput {
   name: String!
   """The ID for the owner of this Virtual Machine."""
   ownerID: ID!
+  """The ID for the location of this virtual machine."""
+  locationID: ID!
 }
 """
 Define a Relay Cursor type:
@@ -88,6 +90,7 @@ enum VirtualMachineOrderField {
   CREATED_AT
   UPDATED_AT
   NAME
+  OWNER
 }
 """
 VirtualMachineWhereInput is used for filtering VirtualMachine objects.

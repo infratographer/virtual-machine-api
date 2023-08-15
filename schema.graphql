@@ -1,7 +1,17 @@
+"""This directive is used to prefix the ID of an object with a given string."""
+directive @prefixedID(prefix: String!) on OBJECT
+type AnnotationNamespace {
+	"""The owner of the annotation namespace."""
+	owner: ResourceOwner!
+}
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
 	"""The name of the Virtual Machine."""
 	name: String!
+	"""The ID for the owner of this Virtual Machine."""
+	ownerID: ID!
+	"""The ID for the location of this virtual machine."""
+	locationID: ID!
 }
 """
 Define a Relay Cursor type:
@@ -10,6 +20,28 @@ https://relay.dev/graphql/connections.htm#sec-Cursor
 scalar Cursor
 """A valid JSON string."""
 scalar JSON
+type Location @key(fields: "id") {
+	id: ID!
+	virtualMachine(
+		"""Returns the elements in the list that come after the specified cursor."""
+		after: Cursor
+
+		"""Returns the first _n_ elements from the list."""
+		first: Int
+
+		"""Returns the elements in the list that come before the specified cursor."""
+		before: Cursor
+
+		"""Returns the last _n_ elements from the list."""
+		last: Int
+
+		"""Ordering options for VirtualMachine returned from the connection."""
+		orderBy: VirtualMachineOrder
+
+		"""Filtering options for VirtualMachine returned from the connection."""
+		where: VirtualMachineWhereInput
+	): VirtualMachineConnection!
+}
 """
 An object with an ID.
 Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
@@ -40,7 +72,17 @@ type PageInfo @shareable {
 	endCursor: Cursor
 }
 type Query {
-	virtualMachines(
+	"""Lookup a virtual machine by ID."""
+	virtualMachine(
+		"""The virtual machine ID."""
+		id: ID!
+	): VirtualMachine!
+	_entities(representations: [_Any!]!): [_Entity]!
+	_service: _Service!
+}
+type ResourceOwner @key(fields: "id") @interfaceObject {
+	id: ID!
+	virtualMachine(
 		"""Returns the elements in the list that come after the specified cursor."""
 		after: Cursor
 
@@ -59,8 +101,6 @@ type Query {
 		"""Filtering options for VirtualMachines returned from the connection."""
 		where: VirtualMachineWhereInput
 	): VirtualMachineConnection!
-	_entities(representations: [_Any!]!): [_Entity]!
-	_service: _Service!
 }
 """The builtin Time type"""
 scalar Time
@@ -69,13 +109,15 @@ input UpdateVirtualMachineInput {
 	"""The name of the Virtual Machine."""
 	name: String
 }
-type VirtualMachine implements Node @key(fields: "id") {
+type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
 	"""The ID of the VirtualMachine."""
 	id: ID!
 	createdAt: Time!
 	updatedAt: Time!
 	"""The name of the Virtual Machine."""
 	name: String!
+	"""The location of the load balancer."""
+	location: Location!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -106,6 +148,7 @@ enum VirtualMachineOrderField {
 	CREATED_AT
 	UPDATED_AT
 	NAME
+	OWNER
 }
 """
 VirtualMachineWhereInput is used for filtering VirtualMachine objects.
@@ -158,7 +201,7 @@ input VirtualMachineWhereInput {
 	nameContainsFold: String
 }
 scalar _Any
-union _Entity = VirtualMachine
+union _Entity = Location | ResourceOwner | VirtualMachine
 type _Service {
 	sdl: String
 }

@@ -22,14 +22,16 @@ import (
 
 // CreateVirtualMachineInput represents a mutation input for creating virtualmachines.
 type CreateVirtualMachineInput struct {
-	Name    string
-	OwnerID gidx.PrefixedID
+	Name       string
+	OwnerID    gidx.PrefixedID
+	LocationID gidx.PrefixedID
 }
 
 // Mutate applies the CreateVirtualMachineInput on the VirtualMachineMutation builder.
 func (i *CreateVirtualMachineInput) Mutate(m *VirtualMachineMutation) {
 	m.SetName(i.Name)
 	m.SetOwnerID(i.OwnerID)
+	m.SetLocationID(i.LocationID)
 }
 
 // SetInput applies the change-set in the CreateVirtualMachineInput on the VirtualMachineCreate builder.
