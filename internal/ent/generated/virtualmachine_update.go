@@ -47,6 +47,26 @@ func (vmu *VirtualMachineUpdate) SetName(s string) *VirtualMachineUpdate {
 	return vmu
 }
 
+// SetUserdata sets the "userdata" field.
+func (vmu *VirtualMachineUpdate) SetUserdata(s string) *VirtualMachineUpdate {
+	vmu.mutation.SetUserdata(s)
+	return vmu
+}
+
+// SetNillableUserdata sets the "userdata" field if the given value is not nil.
+func (vmu *VirtualMachineUpdate) SetNillableUserdata(s *string) *VirtualMachineUpdate {
+	if s != nil {
+		vmu.SetUserdata(*s)
+	}
+	return vmu
+}
+
+// ClearUserdata clears the value of the "userdata" field.
+func (vmu *VirtualMachineUpdate) ClearUserdata() *VirtualMachineUpdate {
+	vmu.mutation.ClearUserdata()
+	return vmu
+}
+
 // Mutation returns the VirtualMachineMutation object of the builder.
 func (vmu *VirtualMachineUpdate) Mutation() *VirtualMachineMutation {
 	return vmu.mutation
@@ -116,6 +136,12 @@ func (vmu *VirtualMachineUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := vmu.mutation.Name(); ok {
 		_spec.SetField(virtualmachine.FieldName, field.TypeString, value)
 	}
+	if value, ok := vmu.mutation.Userdata(); ok {
+		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
+	}
+	if vmu.mutation.UserdataCleared() {
+		_spec.ClearField(virtualmachine.FieldUserdata, field.TypeString)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, vmu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{virtualmachine.Label}
@@ -139,6 +165,26 @@ type VirtualMachineUpdateOne struct {
 // SetName sets the "name" field.
 func (vmuo *VirtualMachineUpdateOne) SetName(s string) *VirtualMachineUpdateOne {
 	vmuo.mutation.SetName(s)
+	return vmuo
+}
+
+// SetUserdata sets the "userdata" field.
+func (vmuo *VirtualMachineUpdateOne) SetUserdata(s string) *VirtualMachineUpdateOne {
+	vmuo.mutation.SetUserdata(s)
+	return vmuo
+}
+
+// SetNillableUserdata sets the "userdata" field if the given value is not nil.
+func (vmuo *VirtualMachineUpdateOne) SetNillableUserdata(s *string) *VirtualMachineUpdateOne {
+	if s != nil {
+		vmuo.SetUserdata(*s)
+	}
+	return vmuo
+}
+
+// ClearUserdata clears the value of the "userdata" field.
+func (vmuo *VirtualMachineUpdateOne) ClearUserdata() *VirtualMachineUpdateOne {
+	vmuo.mutation.ClearUserdata()
 	return vmuo
 }
 
@@ -240,6 +286,12 @@ func (vmuo *VirtualMachineUpdateOne) sqlSave(ctx context.Context) (_node *Virtua
 	}
 	if value, ok := vmuo.mutation.Name(); ok {
 		_spec.SetField(virtualmachine.FieldName, field.TypeString, value)
+	}
+	if value, ok := vmuo.mutation.Userdata(); ok {
+		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
+	}
+	if vmuo.mutation.UserdataCleared() {
+		_spec.ClearField(virtualmachine.FieldUserdata, field.TypeString)
 	}
 	_node = &VirtualMachine{config: vmuo.config}
 	_spec.Assign = _node.assignValues

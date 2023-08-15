@@ -176,6 +176,28 @@ func VirtualMachineHooks() []ent.Hook {
 						})
 					}
 
+					cv_userdata := ""
+					userdata, ok := m.Userdata()
+
+					if ok {
+						cv_userdata = fmt.Sprintf("%s", fmt.Sprint(userdata))
+						pv_userdata := ""
+						if !m.Op().Is(ent.OpCreate) {
+							ov, err := m.OldUserdata(ctx)
+							if err != nil {
+								pv_userdata = "<unknown>"
+							} else {
+								pv_userdata = fmt.Sprintf("%s", fmt.Sprint(ov))
+							}
+						}
+
+						changeset = append(changeset, events.FieldChange{
+							Field:         "userdata",
+							PreviousValue: pv_userdata,
+							CurrentValue:  cv_userdata,
+						})
+					}
+
 					msg := events.ChangeMessage{
 						EventType:            eventType(m.Op()),
 						SubjectID:            objID,

@@ -38,6 +38,8 @@ const (
 	FieldOwnerID = "owner_id"
 	// FieldLocationID holds the string denoting the location_id field in the database.
 	FieldLocationID = "location_id"
+	// FieldUserdata holds the string denoting the userdata field in the database.
+	FieldUserdata = "userdata"
 	// Table holds the table name of the virtualmachine in the database.
 	Table = "virtual_machines"
 )
@@ -50,6 +52,7 @@ var Columns = []string{
 	FieldName,
 	FieldOwnerID,
 	FieldLocationID,
+	FieldUserdata,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -108,4 +111,9 @@ func ByOwnerID(opts ...sql.OrderTermOption) OrderOption {
 // ByLocationID orders the results by the location_id field.
 func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLocationID, opts...).ToFunc()
+}
+
+// ByUserdata orders the results by the userdata field.
+func ByUserdata(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserdata, opts...).ToFunc()
 }

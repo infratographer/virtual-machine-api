@@ -81,6 +81,20 @@ func (vmc *VirtualMachineCreate) SetLocationID(gi gidx.PrefixedID) *VirtualMachi
 	return vmc
 }
 
+// SetUserdata sets the "userdata" field.
+func (vmc *VirtualMachineCreate) SetUserdata(s string) *VirtualMachineCreate {
+	vmc.mutation.SetUserdata(s)
+	return vmc
+}
+
+// SetNillableUserdata sets the "userdata" field if the given value is not nil.
+func (vmc *VirtualMachineCreate) SetNillableUserdata(s *string) *VirtualMachineCreate {
+	if s != nil {
+		vmc.SetUserdata(*s)
+	}
+	return vmc
+}
+
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -225,6 +239,10 @@ func (vmc *VirtualMachineCreate) createSpec() (*VirtualMachine, *sqlgraph.Create
 	if value, ok := vmc.mutation.LocationID(); ok {
 		_spec.SetField(virtualmachine.FieldLocationID, field.TypeString, value)
 		_node.LocationID = value
+	}
+	if value, ok := vmc.mutation.Userdata(); ok {
+		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
+		_node.Userdata = value
 	}
 	return _node, _spec
 }

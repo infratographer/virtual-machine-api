@@ -94,6 +94,11 @@ func LocationID(v gidx.PrefixedID) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldLocationID, v))
 }
 
+// Userdata applies equality check predicate on the "userdata" field. It's identical to UserdataEQ.
+func Userdata(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldUserdata, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldCreatedAt, v))
@@ -377,6 +382,81 @@ func LocationIDEqualFold(v gidx.PrefixedID) predicate.VirtualMachine {
 func LocationIDContainsFold(v gidx.PrefixedID) predicate.VirtualMachine {
 	vc := string(v)
 	return predicate.VirtualMachine(sql.FieldContainsFold(FieldLocationID, vc))
+}
+
+// UserdataEQ applies the EQ predicate on the "userdata" field.
+func UserdataEQ(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldUserdata, v))
+}
+
+// UserdataNEQ applies the NEQ predicate on the "userdata" field.
+func UserdataNEQ(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNEQ(FieldUserdata, v))
+}
+
+// UserdataIn applies the In predicate on the "userdata" field.
+func UserdataIn(vs ...string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIn(FieldUserdata, vs...))
+}
+
+// UserdataNotIn applies the NotIn predicate on the "userdata" field.
+func UserdataNotIn(vs ...string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotIn(FieldUserdata, vs...))
+}
+
+// UserdataGT applies the GT predicate on the "userdata" field.
+func UserdataGT(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGT(FieldUserdata, v))
+}
+
+// UserdataGTE applies the GTE predicate on the "userdata" field.
+func UserdataGTE(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGTE(FieldUserdata, v))
+}
+
+// UserdataLT applies the LT predicate on the "userdata" field.
+func UserdataLT(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLT(FieldUserdata, v))
+}
+
+// UserdataLTE applies the LTE predicate on the "userdata" field.
+func UserdataLTE(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLTE(FieldUserdata, v))
+}
+
+// UserdataContains applies the Contains predicate on the "userdata" field.
+func UserdataContains(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldContains(FieldUserdata, v))
+}
+
+// UserdataHasPrefix applies the HasPrefix predicate on the "userdata" field.
+func UserdataHasPrefix(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldHasPrefix(FieldUserdata, v))
+}
+
+// UserdataHasSuffix applies the HasSuffix predicate on the "userdata" field.
+func UserdataHasSuffix(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldHasSuffix(FieldUserdata, v))
+}
+
+// UserdataIsNil applies the IsNil predicate on the "userdata" field.
+func UserdataIsNil() predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIsNull(FieldUserdata))
+}
+
+// UserdataNotNil applies the NotNil predicate on the "userdata" field.
+func UserdataNotNil() predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotNull(FieldUserdata))
+}
+
+// UserdataEqualFold applies the EqualFold predicate on the "userdata" field.
+func UserdataEqualFold(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEqualFold(FieldUserdata, v))
+}
+
+// UserdataContainsFold applies the ContainsFold predicate on the "userdata" field.
+func UserdataContainsFold(v string) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldContainsFold(FieldUserdata, v))
 }
 
 // And groups predicates with the AND operator between them.

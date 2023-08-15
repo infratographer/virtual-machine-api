@@ -65,6 +65,12 @@ func (VirtualMachine) Fields() []ent.Field {
 				entgql.Skip(^entgql.SkipMutationCreateInput),
 				pubsubinfo.AdditionalSubject(),
 			),
+		field.String("userdata").
+			Comment("The userdata for this virtual machine.").
+			Optional().
+			Annotations(
+				entgql.Skip(entgql.SkipWhereInput),
+			),
 	}
 }
 

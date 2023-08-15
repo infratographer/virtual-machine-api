@@ -92,6 +92,7 @@ type ComplexityRoot struct {
 		Location  func(childComplexity int) int
 		Name      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
+		Userdata  func(childComplexity int) int
 	}
 
 	VirtualMachineConnection struct {
@@ -321,6 +322,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VirtualMachine.UpdatedAt(childComplexity), true
 
+	case "VirtualMachine.userdata":
+		if e.complexity.VirtualMachine.Userdata == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachine.Userdata(childComplexity), true
+
 	case "VirtualMachineConnection.edges":
 		if e.complexity.VirtualMachineConnection.Edges == nil {
 			break
@@ -467,6 +475,8 @@ input CreateVirtualMachineInput {
   ownerID: ID!
   """The ID for the location of this virtual machine."""
   locationID: ID!
+  """The userdata for this virtual machine."""
+  userdata: String
 }
 """
 Define a Relay Cursor type:
@@ -511,6 +521,9 @@ scalar Time
 input UpdateVirtualMachineInput {
   """The name of the Virtual Machine."""
   name: String
+  """The userdata for this virtual machine."""
+  userdata: String
+  clearUserdata: Boolean
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
   """The ID of the VirtualMachine."""
@@ -519,6 +532,8 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   updatedAt: Time!
   """The name of the Virtual Machine."""
   name: String!
+  """The userdata for this virtual machine."""
+  userdata: String
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -1247,6 +1262,8 @@ func (ec *executionContext) fieldContext_Entity_findVirtualMachineByID(ctx conte
 				return ec.fieldContext_VirtualMachine_updatedAt(ctx, field)
 			case "name":
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
+			case "userdata":
+				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			}
@@ -1591,6 +1608,8 @@ func (ec *executionContext) fieldContext_Query_virtualMachine(ctx context.Contex
 				return ec.fieldContext_VirtualMachine_updatedAt(ctx, field)
 			case "name":
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
+			case "userdata":
+				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			}
@@ -2126,6 +2145,47 @@ func (ec *executionContext) fieldContext_VirtualMachine_name(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _VirtualMachine_userdata(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachine_userdata(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Userdata, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachine_userdata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VirtualMachine_location(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VirtualMachine_location(ctx, field)
 	if err != nil {
@@ -2365,6 +2425,8 @@ func (ec *executionContext) fieldContext_VirtualMachineEdge_node(ctx context.Con
 				return ec.fieldContext_VirtualMachine_updatedAt(ctx, field)
 			case "name":
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
+			case "userdata":
+				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			}
@@ -4239,7 +4301,7 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "ownerID", "locationID"}
+	fieldsInOrder := [...]string{"name", "ownerID", "locationID", "userdata"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4273,6 +4335,15 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.LocationID = data
+		case "userdata":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userdata"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Userdata = data
 		}
 	}
 
@@ -4286,7 +4357,7 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name"}
+	fieldsInOrder := [...]string{"name", "userdata", "clearUserdata"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4302,6 +4373,24 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.Name = data
+		case "userdata":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userdata"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Userdata = data
+		case "clearUserdata":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearUserdata"))
+			data, err := ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClearUserdata = data
 		}
 	}
 
@@ -5305,6 +5394,8 @@ func (ec *executionContext) _VirtualMachine(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "userdata":
+			out.Values[i] = ec._VirtualMachine_userdata(ctx, field, obj)
 		case "location":
 			field := field
 
