@@ -12,11 +12,15 @@ directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 directive @shareable repeatable on FIELD_DEFINITION | OBJECT
 directive @tag(name: String!) repeatable on ARGUMENT_DEFINITION | ENUM | ENUM_VALUE | FIELD_DEFINITION | INPUT_FIELD_DEFINITION | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
+type AnnotationNamespace {
+	"""The owner of the annotation namespace."""
+	owner: ResourceOwner!
+}
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
-	"""The ID for the owner of this Virtual Machine."""
-	name: String!
 	"""The name of the Virtual Machine."""
+	name: String!
+	"""The ID for the owner of this Virtual Machine."""
 	ownerID: ID!
 	"""The ID for the location of this virtual machine."""
 	locationID: ID!
@@ -27,6 +31,30 @@ https://relay.dev/graphql/connections.htm#sec-Cursor
 """
 scalar Cursor
 scalar FieldSet
+"""A valid JSON string."""
+scalar JSON
+type Location @key(fields: "id") {
+	id: ID!
+	virtualMachine(
+		"""Returns the elements in the list that come after the specified cursor."""
+		after: Cursor
+
+		"""Returns the first _n_ elements from the list."""
+		first: Int
+
+		"""Returns the elements in the list that come before the specified cursor."""
+		before: Cursor
+
+		"""Returns the last _n_ elements from the list."""
+		last: Int
+
+		"""Ordering options for VirtualMachine returned from the connection."""
+		orderBy: VirtualMachineOrder
+
+		"""Filtering options for VirtualMachine returned from the connection."""
+		where: VirtualMachineWhereInput
+	): VirtualMachineConnection!
+}
 """
 An object with an ID.
 Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
@@ -46,7 +74,7 @@ enum OrderDirection {
 Information about pagination in a connection.
 https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
 """
-type PageInfo {
+type PageInfo @shareable {
 	"""When paginating forwards, are there more items?"""
 	hasNextPage: Boolean!
 	"""When paginating backwards, are there more items?"""
@@ -57,16 +85,6 @@ type PageInfo {
 	endCursor: Cursor
 }
 type Query {
-	"""Fetches an object given its ID."""
-	node(
-		"""ID of the object."""
-		id: ID!
-	): Node
-	"""Lookup nodes by a list of IDs."""
-	nodes(
-		"""The list of node IDs."""
-		ids: [ID!]!
-	): [Node]!
 	"""Lookup a virtual machine by ID."""
 	virtualMachine(
 		"""The virtual machine ID."""
@@ -101,7 +119,7 @@ type ResourceOwner @key(fields: "id") @interfaceObject {
 scalar Time
 """Update an existing virtual machine."""
 input UpdateVirtualMachineInput {
-	"""The ID for the owner of this Virtual Machine."""
+	"""The name of the Virtual Machine."""
 	name: String
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
@@ -109,8 +127,10 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
 	id: ID!
 	createdAt: Time!
 	updatedAt: Time!
-	"""The ID for the owner of this Virtual Machine."""
+	"""The name of the Virtual Machine."""
 	name: String!
+	"""The location of the load balancer."""
+	location: Location!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -194,7 +214,7 @@ input VirtualMachineWhereInput {
 	nameContainsFold: String
 }
 scalar _Any
-union _Entity = ResourceOwner | VirtualMachine
+union _Entity = Location | ResourceOwner | VirtualMachine
 type _Service {
 	sdl: String
 }

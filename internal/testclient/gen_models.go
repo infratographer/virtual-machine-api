@@ -23,15 +23,27 @@ type Entity interface {
 	IsEntity()
 }
 
+type AnnotationNamespace struct {
+	// The owner of the annotation namespace.
+	Owner ResourceOwner `json:"owner"`
+}
+
 // Create a new virtual machine.
 type CreateVirtualMachineInput struct {
-	// The ID for the owner of this Virtual Machine.
-	Name string `json:"name"`
 	// The name of the Virtual Machine.
+	Name string `json:"name"`
+	// The ID for the owner of this Virtual Machine.
 	OwnerID gidx.PrefixedID `json:"ownerID"`
 	// The ID for the location of this virtual machine.
 	LocationID gidx.PrefixedID `json:"locationID"`
 }
+
+type Location struct {
+	ID             gidx.PrefixedID          `json:"id"`
+	VirtualMachine VirtualMachineConnection `json:"virtualMachine"`
+}
+
+func (Location) IsEntity() {}
 
 // Information about pagination in a connection.
 // https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
@@ -55,7 +67,7 @@ func (ResourceOwner) IsEntity() {}
 
 // Update an existing virtual machine.
 type UpdateVirtualMachineInput struct {
-	// The ID for the owner of this Virtual Machine.
+	// The name of the Virtual Machine.
 	Name *string `json:"name,omitempty"`
 }
 
@@ -64,8 +76,10 @@ type VirtualMachine struct {
 	ID        gidx.PrefixedID `json:"id"`
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
-	// The ID for the owner of this Virtual Machine.
+	// The name of the Virtual Machine.
 	Name string `json:"name"`
+	// The location of the load balancer.
+	Location Location `json:"location"`
 }
 
 func (VirtualMachine) IsNode() {}

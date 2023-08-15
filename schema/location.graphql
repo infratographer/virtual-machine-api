@@ -1,4 +1,4 @@
-type ResourceOwner @key(fields: "id") @interfaceObject {
+type Location @key(fields: "id") {
   id: ID!
   virtualMachine(
     """
@@ -22,20 +22,20 @@ type ResourceOwner @key(fields: "id") @interfaceObject {
     last: Int
 
     """
-    Ordering options for VirtualMachines returned from the connection.
+    Ordering options for VirtualMachine returned from the connection.
     """
     orderBy: VirtualMachineOrder
 
     """
-    Filtering options for VirtualMachines returned from the connection.
+    Filtering options for VirtualMachine returned from the connection.
     """
     where: VirtualMachineWhereInput
   ): VirtualMachineConnection! @goField(forceResolver: true)
 }
 
-extend type AnnotationNamespace {
+extend type VirtualMachine {
   """
-  The owner of the annotation namespace.
+  The location of the load balancer.
   """
-  owner: ResourceOwner! @goField(forceResolver: true)
+  location: Location! @goField(forceResolver: true)
 }

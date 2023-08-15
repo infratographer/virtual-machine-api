@@ -2,9 +2,9 @@ directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | I
 directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
-  """The ID for the owner of this Virtual Machine."""
-  name: String!
   """The name of the Virtual Machine."""
+  name: String!
+  """The ID for the owner of this Virtual Machine."""
   ownerID: ID!
   """The ID for the location of this virtual machine."""
   locationID: ID!
@@ -14,11 +14,13 @@ Define a Relay Cursor type:
 https://relay.dev/graphql/connections.htm#sec-Cursor
 """
 scalar Cursor
+"""A valid JSON string."""
+scalar JSON
 """
 An object with an ID.
 Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
 """
-interface Node @goModel(model: "go.infratographer.com/virtual-machine-api/internal/ent/generated.Noder") {
+interface Node {
   """The id of the object."""
   id: ID!
 }
@@ -33,7 +35,7 @@ enum OrderDirection {
 Information about pagination in a connection.
 https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
 """
-type PageInfo {
+type PageInfo @shareable {
   """When paginating forwards, are there more items?"""
   hasNextPage: Boolean!
   """When paginating backwards, are there more items?"""
@@ -43,23 +45,12 @@ type PageInfo {
   """When paginating forwards, the cursor to continue."""
   endCursor: Cursor
 }
-type Query {
-  """Fetches an object given its ID."""
-  node(
-    """ID of the object."""
-    id: ID!
-  ): Node
-  """Lookup nodes by a list of IDs."""
-  nodes(
-    """The list of node IDs."""
-    ids: [ID!]!
-  ): [Node]!
-}
+type Query
 """The builtin Time type"""
 scalar Time
 """Update an existing virtual machine."""
 input UpdateVirtualMachineInput {
-  """The ID for the owner of this Virtual Machine."""
+  """The name of the Virtual Machine."""
   name: String
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
@@ -67,7 +58,7 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   id: ID!
   createdAt: Time!
   updatedAt: Time!
-  """The ID for the owner of this Virtual Machine."""
+  """The name of the Virtual Machine."""
   name: String!
 }
 """A connection to a list of items."""

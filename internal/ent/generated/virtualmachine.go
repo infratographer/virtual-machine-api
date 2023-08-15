@@ -37,9 +37,9 @@ type VirtualMachine struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// The ID for the owner of this Virtual Machine.
-	Name string `json:"name,omitempty"`
 	// The name of the Virtual Machine.
+	Name string `json:"name,omitempty"`
+	// The ID for the owner of this Virtual Machine.
 	OwnerID gidx.PrefixedID `json:"owner_id,omitempty"`
 	// The ID for the location of this virtual machine.
 	LocationID   gidx.PrefixedID `json:"location_id,omitempty"`

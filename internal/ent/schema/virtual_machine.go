@@ -40,14 +40,14 @@ func (VirtualMachine) Fields() []ent.Field {
 			DefaultFunc(func() gidx.PrefixedID { return gidx.MustNewID(VirtualMachinePrefix) }),
 		field.String("name").
 			NotEmpty().
-			Comment("The ID for the owner of this Virtual Machine.").
+			Comment("The name of the Virtual Machine.").
 			Annotations(
 				entgql.OrderField("NAME"),
 			),
 		field.String("owner_id").
 			GoType(gidx.PrefixedID("")).
+			Comment("The ID for the owner of this Virtual Machine.").
 			Immutable().
-			Comment("The name of the Virtual Machine.").
 			Annotations(
 				entgql.QueryField(),
 				entgql.Type("ID"),
