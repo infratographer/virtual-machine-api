@@ -33,9 +33,9 @@ type ResourceOwner @key(fields: "id") @interfaceObject {
   ): VirtualMachineConnection! @goField(forceResolver: true)
 }
 
-extend type AnnotationNamespace {
+extend type VirtualMachine {
   """
-  The owner of the annotation namespace.
+  The owner of the VirtualMachine
   """
   owner: ResourceOwner! @goField(forceResolver: true)
 }

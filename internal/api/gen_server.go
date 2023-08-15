@@ -40,7 +40,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	AnnotationNamespace() AnnotationNamespaceResolver
 	Entity() EntityResolver
 	Location() LocationResolver
 	Query() QueryResolver
@@ -53,10 +52,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AnnotationNamespace struct {
-		Owner func(childComplexity int) int
-	}
-
 	Entity struct {
 		FindLocationByID       func(childComplexity int, id gidx.PrefixedID) int
 		FindResourceOwnerByID  func(childComplexity int, id gidx.PrefixedID) int
@@ -64,8 +59,8 @@ type ComplexityRoot struct {
 	}
 
 	Location struct {
-		ID             func(childComplexity int) int
-		VirtualMachine func(childComplexity int, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) int
+		ID              func(childComplexity int) int
+		VirtualMachines func(childComplexity int, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) int
 	}
 
 	PageInfo struct {
@@ -91,6 +86,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Location  func(childComplexity int) int
 		Name      func(childComplexity int) int
+		Owner     func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 		Userdata  func(childComplexity int) int
 	}
@@ -111,16 +107,13 @@ type ComplexityRoot struct {
 	}
 }
 
-type AnnotationNamespaceResolver interface {
-	Owner(ctx context.Context, obj *AnnotationNamespace) (*ResourceOwner, error)
-}
 type EntityResolver interface {
 	FindLocationByID(ctx context.Context, id gidx.PrefixedID) (*Location, error)
 	FindResourceOwnerByID(ctx context.Context, id gidx.PrefixedID) (*ResourceOwner, error)
 	FindVirtualMachineByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error)
 }
 type LocationResolver interface {
-	VirtualMachine(ctx context.Context, obj *Location, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) (*generated.VirtualMachineConnection, error)
+	VirtualMachines(ctx context.Context, obj *Location, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) (*generated.VirtualMachineConnection, error)
 }
 type QueryResolver interface {
 	VirtualMachine(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error)
@@ -130,6 +123,7 @@ type ResourceOwnerResolver interface {
 }
 type VirtualMachineResolver interface {
 	Location(ctx context.Context, obj *generated.VirtualMachine) (*Location, error)
+	Owner(ctx context.Context, obj *generated.VirtualMachine) (*ResourceOwner, error)
 }
 
 type executableSchema struct {
@@ -146,13 +140,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "AnnotationNamespace.owner":
-		if e.complexity.AnnotationNamespace.Owner == nil {
-			break
-		}
-
-		return e.complexity.AnnotationNamespace.Owner(childComplexity), true
 
 	case "Entity.findLocationByID":
 		if e.complexity.Entity.FindLocationByID == nil {
@@ -197,17 +184,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Location.ID(childComplexity), true
 
-	case "Location.virtualMachine":
-		if e.complexity.Location.VirtualMachine == nil {
+	case "Location.virtualMachines":
+		if e.complexity.Location.VirtualMachines == nil {
 			break
 		}
 
-		args, err := ec.field_Location_virtualMachine_args(context.TODO(), rawArgs)
+		args, err := ec.field_Location_virtualMachines_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Location.VirtualMachine(childComplexity, args["after"].(*entgql.Cursor[gidx.PrefixedID]), args["first"].(*int), args["before"].(*entgql.Cursor[gidx.PrefixedID]), args["last"].(*int), args["orderBy"].(*generated.VirtualMachineOrder), args["where"].(*generated.VirtualMachineWhereInput)), true
+		return e.complexity.Location.VirtualMachines(childComplexity, args["after"].(*entgql.Cursor[gidx.PrefixedID]), args["first"].(*int), args["before"].(*entgql.Cursor[gidx.PrefixedID]), args["last"].(*int), args["orderBy"].(*generated.VirtualMachineOrder), args["where"].(*generated.VirtualMachineWhereInput)), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -314,6 +301,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.VirtualMachine.Name(childComplexity), true
+
+	case "VirtualMachine.owner":
+		if e.complexity.VirtualMachine.Owner == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachine.Owner(childComplexity), true
 
 	case "VirtualMachine.updatedAt":
 		if e.complexity.VirtualMachine.UpdatedAt == nil {
@@ -619,7 +613,7 @@ input VirtualMachineWhereInput {
 `, BuiltIn: false},
 	{Name: "../../schema/location.graphql", Input: `type Location @key(fields: "id") {
   id: ID!
-  virtualMachine(
+  virtualMachines(
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -657,7 +651,8 @@ extend type VirtualMachine {
   The location of the load balancer.
   """
   location: Location! @goField(forceResolver: true)
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../../schema/owner.graphql", Input: `type ResourceOwner @key(fields: "id") @interfaceObject {
   id: ID!
   virtualMachine(
@@ -693,12 +688,13 @@ extend type VirtualMachine {
   ): VirtualMachineConnection! @goField(forceResolver: true)
 }
 
-extend type AnnotationNamespace {
+extend type VirtualMachine {
   """
-  The owner of the annotation namespace.
+  The owner of the VirtualMachine
   """
   owner: ResourceOwner! @goField(forceResolver: true)
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../../schema/prefixedID.graphql", Input: `"""
 This directive is used to prefix the ID of an object with a given string.
 """
@@ -840,7 +836,7 @@ func (ec *executionContext) field_Entity_findVirtualMachineByID_args(ctx context
 	return args, nil
 }
 
-func (ec *executionContext) field_Location_virtualMachine_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Location_virtualMachines_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *entgql.Cursor[gidx.PrefixedID]
@@ -1043,56 +1039,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AnnotationNamespace_owner(ctx context.Context, field graphql.CollectedField, obj *AnnotationNamespace) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AnnotationNamespace_owner(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AnnotationNamespace().Owner(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*ResourceOwner)
-	fc.Result = res
-	return ec.marshalNResourceOwner2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋapiᚐResourceOwner(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AnnotationNamespace_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AnnotationNamespace",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_ResourceOwner_id(ctx, field)
-			case "virtualMachine":
-				return ec.fieldContext_ResourceOwner_virtualMachine(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ResourceOwner", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Entity_findLocationByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Entity_findLocationByID(ctx, field)
 	if err != nil {
@@ -1134,8 +1080,8 @@ func (ec *executionContext) fieldContext_Entity_findLocationByID(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Location_id(ctx, field)
-			case "virtualMachine":
-				return ec.fieldContext_Location_virtualMachine(ctx, field)
+			case "virtualMachines":
+				return ec.fieldContext_Location_virtualMachines(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Location", field.Name)
 		},
@@ -1266,6 +1212,8 @@ func (ec *executionContext) fieldContext_Entity_findVirtualMachineByID(ctx conte
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
+			case "owner":
+				return ec.fieldContext_VirtualMachine_owner(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VirtualMachine", field.Name)
 		},
@@ -1328,8 +1276,8 @@ func (ec *executionContext) fieldContext_Location_id(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Location_virtualMachine(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Location_virtualMachine(ctx, field)
+func (ec *executionContext) _Location_virtualMachines(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Location_virtualMachines(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1342,7 +1290,7 @@ func (ec *executionContext) _Location_virtualMachine(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Location().VirtualMachine(rctx, obj, fc.Args["after"].(*entgql.Cursor[gidx.PrefixedID]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[gidx.PrefixedID]), fc.Args["last"].(*int), fc.Args["orderBy"].(*generated.VirtualMachineOrder), fc.Args["where"].(*generated.VirtualMachineWhereInput))
+		return ec.resolvers.Location().VirtualMachines(rctx, obj, fc.Args["after"].(*entgql.Cursor[gidx.PrefixedID]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[gidx.PrefixedID]), fc.Args["last"].(*int), fc.Args["orderBy"].(*generated.VirtualMachineOrder), fc.Args["where"].(*generated.VirtualMachineWhereInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1359,7 +1307,7 @@ func (ec *executionContext) _Location_virtualMachine(ctx context.Context, field 
 	return ec.marshalNVirtualMachineConnection2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Location_virtualMachine(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Location_virtualMachines(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Location",
 		Field:      field,
@@ -1384,7 +1332,7 @@ func (ec *executionContext) fieldContext_Location_virtualMachine(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Location_virtualMachine_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Location_virtualMachines_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1612,6 +1560,8 @@ func (ec *executionContext) fieldContext_Query_virtualMachine(ctx context.Contex
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
+			case "owner":
+				return ec.fieldContext_VirtualMachine_owner(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VirtualMachine", field.Name)
 		},
@@ -2227,10 +2177,60 @@ func (ec *executionContext) fieldContext_VirtualMachine_location(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Location_id(ctx, field)
-			case "virtualMachine":
-				return ec.fieldContext_Location_virtualMachine(ctx, field)
+			case "virtualMachines":
+				return ec.fieldContext_Location_virtualMachines(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Location", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachine_owner(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachine_owner(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.VirtualMachine().Owner(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*ResourceOwner)
+	fc.Result = res
+	return ec.marshalNResourceOwner2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋapiᚐResourceOwner(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachine_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachine",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ResourceOwner_id(ctx, field)
+			case "virtualMachine":
+				return ec.fieldContext_ResourceOwner_virtualMachine(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResourceOwner", field.Name)
 		},
 	}
 	return fc, nil
@@ -2429,6 +2429,8 @@ func (ec *executionContext) fieldContext_VirtualMachineEdge_node(ctx context.Con
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
+			case "owner":
+				return ec.fieldContext_VirtualMachine_owner(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VirtualMachine", field.Name)
 		},
@@ -4871,76 +4873,6 @@ func (ec *executionContext) __Entity(ctx context.Context, sel ast.SelectionSet, 
 
 // region    **************************** object.gotpl ****************************
 
-var annotationNamespaceImplementors = []string{"AnnotationNamespace"}
-
-func (ec *executionContext) _AnnotationNamespace(ctx context.Context, sel ast.SelectionSet, obj *AnnotationNamespace) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, annotationNamespaceImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AnnotationNamespace")
-		case "owner":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._AnnotationNamespace_owner(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var entityImplementors = []string{"Entity"}
 
 func (ec *executionContext) _Entity(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -5065,7 +4997,7 @@ func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "virtualMachine":
+		case "virtualMachines":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -5074,7 +5006,7 @@ func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Location_virtualMachine(ctx, field, obj)
+				res = ec._Location_virtualMachines(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5406,6 +5338,42 @@ func (ec *executionContext) _VirtualMachine(ctx context.Context, sel ast.Selecti
 					}
 				}()
 				res = ec._VirtualMachine_location(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "owner":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._VirtualMachine_owner(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

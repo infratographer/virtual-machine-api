@@ -1,9 +1,5 @@
 """This directive is used to prefix the ID of an object with a given string."""
 directive @prefixedID(prefix: String!) on OBJECT
-type AnnotationNamespace {
-	"""The owner of the annotation namespace."""
-	owner: ResourceOwner!
-}
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
 	"""The name of the Virtual Machine."""
@@ -24,7 +20,7 @@ scalar Cursor
 scalar JSON
 type Location @key(fields: "id") {
 	id: ID!
-	virtualMachine(
+	virtualMachines(
 		"""Returns the elements in the list that come after the specified cursor."""
 		after: Cursor
 
@@ -125,6 +121,8 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
 	userdata: String
 	"""The location of the load balancer."""
 	location: Location!
+	"""The owner of the VirtualMachine"""
+	owner: ResourceOwner!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {

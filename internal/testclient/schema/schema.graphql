@@ -12,10 +12,6 @@ directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 directive @shareable repeatable on FIELD_DEFINITION | OBJECT
 directive @tag(name: String!) repeatable on ARGUMENT_DEFINITION | ENUM | ENUM_VALUE | FIELD_DEFINITION | INPUT_FIELD_DEFINITION | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
-type AnnotationNamespace {
-	"""The owner of the annotation namespace."""
-	owner: ResourceOwner!
-}
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
 	"""The name of the Virtual Machine."""
@@ -37,7 +33,7 @@ scalar FieldSet
 scalar JSON
 type Location @key(fields: "id") {
 	id: ID!
-	virtualMachine(
+	virtualMachines(
 		"""Returns the elements in the list that come after the specified cursor."""
 		after: Cursor
 
@@ -138,6 +134,8 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
 	userdata: String
 	"""The location of the load balancer."""
 	location: Location!
+	"""The owner of the VirtualMachine"""
+	owner: ResourceOwner!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {

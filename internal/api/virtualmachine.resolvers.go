@@ -6,13 +6,18 @@ package api
 
 import (
 	"context"
-	"fmt"
+
+	"go.infratographer.com/x/gidx"
 
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
-	"go.infratographer.com/x/gidx"
 )
 
 // VirtualMachine is the resolver for the virtualMachine field.
 func (r *queryResolver) VirtualMachine(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error) {
-	panic(fmt.Errorf("not implemented: VirtualMachine - virtualMachine"))
+	// TODO check locations
+	// if err := permissions.CheckAccess(ctx, id, actionVirtualMachineGet); err != nil {
+	// 	return nil, err
+	// }
+
+	return r.client.VirtualMachine.Get(ctx, id)
 }

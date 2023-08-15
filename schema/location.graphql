@@ -1,6 +1,6 @@
 type Location @key(fields: "id") {
   id: ID!
-  virtualMachine(
+  virtualMachines(
     """
     Returns the elements in the list that come after the specified cursor.
     """

@@ -1,0 +1,12 @@
+query GetVirtualMachineByID($id: ID!) {
+  virtualMachine(id: $id) {
+    id
+    name
+    owner {
+      id
+    }
+    location {
+      id
+    }
+  }
+}
