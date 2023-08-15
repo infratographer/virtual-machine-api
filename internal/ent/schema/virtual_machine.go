@@ -66,10 +66,10 @@ func (VirtualMachine) Fields() []ent.Field {
 				pubsubinfo.AdditionalSubject(),
 			),
 		field.String("userdata").
-			Comment("The userdata for this victual machine.").
-			Default("").
+			Sensitive().
+			Comment("The userdata for this virtual machine.").
 			Annotations(
-				entgql.QueryField("USERDATA"),
+				entgql.Skip(entgql.SkipWhereInput),
 			),
 	}
 }

@@ -87,14 +87,6 @@ func (vmc *VirtualMachineCreate) SetUserdata(s string) *VirtualMachineCreate {
 	return vmc
 }
 
-// SetNillableUserdata sets the "userdata" field if the given value is not nil.
-func (vmc *VirtualMachineCreate) SetNillableUserdata(s *string) *VirtualMachineCreate {
-	if s != nil {
-		vmc.SetUserdata(*s)
-	}
-	return vmc
-}
-
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -151,10 +143,6 @@ func (vmc *VirtualMachineCreate) defaults() {
 	if _, ok := vmc.mutation.UpdatedAt(); !ok {
 		v := virtualmachine.DefaultUpdatedAt()
 		vmc.mutation.SetUpdatedAt(v)
-	}
-	if _, ok := vmc.mutation.Userdata(); !ok {
-		v := virtualmachine.DefaultUserdata
-		vmc.mutation.SetUserdata(v)
 	}
 	if _, ok := vmc.mutation.ID(); !ok {
 		v := virtualmachine.DefaultID()
