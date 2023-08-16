@@ -44,7 +44,11 @@ type VirtualMachine struct {
 	// The ID for the location of this virtual machine.
 	LocationID gidx.PrefixedID `json:"location_id,omitempty"`
 	// The userdata for this virtual machine.
-	Userdata     string `json:"userdata,omitempty"`
+	Userdata string `json:"userdata,omitempty"`
+	// The number of cores for the virtual machine.
+	Cores int `json:"cores,omitempty"`
+	// The number of sockets for the virtual machine.
+	Sockets      int `json:"sockets,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -55,6 +59,8 @@ func (*VirtualMachine) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case virtualmachine.FieldID, virtualmachine.FieldOwnerID, virtualmachine.FieldLocationID:
 			values[i] = new(gidx.PrefixedID)
+		case virtualmachine.FieldCores, virtualmachine.FieldSockets:
+			values[i] = new(sql.NullInt64)
 		case virtualmachine.FieldName, virtualmachine.FieldUserdata:
 			values[i] = new(sql.NullString)
 		case virtualmachine.FieldCreatedAt, virtualmachine.FieldUpdatedAt:
@@ -116,6 +122,18 @@ func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				vm.Userdata = value.String
 			}
+		case virtualmachine.FieldCores:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field cores", values[i])
+			} else if value.Valid {
+				vm.Cores = int(value.Int64)
+			}
+		case virtualmachine.FieldSockets:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field sockets", values[i])
+			} else if value.Valid {
+				vm.Sockets = int(value.Int64)
+			}
 		default:
 			vm.selectValues.Set(columns[i], values[i])
 		}
@@ -169,6 +187,12 @@ func (vm *VirtualMachine) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("userdata=")
 	builder.WriteString(vm.Userdata)
+	builder.WriteString(", ")
+	builder.WriteString("cores=")
+	builder.WriteString(fmt.Sprintf("%v", vm.Cores))
+	builder.WriteString(", ")
+	builder.WriteString("sockets=")
+	builder.WriteString(fmt.Sprintf("%v", vm.Sockets))
 	builder.WriteByte(')')
 	return builder.String()
 }

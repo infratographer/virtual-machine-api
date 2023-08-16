@@ -82,11 +82,13 @@ type ComplexityRoot struct {
 	}
 
 	VirtualMachine struct {
+		Cores     func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Location  func(childComplexity int) int
 		Name      func(childComplexity int) int
 		Owner     func(childComplexity int) int
+		Sockets   func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 		Userdata  func(childComplexity int) int
 	}
@@ -274,6 +276,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ResourceOwner.VirtualMachine(childComplexity, args["after"].(*entgql.Cursor[gidx.PrefixedID]), args["first"].(*int), args["before"].(*entgql.Cursor[gidx.PrefixedID]), args["last"].(*int), args["orderBy"].(*generated.VirtualMachineOrder), args["where"].(*generated.VirtualMachineWhereInput)), true
 
+	case "VirtualMachine.cores":
+		if e.complexity.VirtualMachine.Cores == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachine.Cores(childComplexity), true
+
 	case "VirtualMachine.createdAt":
 		if e.complexity.VirtualMachine.CreatedAt == nil {
 			break
@@ -308,6 +317,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.VirtualMachine.Owner(childComplexity), true
+
+	case "VirtualMachine.sockets":
+		if e.complexity.VirtualMachine.Sockets == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachine.Sockets(childComplexity), true
 
 	case "VirtualMachine.updatedAt":
 		if e.complexity.VirtualMachine.UpdatedAt == nil {
@@ -471,6 +487,10 @@ input CreateVirtualMachineInput {
   locationID: ID!
   """The userdata for this virtual machine."""
   userdata: String
+  """The number of cores for the virtual machine."""
+  cores: Int
+  """The number of sockets for the virtual machine."""
+  sockets: Int
 }
 """
 Define a Relay Cursor type:
@@ -518,6 +538,10 @@ input UpdateVirtualMachineInput {
   """The userdata for this virtual machine."""
   userdata: String
   clearUserdata: Boolean
+  """The number of cores for the virtual machine."""
+  cores: Int
+  """The number of sockets for the virtual machine."""
+  sockets: Int
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
   """The ID of the VirtualMachine."""
@@ -528,6 +552,10 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   name: String!
   """The userdata for this virtual machine."""
   userdata: String
+  """The number of cores for the virtual machine."""
+  cores: Int!
+  """The number of sockets for the virtual machine."""
+  sockets: Int!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -1210,6 +1238,10 @@ func (ec *executionContext) fieldContext_Entity_findVirtualMachineByID(ctx conte
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "cores":
+				return ec.fieldContext_VirtualMachine_cores(ctx, field)
+			case "sockets":
+				return ec.fieldContext_VirtualMachine_sockets(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -1558,6 +1590,10 @@ func (ec *executionContext) fieldContext_Query_virtualMachine(ctx context.Contex
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "cores":
+				return ec.fieldContext_VirtualMachine_cores(ctx, field)
+			case "sockets":
+				return ec.fieldContext_VirtualMachine_sockets(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -2136,6 +2172,94 @@ func (ec *executionContext) fieldContext_VirtualMachine_userdata(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _VirtualMachine_cores(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachine_cores(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cores, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachine_cores(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachine_sockets(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachine_sockets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sockets, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachine_sockets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VirtualMachine_location(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VirtualMachine_location(ctx, field)
 	if err != nil {
@@ -2427,6 +2551,10 @@ func (ec *executionContext) fieldContext_VirtualMachineEdge_node(ctx context.Con
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "cores":
+				return ec.fieldContext_VirtualMachine_cores(ctx, field)
+			case "sockets":
+				return ec.fieldContext_VirtualMachine_sockets(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -4303,7 +4431,7 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "ownerID", "locationID", "userdata"}
+	fieldsInOrder := [...]string{"name", "ownerID", "locationID", "userdata", "cores", "sockets"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4346,6 +4474,24 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.Userdata = data
+		case "cores":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cores"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cores = data
+		case "sockets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sockets"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sockets = data
 		}
 	}
 
@@ -4359,7 +4505,7 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "userdata", "clearUserdata"}
+	fieldsInOrder := [...]string{"name", "userdata", "clearUserdata", "cores", "sockets"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4393,6 +4539,24 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.ClearUserdata = data
+		case "cores":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cores"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cores = data
+		case "sockets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sockets"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sockets = data
 		}
 	}
 
@@ -5328,6 +5492,16 @@ func (ec *executionContext) _VirtualMachine(ctx context.Context, sel ast.Selecti
 			}
 		case "userdata":
 			out.Values[i] = ec._VirtualMachine_userdata(ctx, field, obj)
+		case "cores":
+			out.Values[i] = ec._VirtualMachine_cores(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "sockets":
+			out.Values[i] = ec._VirtualMachine_sockets(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "location":
 			field := field
 

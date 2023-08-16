@@ -198,6 +198,50 @@ func VirtualMachineHooks() []ent.Hook {
 						})
 					}
 
+					cv_cores := ""
+					cores, ok := m.Cores()
+
+					if ok {
+						cv_cores = fmt.Sprintf("%s", fmt.Sprint(cores))
+						pv_cores := ""
+						if !m.Op().Is(ent.OpCreate) {
+							ov, err := m.OldCores(ctx)
+							if err != nil {
+								pv_cores = "<unknown>"
+							} else {
+								pv_cores = fmt.Sprintf("%s", fmt.Sprint(ov))
+							}
+						}
+
+						changeset = append(changeset, events.FieldChange{
+							Field:         "cores",
+							PreviousValue: pv_cores,
+							CurrentValue:  cv_cores,
+						})
+					}
+
+					cv_sockets := ""
+					sockets, ok := m.Sockets()
+
+					if ok {
+						cv_sockets = fmt.Sprintf("%s", fmt.Sprint(sockets))
+						pv_sockets := ""
+						if !m.Op().Is(ent.OpCreate) {
+							ov, err := m.OldSockets(ctx)
+							if err != nil {
+								pv_sockets = "<unknown>"
+							} else {
+								pv_sockets = fmt.Sprintf("%s", fmt.Sprint(ov))
+							}
+						}
+
+						changeset = append(changeset, events.FieldChange{
+							Field:         "sockets",
+							PreviousValue: pv_sockets,
+							CurrentValue:  cv_sockets,
+						})
+					}
+
 					msg := events.ChangeMessage{
 						EventType:            eventType(m.Op()),
 						SubjectID:            objID,

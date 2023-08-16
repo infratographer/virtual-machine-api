@@ -71,6 +71,20 @@ func (VirtualMachine) Fields() []ent.Field {
 			Annotations(
 				entgql.Skip(entgql.SkipWhereInput),
 			),
+		field.Int("cores").
+			Comment("The number of cores for the virtual machine.").
+			Default(1).
+			Min(1).
+			Annotations(
+				entgql.Skip(entgql.SkipWhereInput),
+			),
+		field.Int("sockets").
+			Comment("The number of sockets for the virtual machine.").
+			Default(1).
+			Min(1).
+			Annotations(
+				entgql.Skip(entgql.SkipWhereInput),
+			),
 	}
 }
 
