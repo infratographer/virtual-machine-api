@@ -99,6 +99,16 @@ func Userdata(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldUserdata, v))
 }
 
+// Cores applies equality check predicate on the "cores" field. It's identical to CoresEQ.
+func Cores(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldCores, v))
+}
+
+// Sockets applies equality check predicate on the "sockets" field. It's identical to SocketsEQ.
+func Sockets(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldSockets, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldCreatedAt, v))
@@ -459,34 +469,97 @@ func UserdataContainsFold(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldContainsFold(FieldUserdata, v))
 }
 
+// CoresEQ applies the EQ predicate on the "cores" field.
+func CoresEQ(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldCores, v))
+}
+
+// CoresNEQ applies the NEQ predicate on the "cores" field.
+func CoresNEQ(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNEQ(FieldCores, v))
+}
+
+// CoresIn applies the In predicate on the "cores" field.
+func CoresIn(vs ...int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIn(FieldCores, vs...))
+}
+
+// CoresNotIn applies the NotIn predicate on the "cores" field.
+func CoresNotIn(vs ...int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotIn(FieldCores, vs...))
+}
+
+// CoresGT applies the GT predicate on the "cores" field.
+func CoresGT(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGT(FieldCores, v))
+}
+
+// CoresGTE applies the GTE predicate on the "cores" field.
+func CoresGTE(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGTE(FieldCores, v))
+}
+
+// CoresLT applies the LT predicate on the "cores" field.
+func CoresLT(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLT(FieldCores, v))
+}
+
+// CoresLTE applies the LTE predicate on the "cores" field.
+func CoresLTE(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLTE(FieldCores, v))
+}
+
+// SocketsEQ applies the EQ predicate on the "sockets" field.
+func SocketsEQ(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldSockets, v))
+}
+
+// SocketsNEQ applies the NEQ predicate on the "sockets" field.
+func SocketsNEQ(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNEQ(FieldSockets, v))
+}
+
+// SocketsIn applies the In predicate on the "sockets" field.
+func SocketsIn(vs ...int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIn(FieldSockets, vs...))
+}
+
+// SocketsNotIn applies the NotIn predicate on the "sockets" field.
+func SocketsNotIn(vs ...int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotIn(FieldSockets, vs...))
+}
+
+// SocketsGT applies the GT predicate on the "sockets" field.
+func SocketsGT(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGT(FieldSockets, v))
+}
+
+// SocketsGTE applies the GTE predicate on the "sockets" field.
+func SocketsGTE(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGTE(FieldSockets, v))
+}
+
+// SocketsLT applies the LT predicate on the "sockets" field.
+func SocketsLT(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLT(FieldSockets, v))
+}
+
+// SocketsLTE applies the LTE predicate on the "sockets" field.
+func SocketsLTE(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLTE(FieldSockets, v))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for _, p := range predicates {
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.VirtualMachine(sql.AndPredicates(predicates...))
 }
 
 // Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for i, p := range predicates {
-			if i > 0 {
-				s1.Or()
-			}
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.VirtualMachine(sql.OrPredicates(predicates...))
 }
 
 // Not applies the not operator on the given predicate.
 func Not(p predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		p(s.Not())
-	})
+	return predicate.VirtualMachine(sql.NotPredicates(p))
 }

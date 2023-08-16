@@ -51,6 +51,18 @@ func init() {
 	virtualmachineDescLocationID := virtualmachineFields[3].Descriptor()
 	// virtualmachine.LocationIDValidator is a validator for the "location_id" field. It is called by the builders before save.
 	virtualmachine.LocationIDValidator = virtualmachineDescLocationID.Validators[0].(func(string) error)
+	// virtualmachineDescCores is the schema descriptor for cores field.
+	virtualmachineDescCores := virtualmachineFields[5].Descriptor()
+	// virtualmachine.DefaultCores holds the default value on creation for the cores field.
+	virtualmachine.DefaultCores = virtualmachineDescCores.Default.(int)
+	// virtualmachine.CoresValidator is a validator for the "cores" field. It is called by the builders before save.
+	virtualmachine.CoresValidator = virtualmachineDescCores.Validators[0].(func(int) error)
+	// virtualmachineDescSockets is the schema descriptor for sockets field.
+	virtualmachineDescSockets := virtualmachineFields[6].Descriptor()
+	// virtualmachine.DefaultSockets holds the default value on creation for the sockets field.
+	virtualmachine.DefaultSockets = virtualmachineDescSockets.Default.(int)
+	// virtualmachine.SocketsValidator is a validator for the "sockets" field. It is called by the builders before save.
+	virtualmachine.SocketsValidator = virtualmachineDescSockets.Validators[0].(func(int) error)
 	// virtualmachineDescID is the schema descriptor for id field.
 	virtualmachineDescID := virtualmachineFields[0].Descriptor()
 	// virtualmachine.DefaultID holds the default value on creation for the id field.

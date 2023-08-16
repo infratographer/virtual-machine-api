@@ -40,6 +40,10 @@ const (
 	FieldLocationID = "location_id"
 	// FieldUserdata holds the string denoting the userdata field in the database.
 	FieldUserdata = "userdata"
+	// FieldCores holds the string denoting the cores field in the database.
+	FieldCores = "cores"
+	// FieldSockets holds the string denoting the sockets field in the database.
+	FieldSockets = "sockets"
 	// Table holds the table name of the virtualmachine in the database.
 	Table = "virtual_machines"
 )
@@ -53,6 +57,8 @@ var Columns = []string{
 	FieldOwnerID,
 	FieldLocationID,
 	FieldUserdata,
+	FieldCores,
+	FieldSockets,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -76,6 +82,14 @@ var (
 	NameValidator func(string) error
 	// LocationIDValidator is a validator for the "location_id" field. It is called by the builders before save.
 	LocationIDValidator func(string) error
+	// DefaultCores holds the default value on creation for the "cores" field.
+	DefaultCores int
+	// CoresValidator is a validator for the "cores" field. It is called by the builders before save.
+	CoresValidator func(int) error
+	// DefaultSockets holds the default value on creation for the "sockets" field.
+	DefaultSockets int
+	// SocketsValidator is a validator for the "sockets" field. It is called by the builders before save.
+	SocketsValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() gidx.PrefixedID
 )
@@ -116,4 +130,14 @@ func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserdata orders the results by the userdata field.
 func ByUserdata(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserdata, opts...).ToFunc()
+}
+
+// ByCores orders the results by the cores field.
+func ByCores(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCores, opts...).ToFunc()
+}
+
+// BySockets orders the results by the sockets field.
+func BySockets(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSockets, opts...).ToFunc()
 }

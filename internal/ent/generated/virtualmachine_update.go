@@ -67,6 +67,48 @@ func (vmu *VirtualMachineUpdate) ClearUserdata() *VirtualMachineUpdate {
 	return vmu
 }
 
+// SetCores sets the "cores" field.
+func (vmu *VirtualMachineUpdate) SetCores(i int) *VirtualMachineUpdate {
+	vmu.mutation.ResetCores()
+	vmu.mutation.SetCores(i)
+	return vmu
+}
+
+// SetNillableCores sets the "cores" field if the given value is not nil.
+func (vmu *VirtualMachineUpdate) SetNillableCores(i *int) *VirtualMachineUpdate {
+	if i != nil {
+		vmu.SetCores(*i)
+	}
+	return vmu
+}
+
+// AddCores adds i to the "cores" field.
+func (vmu *VirtualMachineUpdate) AddCores(i int) *VirtualMachineUpdate {
+	vmu.mutation.AddCores(i)
+	return vmu
+}
+
+// SetSockets sets the "sockets" field.
+func (vmu *VirtualMachineUpdate) SetSockets(i int) *VirtualMachineUpdate {
+	vmu.mutation.ResetSockets()
+	vmu.mutation.SetSockets(i)
+	return vmu
+}
+
+// SetNillableSockets sets the "sockets" field if the given value is not nil.
+func (vmu *VirtualMachineUpdate) SetNillableSockets(i *int) *VirtualMachineUpdate {
+	if i != nil {
+		vmu.SetSockets(*i)
+	}
+	return vmu
+}
+
+// AddSockets adds i to the "sockets" field.
+func (vmu *VirtualMachineUpdate) AddSockets(i int) *VirtualMachineUpdate {
+	vmu.mutation.AddSockets(i)
+	return vmu
+}
+
 // Mutation returns the VirtualMachineMutation object of the builder.
 func (vmu *VirtualMachineUpdate) Mutation() *VirtualMachineMutation {
 	return vmu.mutation
@@ -115,6 +157,16 @@ func (vmu *VirtualMachineUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
+	if v, ok := vmu.mutation.Cores(); ok {
+		if err := virtualmachine.CoresValidator(v); err != nil {
+			return &ValidationError{Name: "cores", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.cores": %w`, err)}
+		}
+	}
+	if v, ok := vmu.mutation.Sockets(); ok {
+		if err := virtualmachine.SocketsValidator(v); err != nil {
+			return &ValidationError{Name: "sockets", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.sockets": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -141,6 +193,18 @@ func (vmu *VirtualMachineUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if vmu.mutation.UserdataCleared() {
 		_spec.ClearField(virtualmachine.FieldUserdata, field.TypeString)
+	}
+	if value, ok := vmu.mutation.Cores(); ok {
+		_spec.SetField(virtualmachine.FieldCores, field.TypeInt, value)
+	}
+	if value, ok := vmu.mutation.AddedCores(); ok {
+		_spec.AddField(virtualmachine.FieldCores, field.TypeInt, value)
+	}
+	if value, ok := vmu.mutation.Sockets(); ok {
+		_spec.SetField(virtualmachine.FieldSockets, field.TypeInt, value)
+	}
+	if value, ok := vmu.mutation.AddedSockets(); ok {
+		_spec.AddField(virtualmachine.FieldSockets, field.TypeInt, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, vmu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -185,6 +249,48 @@ func (vmuo *VirtualMachineUpdateOne) SetNillableUserdata(s *string) *VirtualMach
 // ClearUserdata clears the value of the "userdata" field.
 func (vmuo *VirtualMachineUpdateOne) ClearUserdata() *VirtualMachineUpdateOne {
 	vmuo.mutation.ClearUserdata()
+	return vmuo
+}
+
+// SetCores sets the "cores" field.
+func (vmuo *VirtualMachineUpdateOne) SetCores(i int) *VirtualMachineUpdateOne {
+	vmuo.mutation.ResetCores()
+	vmuo.mutation.SetCores(i)
+	return vmuo
+}
+
+// SetNillableCores sets the "cores" field if the given value is not nil.
+func (vmuo *VirtualMachineUpdateOne) SetNillableCores(i *int) *VirtualMachineUpdateOne {
+	if i != nil {
+		vmuo.SetCores(*i)
+	}
+	return vmuo
+}
+
+// AddCores adds i to the "cores" field.
+func (vmuo *VirtualMachineUpdateOne) AddCores(i int) *VirtualMachineUpdateOne {
+	vmuo.mutation.AddCores(i)
+	return vmuo
+}
+
+// SetSockets sets the "sockets" field.
+func (vmuo *VirtualMachineUpdateOne) SetSockets(i int) *VirtualMachineUpdateOne {
+	vmuo.mutation.ResetSockets()
+	vmuo.mutation.SetSockets(i)
+	return vmuo
+}
+
+// SetNillableSockets sets the "sockets" field if the given value is not nil.
+func (vmuo *VirtualMachineUpdateOne) SetNillableSockets(i *int) *VirtualMachineUpdateOne {
+	if i != nil {
+		vmuo.SetSockets(*i)
+	}
+	return vmuo
+}
+
+// AddSockets adds i to the "sockets" field.
+func (vmuo *VirtualMachineUpdateOne) AddSockets(i int) *VirtualMachineUpdateOne {
+	vmuo.mutation.AddSockets(i)
 	return vmuo
 }
 
@@ -249,6 +355,16 @@ func (vmuo *VirtualMachineUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
+	if v, ok := vmuo.mutation.Cores(); ok {
+		if err := virtualmachine.CoresValidator(v); err != nil {
+			return &ValidationError{Name: "cores", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.cores": %w`, err)}
+		}
+	}
+	if v, ok := vmuo.mutation.Sockets(); ok {
+		if err := virtualmachine.SocketsValidator(v); err != nil {
+			return &ValidationError{Name: "sockets", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.sockets": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -292,6 +408,18 @@ func (vmuo *VirtualMachineUpdateOne) sqlSave(ctx context.Context) (_node *Virtua
 	}
 	if vmuo.mutation.UserdataCleared() {
 		_spec.ClearField(virtualmachine.FieldUserdata, field.TypeString)
+	}
+	if value, ok := vmuo.mutation.Cores(); ok {
+		_spec.SetField(virtualmachine.FieldCores, field.TypeInt, value)
+	}
+	if value, ok := vmuo.mutation.AddedCores(); ok {
+		_spec.AddField(virtualmachine.FieldCores, field.TypeInt, value)
+	}
+	if value, ok := vmuo.mutation.Sockets(); ok {
+		_spec.SetField(virtualmachine.FieldSockets, field.TypeInt, value)
+	}
+	if value, ok := vmuo.mutation.AddedSockets(); ok {
+		_spec.AddField(virtualmachine.FieldSockets, field.TypeInt, value)
 	}
 	_node = &VirtualMachine{config: vmuo.config}
 	_spec.Assign = _node.assignValues

@@ -54,6 +54,10 @@ type VirtualMachineMutation struct {
 	owner_id      *gidx.PrefixedID
 	location_id   *gidx.PrefixedID
 	userdata      *string
+	cores         *int
+	addcores      *int
+	sockets       *int
+	addsockets    *int
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*VirtualMachine, error)
@@ -393,6 +397,118 @@ func (m *VirtualMachineMutation) ResetUserdata() {
 	delete(m.clearedFields, virtualmachine.FieldUserdata)
 }
 
+// SetCores sets the "cores" field.
+func (m *VirtualMachineMutation) SetCores(i int) {
+	m.cores = &i
+	m.addcores = nil
+}
+
+// Cores returns the value of the "cores" field in the mutation.
+func (m *VirtualMachineMutation) Cores() (r int, exists bool) {
+	v := m.cores
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCores returns the old "cores" field's value of the VirtualMachine entity.
+// If the VirtualMachine object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineMutation) OldCores(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCores is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCores requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCores: %w", err)
+	}
+	return oldValue.Cores, nil
+}
+
+// AddCores adds i to the "cores" field.
+func (m *VirtualMachineMutation) AddCores(i int) {
+	if m.addcores != nil {
+		*m.addcores += i
+	} else {
+		m.addcores = &i
+	}
+}
+
+// AddedCores returns the value that was added to the "cores" field in this mutation.
+func (m *VirtualMachineMutation) AddedCores() (r int, exists bool) {
+	v := m.addcores
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCores resets all changes to the "cores" field.
+func (m *VirtualMachineMutation) ResetCores() {
+	m.cores = nil
+	m.addcores = nil
+}
+
+// SetSockets sets the "sockets" field.
+func (m *VirtualMachineMutation) SetSockets(i int) {
+	m.sockets = &i
+	m.addsockets = nil
+}
+
+// Sockets returns the value of the "sockets" field in the mutation.
+func (m *VirtualMachineMutation) Sockets() (r int, exists bool) {
+	v := m.sockets
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSockets returns the old "sockets" field's value of the VirtualMachine entity.
+// If the VirtualMachine object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineMutation) OldSockets(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSockets is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSockets requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSockets: %w", err)
+	}
+	return oldValue.Sockets, nil
+}
+
+// AddSockets adds i to the "sockets" field.
+func (m *VirtualMachineMutation) AddSockets(i int) {
+	if m.addsockets != nil {
+		*m.addsockets += i
+	} else {
+		m.addsockets = &i
+	}
+}
+
+// AddedSockets returns the value that was added to the "sockets" field in this mutation.
+func (m *VirtualMachineMutation) AddedSockets() (r int, exists bool) {
+	v := m.addsockets
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSockets resets all changes to the "sockets" field.
+func (m *VirtualMachineMutation) ResetSockets() {
+	m.sockets = nil
+	m.addsockets = nil
+}
+
 // Where appends a list predicates to the VirtualMachineMutation builder.
 func (m *VirtualMachineMutation) Where(ps ...predicate.VirtualMachine) {
 	m.predicates = append(m.predicates, ps...)
@@ -427,7 +543,7 @@ func (m *VirtualMachineMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VirtualMachineMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, virtualmachine.FieldCreatedAt)
 	}
@@ -445,6 +561,12 @@ func (m *VirtualMachineMutation) Fields() []string {
 	}
 	if m.userdata != nil {
 		fields = append(fields, virtualmachine.FieldUserdata)
+	}
+	if m.cores != nil {
+		fields = append(fields, virtualmachine.FieldCores)
+	}
+	if m.sockets != nil {
+		fields = append(fields, virtualmachine.FieldSockets)
 	}
 	return fields
 }
@@ -466,6 +588,10 @@ func (m *VirtualMachineMutation) Field(name string) (ent.Value, bool) {
 		return m.LocationID()
 	case virtualmachine.FieldUserdata:
 		return m.Userdata()
+	case virtualmachine.FieldCores:
+		return m.Cores()
+	case virtualmachine.FieldSockets:
+		return m.Sockets()
 	}
 	return nil, false
 }
@@ -487,6 +613,10 @@ func (m *VirtualMachineMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldLocationID(ctx)
 	case virtualmachine.FieldUserdata:
 		return m.OldUserdata(ctx)
+	case virtualmachine.FieldCores:
+		return m.OldCores(ctx)
+	case virtualmachine.FieldSockets:
+		return m.OldSockets(ctx)
 	}
 	return nil, fmt.Errorf("unknown VirtualMachine field %s", name)
 }
@@ -538,6 +668,20 @@ func (m *VirtualMachineMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUserdata(v)
 		return nil
+	case virtualmachine.FieldCores:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCores(v)
+		return nil
+	case virtualmachine.FieldSockets:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSockets(v)
+		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)
 }
@@ -545,13 +689,26 @@ func (m *VirtualMachineMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *VirtualMachineMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addcores != nil {
+		fields = append(fields, virtualmachine.FieldCores)
+	}
+	if m.addsockets != nil {
+		fields = append(fields, virtualmachine.FieldSockets)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *VirtualMachineMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case virtualmachine.FieldCores:
+		return m.AddedCores()
+	case virtualmachine.FieldSockets:
+		return m.AddedSockets()
+	}
 	return nil, false
 }
 
@@ -560,6 +717,20 @@ func (m *VirtualMachineMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *VirtualMachineMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case virtualmachine.FieldCores:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCores(v)
+		return nil
+	case virtualmachine.FieldSockets:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSockets(v)
+		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine numeric field %s", name)
 }
@@ -613,6 +784,12 @@ func (m *VirtualMachineMutation) ResetField(name string) error {
 		return nil
 	case virtualmachine.FieldUserdata:
 		m.ResetUserdata()
+		return nil
+	case virtualmachine.FieldCores:
+		m.ResetCores()
+		return nil
+	case virtualmachine.FieldSockets:
+		m.ResetSockets()
 		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)

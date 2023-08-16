@@ -22,6 +22,10 @@ input CreateVirtualMachineInput {
 	locationID: ID!
 	"""The userdata for this virtual machine."""
 	userdata: String
+	"""The number of cores for the virtual machine."""
+	cores: Int
+	"""The number of sockets for the virtual machine."""
+	sockets: Int
 }
 """
 Define a Relay Cursor type:
@@ -122,6 +126,10 @@ input UpdateVirtualMachineInput {
 	"""The userdata for this virtual machine."""
 	userdata: String
 	clearUserdata: Boolean
+	"""The number of cores for the virtual machine."""
+	cores: Int
+	"""The number of sockets for the virtual machine."""
+	sockets: Int
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
 	"""The ID of the VirtualMachine."""
@@ -132,6 +140,10 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
 	name: String!
 	"""The userdata for this virtual machine."""
 	userdata: String
+	"""The number of cores for the virtual machine."""
+	cores: Int!
+	"""The number of sockets for the virtual machine."""
+	sockets: Int!
 	"""The location of the load balancer."""
 	location: Location!
 	"""The owner of the VirtualMachine"""

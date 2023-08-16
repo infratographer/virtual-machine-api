@@ -33,6 +33,10 @@ type CreateVirtualMachineInput struct {
 	LocationID gidx.PrefixedID `json:"locationID"`
 	// The userdata for this virtual machine.
 	Userdata *string `json:"userdata,omitempty"`
+	// The number of cores for the virtual machine.
+	Cores *int64 `json:"cores,omitempty"`
+	// The number of sockets for the virtual machine.
+	Sockets *int64 `json:"sockets,omitempty"`
 }
 
 type Location struct {
@@ -69,6 +73,10 @@ type UpdateVirtualMachineInput struct {
 	// The userdata for this virtual machine.
 	Userdata      *string `json:"userdata,omitempty"`
 	ClearUserdata *bool   `json:"clearUserdata,omitempty"`
+	// The number of cores for the virtual machine.
+	Cores *int64 `json:"cores,omitempty"`
+	// The number of sockets for the virtual machine.
+	Sockets *int64 `json:"sockets,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -80,6 +88,10 @@ type VirtualMachine struct {
 	Name string `json:"name"`
 	// The userdata for this virtual machine.
 	Userdata *string `json:"userdata,omitempty"`
+	// The number of cores for the virtual machine.
+	Cores int64 `json:"cores"`
+	// The number of sockets for the virtual machine.
+	Sockets int64 `json:"sockets"`
 	// The location of the load balancer.
 	Location Location `json:"location"`
 	// The owner of the VirtualMachine

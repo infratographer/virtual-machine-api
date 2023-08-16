@@ -95,6 +95,34 @@ func (vmc *VirtualMachineCreate) SetNillableUserdata(s *string) *VirtualMachineC
 	return vmc
 }
 
+// SetCores sets the "cores" field.
+func (vmc *VirtualMachineCreate) SetCores(i int) *VirtualMachineCreate {
+	vmc.mutation.SetCores(i)
+	return vmc
+}
+
+// SetNillableCores sets the "cores" field if the given value is not nil.
+func (vmc *VirtualMachineCreate) SetNillableCores(i *int) *VirtualMachineCreate {
+	if i != nil {
+		vmc.SetCores(*i)
+	}
+	return vmc
+}
+
+// SetSockets sets the "sockets" field.
+func (vmc *VirtualMachineCreate) SetSockets(i int) *VirtualMachineCreate {
+	vmc.mutation.SetSockets(i)
+	return vmc
+}
+
+// SetNillableSockets sets the "sockets" field if the given value is not nil.
+func (vmc *VirtualMachineCreate) SetNillableSockets(i *int) *VirtualMachineCreate {
+	if i != nil {
+		vmc.SetSockets(*i)
+	}
+	return vmc
+}
+
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -152,6 +180,14 @@ func (vmc *VirtualMachineCreate) defaults() {
 		v := virtualmachine.DefaultUpdatedAt()
 		vmc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := vmc.mutation.Cores(); !ok {
+		v := virtualmachine.DefaultCores
+		vmc.mutation.SetCores(v)
+	}
+	if _, ok := vmc.mutation.Sockets(); !ok {
+		v := virtualmachine.DefaultSockets
+		vmc.mutation.SetSockets(v)
+	}
 	if _, ok := vmc.mutation.ID(); !ok {
 		v := virtualmachine.DefaultID()
 		vmc.mutation.SetID(v)
@@ -183,6 +219,22 @@ func (vmc *VirtualMachineCreate) check() error {
 	if v, ok := vmc.mutation.LocationID(); ok {
 		if err := virtualmachine.LocationIDValidator(string(v)); err != nil {
 			return &ValidationError{Name: "location_id", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.location_id": %w`, err)}
+		}
+	}
+	if _, ok := vmc.mutation.Cores(); !ok {
+		return &ValidationError{Name: "cores", err: errors.New(`generated: missing required field "VirtualMachine.cores"`)}
+	}
+	if v, ok := vmc.mutation.Cores(); ok {
+		if err := virtualmachine.CoresValidator(v); err != nil {
+			return &ValidationError{Name: "cores", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.cores": %w`, err)}
+		}
+	}
+	if _, ok := vmc.mutation.Sockets(); !ok {
+		return &ValidationError{Name: "sockets", err: errors.New(`generated: missing required field "VirtualMachine.sockets"`)}
+	}
+	if v, ok := vmc.mutation.Sockets(); ok {
+		if err := virtualmachine.SocketsValidator(v); err != nil {
+			return &ValidationError{Name: "sockets", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.sockets": %w`, err)}
 		}
 	}
 	return nil
@@ -244,17 +296,29 @@ func (vmc *VirtualMachineCreate) createSpec() (*VirtualMachine, *sqlgraph.Create
 		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
 		_node.Userdata = value
 	}
+	if value, ok := vmc.mutation.Cores(); ok {
+		_spec.SetField(virtualmachine.FieldCores, field.TypeInt, value)
+		_node.Cores = value
+	}
+	if value, ok := vmc.mutation.Sockets(); ok {
+		_spec.SetField(virtualmachine.FieldSockets, field.TypeInt, value)
+		_node.Sockets = value
+	}
 	return _node, _spec
 }
 
 // VirtualMachineCreateBulk is the builder for creating many VirtualMachine entities in bulk.
 type VirtualMachineCreateBulk struct {
 	config
+	err      error
 	builders []*VirtualMachineCreate
 }
 
 // Save creates the VirtualMachine entities in the database.
 func (vmcb *VirtualMachineCreateBulk) Save(ctx context.Context) ([]*VirtualMachine, error) {
+	if vmcb.err != nil {
+		return nil, vmcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(vmcb.builders))
 	nodes := make([]*VirtualMachine, len(vmcb.builders))
 	mutators := make([]Mutator, len(vmcb.builders))
