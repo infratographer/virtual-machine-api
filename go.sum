@@ -473,6 +473,8 @@ go.infratographer.com/permissions-api v0.2.2 h1:aqgK369fDa3vpSzbBKigHjtG6nNndxQK
 go.infratographer.com/permissions-api v0.2.2/go.mod h1:TupQNHKMcVUIGlLKpNtdwkaGohiL88IL49MMslIT58U=
 go.infratographer.com/x v0.3.7-0.20230810153653-79f5c2c24800 h1:uIySwMbfu75kyKIRBsj3ICXRIf/Gmp5cAe73lDDmC9M=
 go.infratographer.com/x v0.3.7-0.20230810153653-79f5c2c24800/go.mod h1:AMNcTkqb+yHLCbnZtiiHTC7QvN+4MOpzdOhqHXfKQUk=
+go.infratographer.com/x v0.3.7-0.20230811200256-3955331ac93d h1:R5SJ5V6crLJf97kJ5mqBLCcUrzZPMIiFFDmpvK/wdlE=
+go.infratographer.com/x v0.3.7-0.20230811200256-3955331ac93d/go.mod h1:/zbDM9njbWzUDCA9pkbi1z/v4VZjGsVHx+SPycSgIhg=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
