@@ -66,6 +66,11 @@ func (vm *VirtualMachineQuery) collectField(ctx context.Context, opCtx *graphql.
 				selectedFields = append(selectedFields, virtualmachine.FieldUserdata)
 				fieldSeen[virtualmachine.FieldUserdata] = struct{}{}
 			}
+		case "memory":
+			if _, ok := fieldSeen[virtualmachine.FieldMemory]; !ok {
+				selectedFields = append(selectedFields, virtualmachine.FieldMemory)
+				fieldSeen[virtualmachine.FieldMemory] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:

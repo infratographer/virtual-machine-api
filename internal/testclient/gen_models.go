@@ -33,6 +33,8 @@ type CreateVirtualMachineInput struct {
 	LocationID gidx.PrefixedID `json:"locationID"`
 	// The userdata for this virtual machine.
 	Userdata *string `json:"userdata,omitempty"`
+	// The memory for this virtual machine.
+	Memory *int64 `json:"memory,omitempty"`
 }
 
 type Location struct {
@@ -69,6 +71,8 @@ type UpdateVirtualMachineInput struct {
 	// The userdata for this virtual machine.
 	Userdata      *string `json:"userdata,omitempty"`
 	ClearUserdata *bool   `json:"clearUserdata,omitempty"`
+	// The memory for this virtual machine.
+	Memory *int64 `json:"memory,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -80,6 +84,8 @@ type VirtualMachine struct {
 	Name string `json:"name"`
 	// The userdata for this virtual machine.
 	Userdata *string `json:"userdata,omitempty"`
+	// The memory for this virtual machine.
+	Memory int64 `json:"memory"`
 	// The location of the load balancer.
 	Location Location `json:"location"`
 	// The owner of the VirtualMachine
@@ -166,6 +172,15 @@ type VirtualMachineWhereInput struct {
 	NameHasSuffix    *string  `json:"nameHasSuffix,omitempty"`
 	NameEqualFold    *string  `json:"nameEqualFold,omitempty"`
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
+	// memory field predicates
+	Memory      *int64  `json:"memory,omitempty"`
+	MemoryNeq   *int64  `json:"memoryNEQ,omitempty"`
+	MemoryIn    []int64 `json:"memoryIn,omitempty"`
+	MemoryNotIn []int64 `json:"memoryNotIn,omitempty"`
+	MemoryGt    *int64  `json:"memoryGT,omitempty"`
+	MemoryGte   *int64  `json:"memoryGTE,omitempty"`
+	MemoryLt    *int64  `json:"memoryLT,omitempty"`
+	MemoryLte   *int64  `json:"memoryLTE,omitempty"`
 }
 
 type Service struct {
@@ -225,6 +240,7 @@ const (
 	VirtualMachineOrderFieldUpdatedAt VirtualMachineOrderField = "UPDATED_AT"
 	VirtualMachineOrderFieldName      VirtualMachineOrderField = "NAME"
 	VirtualMachineOrderFieldOwner     VirtualMachineOrderField = "OWNER"
+	VirtualMachineOrderFieldMemory    VirtualMachineOrderField = "memory"
 )
 
 var AllVirtualMachineOrderField = []VirtualMachineOrderField{
@@ -233,11 +249,12 @@ var AllVirtualMachineOrderField = []VirtualMachineOrderField{
 	VirtualMachineOrderFieldUpdatedAt,
 	VirtualMachineOrderFieldName,
 	VirtualMachineOrderFieldOwner,
+	VirtualMachineOrderFieldMemory,
 }
 
 func (e VirtualMachineOrderField) IsValid() bool {
 	switch e {
-	case VirtualMachineOrderFieldID, VirtualMachineOrderFieldCreatedAt, VirtualMachineOrderFieldUpdatedAt, VirtualMachineOrderFieldName, VirtualMachineOrderFieldOwner:
+	case VirtualMachineOrderFieldID, VirtualMachineOrderFieldCreatedAt, VirtualMachineOrderFieldUpdatedAt, VirtualMachineOrderFieldName, VirtualMachineOrderFieldOwner, VirtualMachineOrderFieldMemory:
 		return true
 	}
 	return false

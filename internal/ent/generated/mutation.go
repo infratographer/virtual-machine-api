@@ -54,6 +54,8 @@ type VirtualMachineMutation struct {
 	owner_id      *gidx.PrefixedID
 	location_id   *gidx.PrefixedID
 	userdata      *string
+	memory        *int
+	addmemory     *int
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*VirtualMachine, error)
@@ -393,6 +395,62 @@ func (m *VirtualMachineMutation) ResetUserdata() {
 	delete(m.clearedFields, virtualmachine.FieldUserdata)
 }
 
+// SetMemory sets the "memory" field.
+func (m *VirtualMachineMutation) SetMemory(i int) {
+	m.memory = &i
+	m.addmemory = nil
+}
+
+// Memory returns the value of the "memory" field in the mutation.
+func (m *VirtualMachineMutation) Memory() (r int, exists bool) {
+	v := m.memory
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMemory returns the old "memory" field's value of the VirtualMachine entity.
+// If the VirtualMachine object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineMutation) OldMemory(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMemory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMemory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMemory: %w", err)
+	}
+	return oldValue.Memory, nil
+}
+
+// AddMemory adds i to the "memory" field.
+func (m *VirtualMachineMutation) AddMemory(i int) {
+	if m.addmemory != nil {
+		*m.addmemory += i
+	} else {
+		m.addmemory = &i
+	}
+}
+
+// AddedMemory returns the value that was added to the "memory" field in this mutation.
+func (m *VirtualMachineMutation) AddedMemory() (r int, exists bool) {
+	v := m.addmemory
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMemory resets all changes to the "memory" field.
+func (m *VirtualMachineMutation) ResetMemory() {
+	m.memory = nil
+	m.addmemory = nil
+}
+
 // Where appends a list predicates to the VirtualMachineMutation builder.
 func (m *VirtualMachineMutation) Where(ps ...predicate.VirtualMachine) {
 	m.predicates = append(m.predicates, ps...)
@@ -427,7 +485,7 @@ func (m *VirtualMachineMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VirtualMachineMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, virtualmachine.FieldCreatedAt)
 	}
@@ -445,6 +503,9 @@ func (m *VirtualMachineMutation) Fields() []string {
 	}
 	if m.userdata != nil {
 		fields = append(fields, virtualmachine.FieldUserdata)
+	}
+	if m.memory != nil {
+		fields = append(fields, virtualmachine.FieldMemory)
 	}
 	return fields
 }
@@ -466,6 +527,8 @@ func (m *VirtualMachineMutation) Field(name string) (ent.Value, bool) {
 		return m.LocationID()
 	case virtualmachine.FieldUserdata:
 		return m.Userdata()
+	case virtualmachine.FieldMemory:
+		return m.Memory()
 	}
 	return nil, false
 }
@@ -487,6 +550,8 @@ func (m *VirtualMachineMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldLocationID(ctx)
 	case virtualmachine.FieldUserdata:
 		return m.OldUserdata(ctx)
+	case virtualmachine.FieldMemory:
+		return m.OldMemory(ctx)
 	}
 	return nil, fmt.Errorf("unknown VirtualMachine field %s", name)
 }
@@ -538,6 +603,13 @@ func (m *VirtualMachineMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUserdata(v)
 		return nil
+	case virtualmachine.FieldMemory:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMemory(v)
+		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)
 }
@@ -545,13 +617,21 @@ func (m *VirtualMachineMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *VirtualMachineMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addmemory != nil {
+		fields = append(fields, virtualmachine.FieldMemory)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *VirtualMachineMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case virtualmachine.FieldMemory:
+		return m.AddedMemory()
+	}
 	return nil, false
 }
 
@@ -560,6 +640,13 @@ func (m *VirtualMachineMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *VirtualMachineMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case virtualmachine.FieldMemory:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMemory(v)
+		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine numeric field %s", name)
 }
@@ -613,6 +700,9 @@ func (m *VirtualMachineMutation) ResetField(name string) error {
 		return nil
 	case virtualmachine.FieldUserdata:
 		m.ResetUserdata()
+		return nil
+	case virtualmachine.FieldMemory:
+		m.ResetMemory()
 		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)

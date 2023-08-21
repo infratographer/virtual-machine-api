@@ -31,6 +31,7 @@ var (
 		{Name: "owner_id", Type: field.TypeString},
 		{Name: "location_id", Type: field.TypeString},
 		{Name: "userdata", Type: field.TypeString, Nullable: true},
+		{Name: "memory", Type: field.TypeInt, Default: 8},
 	}
 	// VirtualMachinesTable holds the schema information for the "virtual_machines" table.
 	VirtualMachinesTable = &schema.Table{

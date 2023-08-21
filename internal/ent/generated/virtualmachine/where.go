@@ -99,6 +99,11 @@ func Userdata(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldUserdata, v))
 }
 
+// Memory applies equality check predicate on the "memory" field. It's identical to MemoryEQ.
+func Memory(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldMemory, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldCreatedAt, v))
@@ -459,34 +464,57 @@ func UserdataContainsFold(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldContainsFold(FieldUserdata, v))
 }
 
+// MemoryEQ applies the EQ predicate on the "memory" field.
+func MemoryEQ(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldMemory, v))
+}
+
+// MemoryNEQ applies the NEQ predicate on the "memory" field.
+func MemoryNEQ(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNEQ(FieldMemory, v))
+}
+
+// MemoryIn applies the In predicate on the "memory" field.
+func MemoryIn(vs ...int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIn(FieldMemory, vs...))
+}
+
+// MemoryNotIn applies the NotIn predicate on the "memory" field.
+func MemoryNotIn(vs ...int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotIn(FieldMemory, vs...))
+}
+
+// MemoryGT applies the GT predicate on the "memory" field.
+func MemoryGT(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGT(FieldMemory, v))
+}
+
+// MemoryGTE applies the GTE predicate on the "memory" field.
+func MemoryGTE(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGTE(FieldMemory, v))
+}
+
+// MemoryLT applies the LT predicate on the "memory" field.
+func MemoryLT(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLT(FieldMemory, v))
+}
+
+// MemoryLTE applies the LTE predicate on the "memory" field.
+func MemoryLTE(v int) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLTE(FieldMemory, v))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for _, p := range predicates {
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.VirtualMachine(sql.AndPredicates(predicates...))
 }
 
 // Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for i, p := range predicates {
-			if i > 0 {
-				s1.Or()
-			}
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.VirtualMachine(sql.OrPredicates(predicates...))
 }
 
 // Not applies the not operator on the given predicate.
 func Not(p predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		p(s.Not())
-	})
+	return predicate.VirtualMachine(sql.NotPredicates(p))
 }

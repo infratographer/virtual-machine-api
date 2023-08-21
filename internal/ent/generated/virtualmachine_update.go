@@ -67,6 +67,27 @@ func (vmu *VirtualMachineUpdate) ClearUserdata() *VirtualMachineUpdate {
 	return vmu
 }
 
+// SetMemory sets the "memory" field.
+func (vmu *VirtualMachineUpdate) SetMemory(i int) *VirtualMachineUpdate {
+	vmu.mutation.ResetMemory()
+	vmu.mutation.SetMemory(i)
+	return vmu
+}
+
+// SetNillableMemory sets the "memory" field if the given value is not nil.
+func (vmu *VirtualMachineUpdate) SetNillableMemory(i *int) *VirtualMachineUpdate {
+	if i != nil {
+		vmu.SetMemory(*i)
+	}
+	return vmu
+}
+
+// AddMemory adds i to the "memory" field.
+func (vmu *VirtualMachineUpdate) AddMemory(i int) *VirtualMachineUpdate {
+	vmu.mutation.AddMemory(i)
+	return vmu
+}
+
 // Mutation returns the VirtualMachineMutation object of the builder.
 func (vmu *VirtualMachineUpdate) Mutation() *VirtualMachineMutation {
 	return vmu.mutation
@@ -115,6 +136,11 @@ func (vmu *VirtualMachineUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
+	if v, ok := vmu.mutation.Memory(); ok {
+		if err := virtualmachine.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.memory": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -141,6 +167,12 @@ func (vmu *VirtualMachineUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if vmu.mutation.UserdataCleared() {
 		_spec.ClearField(virtualmachine.FieldUserdata, field.TypeString)
+	}
+	if value, ok := vmu.mutation.Memory(); ok {
+		_spec.SetField(virtualmachine.FieldMemory, field.TypeInt, value)
+	}
+	if value, ok := vmu.mutation.AddedMemory(); ok {
+		_spec.AddField(virtualmachine.FieldMemory, field.TypeInt, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, vmu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -185,6 +217,27 @@ func (vmuo *VirtualMachineUpdateOne) SetNillableUserdata(s *string) *VirtualMach
 // ClearUserdata clears the value of the "userdata" field.
 func (vmuo *VirtualMachineUpdateOne) ClearUserdata() *VirtualMachineUpdateOne {
 	vmuo.mutation.ClearUserdata()
+	return vmuo
+}
+
+// SetMemory sets the "memory" field.
+func (vmuo *VirtualMachineUpdateOne) SetMemory(i int) *VirtualMachineUpdateOne {
+	vmuo.mutation.ResetMemory()
+	vmuo.mutation.SetMemory(i)
+	return vmuo
+}
+
+// SetNillableMemory sets the "memory" field if the given value is not nil.
+func (vmuo *VirtualMachineUpdateOne) SetNillableMemory(i *int) *VirtualMachineUpdateOne {
+	if i != nil {
+		vmuo.SetMemory(*i)
+	}
+	return vmuo
+}
+
+// AddMemory adds i to the "memory" field.
+func (vmuo *VirtualMachineUpdateOne) AddMemory(i int) *VirtualMachineUpdateOne {
+	vmuo.mutation.AddMemory(i)
 	return vmuo
 }
 
@@ -249,6 +302,11 @@ func (vmuo *VirtualMachineUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
+	if v, ok := vmuo.mutation.Memory(); ok {
+		if err := virtualmachine.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.memory": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -292,6 +350,12 @@ func (vmuo *VirtualMachineUpdateOne) sqlSave(ctx context.Context) (_node *Virtua
 	}
 	if vmuo.mutation.UserdataCleared() {
 		_spec.ClearField(virtualmachine.FieldUserdata, field.TypeString)
+	}
+	if value, ok := vmuo.mutation.Memory(); ok {
+		_spec.SetField(virtualmachine.FieldMemory, field.TypeInt, value)
+	}
+	if value, ok := vmuo.mutation.AddedMemory(); ok {
+		_spec.AddField(virtualmachine.FieldMemory, field.TypeInt, value)
 	}
 	_node = &VirtualMachine{config: vmuo.config}
 	_spec.Assign = _node.assignValues

@@ -198,6 +198,28 @@ func VirtualMachineHooks() []ent.Hook {
 						})
 					}
 
+					cv_memory := ""
+					memory, ok := m.Memory()
+
+					if ok {
+						cv_memory = fmt.Sprintf("%s", fmt.Sprint(memory))
+						pv_memory := ""
+						if !m.Op().Is(ent.OpCreate) {
+							ov, err := m.OldMemory(ctx)
+							if err != nil {
+								pv_memory = "<unknown>"
+							} else {
+								pv_memory = fmt.Sprintf("%s", fmt.Sprint(ov))
+							}
+						}
+
+						changeset = append(changeset, events.FieldChange{
+							Field:         "memory",
+							PreviousValue: pv_memory,
+							CurrentValue:  cv_memory,
+						})
+					}
+
 					msg := events.ChangeMessage{
 						EventType:            eventType(m.Op()),
 						SubjectID:            objID,

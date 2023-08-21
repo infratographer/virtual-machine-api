@@ -44,7 +44,9 @@ type VirtualMachine struct {
 	// The ID for the location of this virtual machine.
 	LocationID gidx.PrefixedID `json:"location_id,omitempty"`
 	// The userdata for this virtual machine.
-	Userdata     string `json:"userdata,omitempty"`
+	Userdata string `json:"userdata,omitempty"`
+	// The memory for this virtual machine.
+	Memory       int `json:"memory,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -55,6 +57,8 @@ func (*VirtualMachine) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case virtualmachine.FieldID, virtualmachine.FieldOwnerID, virtualmachine.FieldLocationID:
 			values[i] = new(gidx.PrefixedID)
+		case virtualmachine.FieldMemory:
+			values[i] = new(sql.NullInt64)
 		case virtualmachine.FieldName, virtualmachine.FieldUserdata:
 			values[i] = new(sql.NullString)
 		case virtualmachine.FieldCreatedAt, virtualmachine.FieldUpdatedAt:
@@ -116,6 +120,12 @@ func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				vm.Userdata = value.String
 			}
+		case virtualmachine.FieldMemory:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field memory", values[i])
+			} else if value.Valid {
+				vm.Memory = int(value.Int64)
+			}
 		default:
 			vm.selectValues.Set(columns[i], values[i])
 		}
@@ -169,6 +179,9 @@ func (vm *VirtualMachine) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("userdata=")
 	builder.WriteString(vm.Userdata)
+	builder.WriteString(", ")
+	builder.WriteString("memory=")
+	builder.WriteString(fmt.Sprintf("%v", vm.Memory))
 	builder.WriteByte(')')
 	return builder.String()
 }

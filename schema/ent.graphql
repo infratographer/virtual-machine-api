@@ -10,6 +10,8 @@ input CreateVirtualMachineInput {
   locationID: ID!
   """The userdata for this virtual machine."""
   userdata: String
+  """The memory for this virtual machine."""
+  memory: Int
 }
 """
 Define a Relay Cursor type:
@@ -57,6 +59,8 @@ input UpdateVirtualMachineInput {
   """The userdata for this virtual machine."""
   userdata: String
   clearUserdata: Boolean
+  """The memory for this virtual machine."""
+  memory: Int
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
   """The ID of the VirtualMachine."""
@@ -67,6 +71,8 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   name: String!
   """The userdata for this virtual machine."""
   userdata: String
+  """The memory for this virtual machine."""
+  memory: Int!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -98,6 +104,7 @@ enum VirtualMachineOrderField {
   UPDATED_AT
   NAME
   OWNER
+  memory
 }
 """
 VirtualMachineWhereInput is used for filtering VirtualMachine objects.
@@ -148,4 +155,13 @@ input VirtualMachineWhereInput {
   nameHasSuffix: String
   nameEqualFold: String
   nameContainsFold: String
+  """memory field predicates"""
+  memory: Int
+  memoryNEQ: Int
+  memoryIn: [Int!]
+  memoryNotIn: [Int!]
+  memoryGT: Int
+  memoryGTE: Int
+  memoryLT: Int
+  memoryLTE: Int
 }

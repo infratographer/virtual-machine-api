@@ -14,6 +14,11 @@ import (
 	"go.infratographer.com/virtual-machine-api/x/pubsubinfo"
 )
 
+const (
+	minVirtualMachineMemory     = 1
+	defaultVirtualMachineMemory = 8
+)
+
 // VirtualMachine holds the schema definition for the VM entity
 type VirtualMachine struct {
 	ent.Schema
@@ -70,6 +75,13 @@ func (VirtualMachine) Fields() []ent.Field {
 			Optional().
 			Annotations(
 				entgql.Skip(entgql.SkipWhereInput),
+			),
+		field.Int("memory").
+			Comment("The memory for this virtual machine.").
+			Min(minVirtualMachineMemory).
+			Default(defaultVirtualMachineMemory).
+			Annotations(
+				entgql.OrderField("memory"),
 			),
 	}
 }

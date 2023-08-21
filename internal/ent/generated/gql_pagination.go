@@ -389,6 +389,20 @@ var (
 			}
 		},
 	}
+	// VirtualMachineOrderFieldMemory orders VirtualMachine by memory.
+	VirtualMachineOrderFieldMemory = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.Memory, nil
+		},
+		column: virtualmachine.FieldMemory,
+		toTerm: virtualmachine.ByMemory,
+		toCursor: func(vm *VirtualMachine) Cursor {
+			return Cursor{
+				ID:    vm.ID,
+				Value: vm.Memory,
+			}
+		},
+	}
 )
 
 // String implement fmt.Stringer interface.
@@ -405,6 +419,8 @@ func (f VirtualMachineOrderField) String() string {
 		str = "NAME"
 	case VirtualMachineOrderFieldOwnerID.column:
 		str = "OWNER"
+	case VirtualMachineOrderFieldMemory.column:
+		str = "memory"
 	}
 	return str
 }
@@ -431,6 +447,8 @@ func (f *VirtualMachineOrderField) UnmarshalGQL(v interface{}) error {
 		*f = *VirtualMachineOrderFieldName
 	case "OWNER":
 		*f = *VirtualMachineOrderFieldOwnerID
+	case "memory":
+		*f = *VirtualMachineOrderFieldMemory
 	default:
 		return fmt.Errorf("%s is not a valid VirtualMachineOrderField", str)
 	}

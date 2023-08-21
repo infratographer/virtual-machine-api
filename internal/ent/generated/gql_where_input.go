@@ -77,6 +77,16 @@ type VirtualMachineWhereInput struct {
 	NameHasSuffix    *string  `json:"nameHasSuffix,omitempty"`
 	NameEqualFold    *string  `json:"nameEqualFold,omitempty"`
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
+
+	// "memory" field predicates.
+	Memory      *int  `json:"memory,omitempty"`
+	MemoryNEQ   *int  `json:"memoryNEQ,omitempty"`
+	MemoryIn    []int `json:"memoryIn,omitempty"`
+	MemoryNotIn []int `json:"memoryNotIn,omitempty"`
+	MemoryGT    *int  `json:"memoryGT,omitempty"`
+	MemoryGTE   *int  `json:"memoryGTE,omitempty"`
+	MemoryLT    *int  `json:"memoryLT,omitempty"`
+	MemoryLTE   *int  `json:"memoryLTE,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -260,6 +270,30 @@ func (i *VirtualMachineWhereInput) P() (predicate.VirtualMachine, error) {
 	}
 	if i.NameContainsFold != nil {
 		predicates = append(predicates, virtualmachine.NameContainsFold(*i.NameContainsFold))
+	}
+	if i.Memory != nil {
+		predicates = append(predicates, virtualmachine.MemoryEQ(*i.Memory))
+	}
+	if i.MemoryNEQ != nil {
+		predicates = append(predicates, virtualmachine.MemoryNEQ(*i.MemoryNEQ))
+	}
+	if len(i.MemoryIn) > 0 {
+		predicates = append(predicates, virtualmachine.MemoryIn(i.MemoryIn...))
+	}
+	if len(i.MemoryNotIn) > 0 {
+		predicates = append(predicates, virtualmachine.MemoryNotIn(i.MemoryNotIn...))
+	}
+	if i.MemoryGT != nil {
+		predicates = append(predicates, virtualmachine.MemoryGT(*i.MemoryGT))
+	}
+	if i.MemoryGTE != nil {
+		predicates = append(predicates, virtualmachine.MemoryGTE(*i.MemoryGTE))
+	}
+	if i.MemoryLT != nil {
+		predicates = append(predicates, virtualmachine.MemoryLT(*i.MemoryLT))
+	}
+	if i.MemoryLTE != nil {
+		predicates = append(predicates, virtualmachine.MemoryLTE(*i.MemoryLTE))
 	}
 
 	switch len(predicates) {

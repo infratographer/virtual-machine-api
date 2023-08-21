@@ -85,6 +85,7 @@ type ComplexityRoot struct {
 		CreatedAt func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Location  func(childComplexity int) int
+		Memory    func(childComplexity int) int
 		Name      func(childComplexity int) int
 		Owner     func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
@@ -295,6 +296,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VirtualMachine.Location(childComplexity), true
 
+	case "VirtualMachine.memory":
+		if e.complexity.VirtualMachine.Memory == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachine.Memory(childComplexity), true
+
 	case "VirtualMachine.name":
 		if e.complexity.VirtualMachine.Name == nil {
 			break
@@ -471,6 +479,8 @@ input CreateVirtualMachineInput {
   locationID: ID!
   """The userdata for this virtual machine."""
   userdata: String
+  """The memory for this virtual machine."""
+  memory: Int
 }
 """
 Define a Relay Cursor type:
@@ -518,6 +528,8 @@ input UpdateVirtualMachineInput {
   """The userdata for this virtual machine."""
   userdata: String
   clearUserdata: Boolean
+  """The memory for this virtual machine."""
+  memory: Int
 }
 type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
   """The ID of the VirtualMachine."""
@@ -528,6 +540,8 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   name: String!
   """The userdata for this virtual machine."""
   userdata: String
+  """The memory for this virtual machine."""
+  memory: Int!
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -559,6 +573,7 @@ enum VirtualMachineOrderField {
   UPDATED_AT
   NAME
   OWNER
+  memory
 }
 """
 VirtualMachineWhereInput is used for filtering VirtualMachine objects.
@@ -609,6 +624,15 @@ input VirtualMachineWhereInput {
   nameHasSuffix: String
   nameEqualFold: String
   nameContainsFold: String
+  """memory field predicates"""
+  memory: Int
+  memoryNEQ: Int
+  memoryIn: [Int!]
+  memoryNotIn: [Int!]
+  memoryGT: Int
+  memoryGTE: Int
+  memoryLT: Int
+  memoryLTE: Int
 }
 `, BuiltIn: false},
 	{Name: "../../schema/location.graphql", Input: `type Location @key(fields: "id") {
@@ -1210,6 +1234,8 @@ func (ec *executionContext) fieldContext_Entity_findVirtualMachineByID(ctx conte
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "memory":
+				return ec.fieldContext_VirtualMachine_memory(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -1558,6 +1584,8 @@ func (ec *executionContext) fieldContext_Query_virtualMachine(ctx context.Contex
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "memory":
+				return ec.fieldContext_VirtualMachine_memory(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -2136,6 +2164,50 @@ func (ec *executionContext) fieldContext_VirtualMachine_userdata(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _VirtualMachine_memory(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachine_memory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Memory, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachine_memory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VirtualMachine_location(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VirtualMachine_location(ctx, field)
 	if err != nil {
@@ -2427,6 +2499,8 @@ func (ec *executionContext) fieldContext_VirtualMachineEdge_node(ctx context.Con
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "memory":
+				return ec.fieldContext_VirtualMachine_memory(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -4303,7 +4377,7 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "ownerID", "locationID", "userdata"}
+	fieldsInOrder := [...]string{"name", "ownerID", "locationID", "userdata", "memory"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4346,6 +4420,15 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.Userdata = data
+		case "memory":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memory"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Memory = data
 		}
 	}
 
@@ -4359,7 +4442,7 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "userdata", "clearUserdata"}
+	fieldsInOrder := [...]string{"name", "userdata", "clearUserdata", "memory"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4393,6 +4476,15 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.ClearUserdata = data
+		case "memory":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memory"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Memory = data
 		}
 	}
 
@@ -4448,7 +4540,7 @@ func (ec *executionContext) unmarshalInputVirtualMachineWhereInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameEqualFold", "nameContainsFold"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameEqualFold", "nameContainsFold", "memory", "memoryNEQ", "memoryIn", "memoryNotIn", "memoryGT", "memoryGTE", "memoryLT", "memoryLTE"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4815,6 +4907,78 @@ func (ec *executionContext) unmarshalInputVirtualMachineWhereInput(ctx context.C
 				return it, err
 			}
 			it.NameContainsFold = data
+		case "memory":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memory"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Memory = data
+		case "memoryNEQ":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memoryNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemoryNEQ = data
+		case "memoryIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memoryIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemoryIn = data
+		case "memoryNotIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memoryNotIn"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemoryNotIn = data
+		case "memoryGT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memoryGT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemoryGT = data
+		case "memoryGTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memoryGTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemoryGTE = data
+		case "memoryLT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memoryLT"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemoryLT = data
+		case "memoryLTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memoryLTE"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemoryLTE = data
 		}
 	}
 
@@ -5328,6 +5492,11 @@ func (ec *executionContext) _VirtualMachine(ctx context.Context, sel ast.Selecti
 			}
 		case "userdata":
 			out.Values[i] = ec._VirtualMachine_userdata(ctx, field, obj)
+		case "memory":
+			out.Values[i] = ec._VirtualMachine_memory(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "location":
 			field := field
 
@@ -6500,6 +6669,44 @@ func (ec *executionContext) marshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidx�
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalOInt2ᚕintᚄ(ctx context.Context, v interface{}) ([]int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]int, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNInt2int(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOInt2ᚕintᚄ(ctx context.Context, sel ast.SelectionSet, v []int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNInt2int(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

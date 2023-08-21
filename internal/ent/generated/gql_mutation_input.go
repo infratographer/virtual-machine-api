@@ -26,6 +26,7 @@ type CreateVirtualMachineInput struct {
 	OwnerID    gidx.PrefixedID
 	LocationID gidx.PrefixedID
 	Userdata   *string
+	Memory     *int
 }
 
 // Mutate applies the CreateVirtualMachineInput on the VirtualMachineMutation builder.
@@ -35,6 +36,9 @@ func (i *CreateVirtualMachineInput) Mutate(m *VirtualMachineMutation) {
 	m.SetLocationID(i.LocationID)
 	if v := i.Userdata; v != nil {
 		m.SetUserdata(*v)
+	}
+	if v := i.Memory; v != nil {
+		m.SetMemory(*v)
 	}
 }
 
@@ -49,6 +53,7 @@ type UpdateVirtualMachineInput struct {
 	Name          *string
 	ClearUserdata bool
 	Userdata      *string
+	Memory        *int
 }
 
 // Mutate applies the UpdateVirtualMachineInput on the VirtualMachineMutation builder.
@@ -61,6 +66,9 @@ func (i *UpdateVirtualMachineInput) Mutate(m *VirtualMachineMutation) {
 	}
 	if v := i.Userdata; v != nil {
 		m.SetUserdata(*v)
+	}
+	if v := i.Memory; v != nil {
+		m.SetMemory(*v)
 	}
 }
 

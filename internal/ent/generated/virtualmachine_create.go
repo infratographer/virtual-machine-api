@@ -95,6 +95,20 @@ func (vmc *VirtualMachineCreate) SetNillableUserdata(s *string) *VirtualMachineC
 	return vmc
 }
 
+// SetMemory sets the "memory" field.
+func (vmc *VirtualMachineCreate) SetMemory(i int) *VirtualMachineCreate {
+	vmc.mutation.SetMemory(i)
+	return vmc
+}
+
+// SetNillableMemory sets the "memory" field if the given value is not nil.
+func (vmc *VirtualMachineCreate) SetNillableMemory(i *int) *VirtualMachineCreate {
+	if i != nil {
+		vmc.SetMemory(*i)
+	}
+	return vmc
+}
+
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -152,6 +166,10 @@ func (vmc *VirtualMachineCreate) defaults() {
 		v := virtualmachine.DefaultUpdatedAt()
 		vmc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := vmc.mutation.Memory(); !ok {
+		v := virtualmachine.DefaultMemory
+		vmc.mutation.SetMemory(v)
+	}
 	if _, ok := vmc.mutation.ID(); !ok {
 		v := virtualmachine.DefaultID()
 		vmc.mutation.SetID(v)
@@ -183,6 +201,14 @@ func (vmc *VirtualMachineCreate) check() error {
 	if v, ok := vmc.mutation.LocationID(); ok {
 		if err := virtualmachine.LocationIDValidator(string(v)); err != nil {
 			return &ValidationError{Name: "location_id", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.location_id": %w`, err)}
+		}
+	}
+	if _, ok := vmc.mutation.Memory(); !ok {
+		return &ValidationError{Name: "memory", err: errors.New(`generated: missing required field "VirtualMachine.memory"`)}
+	}
+	if v, ok := vmc.mutation.Memory(); ok {
+		if err := virtualmachine.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.memory": %w`, err)}
 		}
 	}
 	return nil
@@ -244,17 +270,25 @@ func (vmc *VirtualMachineCreate) createSpec() (*VirtualMachine, *sqlgraph.Create
 		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
 		_node.Userdata = value
 	}
+	if value, ok := vmc.mutation.Memory(); ok {
+		_spec.SetField(virtualmachine.FieldMemory, field.TypeInt, value)
+		_node.Memory = value
+	}
 	return _node, _spec
 }
 
 // VirtualMachineCreateBulk is the builder for creating many VirtualMachine entities in bulk.
 type VirtualMachineCreateBulk struct {
 	config
+	err      error
 	builders []*VirtualMachineCreate
 }
 
 // Save creates the VirtualMachine entities in the database.
 func (vmcb *VirtualMachineCreateBulk) Save(ctx context.Context) ([]*VirtualMachine, error) {
+	if vmcb.err != nil {
+		return nil, vmcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(vmcb.builders))
 	nodes := make([]*VirtualMachine, len(vmcb.builders))
 	mutators := make([]Mutator, len(vmcb.builders))

@@ -40,6 +40,8 @@ const (
 	FieldLocationID = "location_id"
 	// FieldUserdata holds the string denoting the userdata field in the database.
 	FieldUserdata = "userdata"
+	// FieldMemory holds the string denoting the memory field in the database.
+	FieldMemory = "memory"
 	// Table holds the table name of the virtualmachine in the database.
 	Table = "virtual_machines"
 )
@@ -53,6 +55,7 @@ var Columns = []string{
 	FieldOwnerID,
 	FieldLocationID,
 	FieldUserdata,
+	FieldMemory,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -76,6 +79,10 @@ var (
 	NameValidator func(string) error
 	// LocationIDValidator is a validator for the "location_id" field. It is called by the builders before save.
 	LocationIDValidator func(string) error
+	// DefaultMemory holds the default value on creation for the "memory" field.
+	DefaultMemory int
+	// MemoryValidator is a validator for the "memory" field. It is called by the builders before save.
+	MemoryValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() gidx.PrefixedID
 )
@@ -116,4 +123,9 @@ func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserdata orders the results by the userdata field.
 func ByUserdata(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserdata, opts...).ToFunc()
+}
+
+// ByMemory orders the results by the memory field.
+func ByMemory(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMemory, opts...).ToFunc()
 }
