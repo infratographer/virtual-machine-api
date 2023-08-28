@@ -62,7 +62,9 @@ services:
       - ./nats:/nats
       - ./scripts:/scripts
     command:
-      - /scripts/nats_init.sh
+      - sh  
+      - -c
+      - "chmod +x /scripts/nats_init.sh && /scripts/nats_init.sh"
 
   nats:
     image: 'nats:alpine'
