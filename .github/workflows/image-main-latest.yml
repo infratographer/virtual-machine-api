@@ -1,4 +1,5 @@
 name: Publish main-latest image
+
 on:
   push:
     branches:
