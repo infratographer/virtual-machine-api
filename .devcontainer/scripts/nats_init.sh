@@ -2,10 +2,10 @@
 
 # script to bootstrap a nats operator environment
 
-# if nsc describe operator; then
-#     echo "operator exists, not overwriting config"
-#     exit 0
-# fi
+if nsc describe operator; then
+    echo "operator exists, not overwriting config"
+    exit 0
+fi
 
 echo "Cleaning up NATS environment"
 rm -rf /nsc/*
