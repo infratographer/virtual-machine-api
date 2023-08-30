@@ -27,6 +27,7 @@
 			]
 		}
 	},
+	"postCreateCommand": [".devcontainer/scripts/nats_account.sh"],
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	}

@@ -22,4 +22,10 @@ go.work
 
 bin/*
 
+.vscode/*
+chart/governor/test-output/*
+coverage.txt
+.devcontainer/nats/resolver.conf
+.devcontainer/nsc
+
 

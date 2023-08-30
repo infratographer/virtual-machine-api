@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/sh -x
+
 # script to bootstrap a nats operator environment
 
 if nsc describe operator; then
@@ -29,4 +30,9 @@ nsc add user -n USER -K ${ACCOUNTS_SIGNING_KEY_ID}
 nsc describe user USER
 
 echo "Generating NATS resolver.conf"
-nsc generate config --mem-resolver --sys-account SYS --config-file /nats/resolver.conf --force
+# WORKSPACE_ROOT is possibly nil if this is in the init container, or it's set in the app container
+if [ ! -z "$WORKSPACE_ROOT" ]; then
+    NATS_ROOT="$WORKSPACE_ROOT/.devcontainer"
+    mkdir $NATS_ROOT/nats
+fi
+nsc generate config --mem-resolver --sys-account SYS --config-file $NATS_ROOT/nats/resolver.conf --force

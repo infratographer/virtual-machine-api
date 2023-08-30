@@ -31,7 +31,7 @@ services:
   create_databases:
     image: cockroachdb/cockroach:latest-v22.2
     restart: on-failure:5
-    command: "sql --insecure -e 'CREATE DATABASE IF NOT EXISTS example_api_dev; CREATE DATABASE IF NOT EXISTS example_api_test; CREATE DATABASE IF NOT EXISTS atlas_migrations;'"
+    command: "sql --insecure -e 'CREATE DATABASE IF NOT EXISTS virtual_machine_api_dev; CREATE DATABASE IF NOT EXISTS virtual_machine_api_test; CREATE DATABASE IF NOT EXISTS atlas_migrations;'"
     env_file:
       - .env
     depends_on:
@@ -62,9 +62,7 @@ services:
       - ./nats:/nats
       - ./scripts:/scripts
     command:
-      - sh  
-      - -c
-      - "chmod +x /scripts/nats_init.sh && /scripts/nats_init.sh"
+      - /scripts/nats_init.sh
 
   nats:
     image: 'nats:alpine'
