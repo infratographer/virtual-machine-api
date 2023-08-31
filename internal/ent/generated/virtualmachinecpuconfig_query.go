@@ -315,12 +315,12 @@ func (vmccq *VirtualMachineCPUConfigQuery) WithVirtualMachine(opts ...func(*Virt
 // Example:
 //
 //	var v []struct {
-//		Cores int `json:"cores,omitempty"`
+//		OwnerID gidx.PrefixedID `json:"owner_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.VirtualMachineCPUConfig.Query().
-//		GroupBy(virtualmachinecpuconfig.FieldCores).
+//		GroupBy(virtualmachinecpuconfig.FieldOwnerID).
 //		Aggregate(generated.Count()).
 //		Scan(ctx, &v)
 func (vmccq *VirtualMachineCPUConfigQuery) GroupBy(field string, fields ...string) *VirtualMachineCPUConfigGroupBy {
@@ -338,11 +338,11 @@ func (vmccq *VirtualMachineCPUConfigQuery) GroupBy(field string, fields ...strin
 // Example:
 //
 //	var v []struct {
-//		Cores int `json:"cores,omitempty"`
+//		OwnerID gidx.PrefixedID `json:"owner_id,omitempty"`
 //	}
 //
 //	client.VirtualMachineCPUConfig.Query().
-//		Select(virtualmachinecpuconfig.FieldCores).
+//		Select(virtualmachinecpuconfig.FieldOwnerID).
 //		Scan(ctx, &v)
 func (vmccq *VirtualMachineCPUConfigQuery) Select(fields ...string) *VirtualMachineCPUConfigSelect {
 	vmccq.ctx.Fields = append(vmccq.ctx.Fields, fields...)

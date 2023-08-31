@@ -1,5 +1,15 @@
 """This directive is used to prefix the ID of an object with a given string."""
 directive @prefixedID(prefix: String!) on OBJECT
+"""Input information to create a virtual machine cpu config."""
+input CreateVirtualMachineCPUConfigInput {
+	"""The ID for the owner for this virtual machine cpu config."""
+	ownerID: ID!
+	"""The number of cores for this virtual machine."""
+	cores: Int!
+	"""The number of sockets for this virtual machine."""
+	sockets: Int!
+	virtualMachineID: ID
+}
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
 	"""The name of the Virtual Machine."""
@@ -103,6 +113,13 @@ type ResourceOwner @key(fields: "id") @interfaceObject {
 }
 """The builtin Time type"""
 scalar Time
+"""Input information to update a virtual machine cpu config."""
+input UpdateVirtualMachineCPUConfigInput {
+	"""The number of cores for this virtual machine."""
+	cores: Int
+	"""The number of sockets for this virtual machine."""
+	sockets: Int
+}
 """Update an existing virtual machine."""
 input UpdateVirtualMachineInput {
 	"""The name of the Virtual Machine."""
@@ -129,7 +146,7 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
 	"""The owner of the VirtualMachine"""
 	owner: ResourceOwner!
 }
-type VirtualMachineCPUConfig implements Node {
+type VirtualMachineCPUConfig implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
 	"""The ID for the virtual machaine cpu config."""
 	id: ID!
 	"""The number of cores for this virtual machine."""
@@ -137,6 +154,22 @@ type VirtualMachineCPUConfig implements Node {
 	"""The number of sockets for this virtual machine."""
 	sockets: Int!
 	virtualMachine: VirtualMachine
+}
+"""A connection to a list of items."""
+type VirtualMachineCPUConfigConnection {
+	"""A list of edges."""
+	edges: [VirtualMachineCPUConfigEdge]
+	"""Information to aid in pagination."""
+	pageInfo: PageInfo!
+	"""Identifies the total count of items in the connection."""
+	totalCount: Int!
+}
+"""An edge in a connection."""
+type VirtualMachineCPUConfigEdge {
+	"""The item at the end of the edge."""
+	node: VirtualMachineCPUConfig
+	"""A cursor for use in pagination."""
+	cursor: Cursor!
 }
 """Ordering options for VirtualMachineCPUConfig connections"""
 input VirtualMachineCPUConfigOrder {
@@ -148,6 +181,7 @@ input VirtualMachineCPUConfigOrder {
 """Properties by which VirtualMachineCPUConfig connections can be ordered."""
 enum VirtualMachineCPUConfigOrderField {
 	ID
+	OWNER
 	cores
 	sockets
 }
@@ -290,7 +324,7 @@ input VirtualMachineWhereInput {
 	hasVirtualMachineCPUConfigWith: [VirtualMachineCPUConfigWhereInput!]
 }
 scalar _Any
-union _Entity = Location | ResourceOwner | VirtualMachine
+union _Entity = Location | ResourceOwner | VirtualMachine | VirtualMachineCPUConfig
 type _Service {
 	sdl: String
 }

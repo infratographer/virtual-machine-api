@@ -33,6 +33,8 @@ type VirtualMachineCPUConfig struct {
 	// ID of the ent.
 	// The ID for the virtual machaine cpu config.
 	ID gidx.PrefixedID `json:"id,omitempty"`
+	// The ID for the owner for this virtual machine cpu config.
+	OwnerID gidx.PrefixedID `json:"owner_id,omitempty"`
 	// The number of cores for this virtual machine.
 	Cores int `json:"cores,omitempty"`
 	// The number of sockets for this virtual machine.
@@ -72,7 +74,7 @@ func (*VirtualMachineCPUConfig) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case virtualmachinecpuconfig.FieldID:
+		case virtualmachinecpuconfig.FieldID, virtualmachinecpuconfig.FieldOwnerID:
 			values[i] = new(gidx.PrefixedID)
 		case virtualmachinecpuconfig.FieldCores, virtualmachinecpuconfig.FieldSockets:
 			values[i] = new(sql.NullInt64)
@@ -96,6 +98,12 @@ func (vmcc *VirtualMachineCPUConfig) assignValues(columns []string, values []any
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				vmcc.ID = *value
+			}
+		case virtualmachinecpuconfig.FieldOwnerID:
+			if value, ok := values[i].(*gidx.PrefixedID); !ok {
+				return fmt.Errorf("unexpected type %T for field owner_id", values[i])
+			} else if value != nil {
+				vmcc.OwnerID = *value
 			}
 		case virtualmachinecpuconfig.FieldCores:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -150,6 +158,9 @@ func (vmcc *VirtualMachineCPUConfig) String() string {
 	var builder strings.Builder
 	builder.WriteString("VirtualMachineCPUConfig(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", vmcc.ID))
+	builder.WriteString("owner_id=")
+	builder.WriteString(fmt.Sprintf("%v", vmcc.OwnerID))
+	builder.WriteString(", ")
 	builder.WriteString("cores=")
 	builder.WriteString(fmt.Sprintf("%v", vmcc.Cores))
 	builder.WriteString(", ")

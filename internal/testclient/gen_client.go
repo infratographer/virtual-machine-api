@@ -37,6 +37,7 @@ type GetVirtualMachineByID struct {
 		Location struct {
 			ID gidx.PrefixedID "json:\"id\" graphql:\"id\""
 		} "json:\"location\" graphql:\"location\""
+		VMCPUConfigID gidx.PrefixedID "json:\"vmCPUConfigID\" graphql:\"vmCPUConfigID\""
 	} "json:\"virtualMachine\" graphql:\"virtualMachine\""
 }
 
@@ -50,6 +51,7 @@ const GetVirtualMachineByIDDocument = `query GetVirtualMachineByID ($id: ID!) {
 		location {
 			id
 		}
+		vmCPUConfigID
 	}
 }
 `

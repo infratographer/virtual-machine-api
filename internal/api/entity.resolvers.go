@@ -27,6 +27,11 @@ func (r *entityResolver) FindVirtualMachineByID(ctx context.Context, id gidx.Pre
 	panic(fmt.Errorf("not implemented: FindVirtualMachineByID - findVirtualMachineByID"))
 }
 
+// FindVirtualMachineCPUConfigByID is the resolver for the findVirtualMachineCPUConfigByID field.
+func (r *entityResolver) FindVirtualMachineCPUConfigByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachineCPUConfig, error) {
+	panic(fmt.Errorf("not implemented: FindVirtualMachineCPUConfigByID - findVirtualMachineCPUConfigByID"))
+}
+
 // Entity returns EntityResolver implementation.
 func (r *Resolver) Entity() EntityResolver { return &entityResolver{r} }
 

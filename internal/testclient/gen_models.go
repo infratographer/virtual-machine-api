@@ -23,6 +23,17 @@ type Entity interface {
 	IsEntity()
 }
 
+// Input information to create a virtual machine cpu config.
+type CreateVirtualMachineCPUConfigInput struct {
+	// The ID for the owner for this virtual machine cpu config.
+	OwnerID gidx.PrefixedID `json:"ownerID"`
+	// The number of cores for this virtual machine.
+	Cores int64 `json:"cores"`
+	// The number of sockets for this virtual machine.
+	Sockets          int64            `json:"sockets"`
+	VirtualMachineID *gidx.PrefixedID `json:"virtualMachineID,omitempty"`
+}
+
 // Create a new virtual machine.
 type CreateVirtualMachineInput struct {
 	// The name of the Virtual Machine.
@@ -62,6 +73,14 @@ type ResourceOwner struct {
 }
 
 func (ResourceOwner) IsEntity() {}
+
+// Input information to update a virtual machine cpu config.
+type UpdateVirtualMachineCPUConfigInput struct {
+	// The number of cores for this virtual machine.
+	Cores *int64 `json:"cores,omitempty"`
+	// The number of sockets for this virtual machine.
+	Sockets *int64 `json:"sockets,omitempty"`
+}
 
 // Update an existing virtual machine.
 type UpdateVirtualMachineInput struct {
@@ -112,6 +131,26 @@ func (VirtualMachineCPUConfig) IsNode() {}
 
 // The id of the object.
 func (this VirtualMachineCPUConfig) GetID() gidx.PrefixedID { return this.ID }
+
+func (VirtualMachineCPUConfig) IsEntity() {}
+
+// A connection to a list of items.
+type VirtualMachineCPUConfigConnection struct {
+	// A list of edges.
+	Edges []*VirtualMachineCPUConfigEdge `json:"edges,omitempty"`
+	// Information to aid in pagination.
+	PageInfo PageInfo `json:"pageInfo"`
+	// Identifies the total count of items in the connection.
+	TotalCount int64 `json:"totalCount"`
+}
+
+// An edge in a connection.
+type VirtualMachineCPUConfigEdge struct {
+	// The item at the end of the edge.
+	Node *VirtualMachineCPUConfig `json:"node,omitempty"`
+	// A cursor for use in pagination.
+	Cursor string `json:"cursor"`
+}
 
 // Ordering options for VirtualMachineCPUConfig connections
 type VirtualMachineCPUConfigOrder struct {
@@ -304,19 +343,21 @@ type VirtualMachineCPUConfigOrderField string
 
 const (
 	VirtualMachineCPUConfigOrderFieldID      VirtualMachineCPUConfigOrderField = "ID"
+	VirtualMachineCPUConfigOrderFieldOwner   VirtualMachineCPUConfigOrderField = "OWNER"
 	VirtualMachineCPUConfigOrderFieldCores   VirtualMachineCPUConfigOrderField = "cores"
 	VirtualMachineCPUConfigOrderFieldSockets VirtualMachineCPUConfigOrderField = "sockets"
 )
 
 var AllVirtualMachineCPUConfigOrderField = []VirtualMachineCPUConfigOrderField{
 	VirtualMachineCPUConfigOrderFieldID,
+	VirtualMachineCPUConfigOrderFieldOwner,
 	VirtualMachineCPUConfigOrderFieldCores,
 	VirtualMachineCPUConfigOrderFieldSockets,
 }
 
 func (e VirtualMachineCPUConfigOrderField) IsValid() bool {
 	switch e {
-	case VirtualMachineCPUConfigOrderFieldID, VirtualMachineCPUConfigOrderFieldCores, VirtualMachineCPUConfigOrderFieldSockets:
+	case VirtualMachineCPUConfigOrderFieldID, VirtualMachineCPUConfigOrderFieldOwner, VirtualMachineCPUConfigOrderFieldCores, VirtualMachineCPUConfigOrderFieldSockets:
 		return true
 	}
 	return false

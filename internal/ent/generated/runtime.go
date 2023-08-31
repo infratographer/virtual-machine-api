@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/virtual-machine-api/internal/ent/schema"
 	"go.infratographer.com/x/gidx"
 )
@@ -55,4 +56,10 @@ func init() {
 	virtualmachineDescID := virtualmachineFields[0].Descriptor()
 	// virtualmachine.DefaultID holds the default value on creation for the id field.
 	virtualmachine.DefaultID = virtualmachineDescID.Default.(func() gidx.PrefixedID)
+	virtualmachinecpuconfigFields := schema.VirtualMachineCPUConfig{}.Fields()
+	_ = virtualmachinecpuconfigFields
+	// virtualmachinecpuconfigDescOwnerID is the schema descriptor for owner_id field.
+	virtualmachinecpuconfigDescOwnerID := virtualmachinecpuconfigFields[1].Descriptor()
+	// virtualmachinecpuconfig.OwnerIDValidator is a validator for the "owner_id" field. It is called by the builders before save.
+	virtualmachinecpuconfig.OwnerIDValidator = virtualmachinecpuconfigDescOwnerID.Validators[0].(func(string) error)
 }

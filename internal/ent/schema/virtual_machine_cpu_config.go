@@ -3,8 +3,10 @@ package schema
 import (
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"go.infratographer.com/x/entx"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -22,6 +24,17 @@ func (VirtualMachineCPUConfig) Fields() []ent.Field {
 			Comment("The ID for the virtual machaine cpu config.").
 			Annotations(
 				entgql.OrderField("ID"),
+			),
+		field.String("owner_id").
+			GoType(gidx.PrefixedID("")).
+			Immutable().
+			NotEmpty().
+			Comment("The ID for the owner for this virtual machine cpu config.").
+			Annotations(
+				entgql.QueryField(),
+				entgql.Type("ID"),
+				entgql.Skip(entgql.SkipWhereInput, entgql.SkipMutationUpdateInput, entgql.SkipType),
+				entgql.OrderField("OWNER"),
 			),
 		field.Int("cores").
 			Comment("The number of cores for this virtual machine.").
@@ -42,5 +55,19 @@ func (VirtualMachineCPUConfig) Edges() []ent.Edge {
 		edge.To("virtual_machine", VirtualMachine.Type).
 			Unique().
 			Immutable(),
+	}
+}
+
+// Annotations of VirtualMachineCPUConfig
+func (VirtualMachineCPUConfig) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entx.GraphKeyDirective("id"),
+		entgql.Type("VirtualMachineCPUConfig"),
+		prefixIDDirective(VirtualMachinePrefix),
+		entgql.RelayConnection(),
+		entgql.Mutations(
+			entgql.MutationCreate().Description("Input information to create a virtual machine cpu config."),
+			entgql.MutationUpdate().Description("Input information to update a virtual machine cpu config."),
+		),
 	}
 }

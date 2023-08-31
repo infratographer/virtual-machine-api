@@ -795,6 +795,7 @@ type VirtualMachineCPUConfigMutation struct {
 	op                     Op
 	typ                    string
 	id                     *gidx.PrefixedID
+	owner_id               *gidx.PrefixedID
 	cores                  *int
 	addcores               *int
 	sockets                *int
@@ -909,6 +910,42 @@ func (m *VirtualMachineCPUConfigMutation) IDs(ctx context.Context) ([]gidx.Prefi
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (m *VirtualMachineCPUConfigMutation) SetOwnerID(gi gidx.PrefixedID) {
+	m.owner_id = &gi
+}
+
+// OwnerID returns the value of the "owner_id" field in the mutation.
+func (m *VirtualMachineCPUConfigMutation) OwnerID() (r gidx.PrefixedID, exists bool) {
+	v := m.owner_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerID returns the old "owner_id" field's value of the VirtualMachineCPUConfig entity.
+// If the VirtualMachineCPUConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineCPUConfigMutation) OldOwnerID(ctx context.Context) (v gidx.PrefixedID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerID: %w", err)
+	}
+	return oldValue.OwnerID, nil
+}
+
+// ResetOwnerID resets all changes to the "owner_id" field.
+func (m *VirtualMachineCPUConfigMutation) ResetOwnerID() {
+	m.owner_id = nil
 }
 
 // SetCores sets the "cores" field.
@@ -1096,7 +1133,10 @@ func (m *VirtualMachineCPUConfigMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VirtualMachineCPUConfigMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
+	if m.owner_id != nil {
+		fields = append(fields, virtualmachinecpuconfig.FieldOwnerID)
+	}
 	if m.cores != nil {
 		fields = append(fields, virtualmachinecpuconfig.FieldCores)
 	}
@@ -1111,6 +1151,8 @@ func (m *VirtualMachineCPUConfigMutation) Fields() []string {
 // schema.
 func (m *VirtualMachineCPUConfigMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case virtualmachinecpuconfig.FieldOwnerID:
+		return m.OwnerID()
 	case virtualmachinecpuconfig.FieldCores:
 		return m.Cores()
 	case virtualmachinecpuconfig.FieldSockets:
@@ -1124,6 +1166,8 @@ func (m *VirtualMachineCPUConfigMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *VirtualMachineCPUConfigMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case virtualmachinecpuconfig.FieldOwnerID:
+		return m.OldOwnerID(ctx)
 	case virtualmachinecpuconfig.FieldCores:
 		return m.OldCores(ctx)
 	case virtualmachinecpuconfig.FieldSockets:
@@ -1137,6 +1181,13 @@ func (m *VirtualMachineCPUConfigMutation) OldField(ctx context.Context, name str
 // type.
 func (m *VirtualMachineCPUConfigMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case virtualmachinecpuconfig.FieldOwnerID:
+		v, ok := value.(gidx.PrefixedID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerID(v)
+		return nil
 	case virtualmachinecpuconfig.FieldCores:
 		v, ok := value.(int)
 		if !ok {
@@ -1227,6 +1278,9 @@ func (m *VirtualMachineCPUConfigMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *VirtualMachineCPUConfigMutation) ResetField(name string) error {
 	switch name {
+	case virtualmachinecpuconfig.FieldOwnerID:
+		m.ResetOwnerID()
+		return nil
 	case virtualmachinecpuconfig.FieldCores:
 		m.ResetCores()
 		return nil

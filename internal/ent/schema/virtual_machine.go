@@ -78,6 +78,7 @@ func (VirtualMachine) Fields() []ent.Field {
 			Comment("The ID for the virtual machine cpu config.").
 			Annotations(
 				entgql.OrderField("VM_CPU_CONFIG"),
+				entgql.QueryField(),
 			),
 	}
 }

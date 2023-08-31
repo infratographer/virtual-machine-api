@@ -26,6 +26,8 @@ const (
 	Label = "virtual_machine_cpu_config"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldOwnerID holds the string denoting the owner_id field in the database.
+	FieldOwnerID = "owner_id"
 	// FieldCores holds the string denoting the cores field in the database.
 	FieldCores = "cores"
 	// FieldSockets holds the string denoting the sockets field in the database.
@@ -46,6 +48,7 @@ const (
 // Columns holds all SQL columns for virtualmachinecpuconfig fields.
 var Columns = []string{
 	FieldID,
+	FieldOwnerID,
 	FieldCores,
 	FieldSockets,
 }
@@ -60,12 +63,22 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// OwnerIDValidator is a validator for the "owner_id" field. It is called by the builders before save.
+	OwnerIDValidator func(string) error
+)
+
 // OrderOption defines the ordering options for the VirtualMachineCPUConfig queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByOwnerID orders the results by the owner_id field.
+func ByOwnerID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOwnerID, opts...).ToFunc()
 }
 
 // ByCores orders the results by the cores field.

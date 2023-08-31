@@ -77,3 +77,55 @@ func (c *VirtualMachineUpdateOne) SetInput(i UpdateVirtualMachineInput) *Virtual
 	i.Mutate(c.Mutation())
 	return c
 }
+
+// CreateVirtualMachineCPUConfigInput represents a mutation input for creating virtualmachinecpuconfigs.
+type CreateVirtualMachineCPUConfigInput struct {
+	OwnerID          gidx.PrefixedID
+	Cores            int
+	Sockets          int
+	VirtualMachineID *gidx.PrefixedID
+}
+
+// Mutate applies the CreateVirtualMachineCPUConfigInput on the VirtualMachineCPUConfigMutation builder.
+func (i *CreateVirtualMachineCPUConfigInput) Mutate(m *VirtualMachineCPUConfigMutation) {
+	m.SetOwnerID(i.OwnerID)
+	m.SetCores(i.Cores)
+	m.SetSockets(i.Sockets)
+	if v := i.VirtualMachineID; v != nil {
+		m.SetVirtualMachineID(*v)
+	}
+}
+
+// SetInput applies the change-set in the CreateVirtualMachineCPUConfigInput on the VirtualMachineCPUConfigCreate builder.
+func (c *VirtualMachineCPUConfigCreate) SetInput(i CreateVirtualMachineCPUConfigInput) *VirtualMachineCPUConfigCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdateVirtualMachineCPUConfigInput represents a mutation input for updating virtualmachinecpuconfigs.
+type UpdateVirtualMachineCPUConfigInput struct {
+	Cores   *int
+	Sockets *int
+}
+
+// Mutate applies the UpdateVirtualMachineCPUConfigInput on the VirtualMachineCPUConfigMutation builder.
+func (i *UpdateVirtualMachineCPUConfigInput) Mutate(m *VirtualMachineCPUConfigMutation) {
+	if v := i.Cores; v != nil {
+		m.SetCores(*v)
+	}
+	if v := i.Sockets; v != nil {
+		m.SetSockets(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdateVirtualMachineCPUConfigInput on the VirtualMachineCPUConfigUpdate builder.
+func (c *VirtualMachineCPUConfigUpdate) SetInput(i UpdateVirtualMachineCPUConfigInput) *VirtualMachineCPUConfigUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdateVirtualMachineCPUConfigInput on the VirtualMachineCPUConfigUpdateOne builder.
+func (c *VirtualMachineCPUConfigUpdateOne) SetInput(i UpdateVirtualMachineCPUConfigInput) *VirtualMachineCPUConfigUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}

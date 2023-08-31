@@ -717,6 +717,20 @@ var (
 			}
 		},
 	}
+	// VirtualMachineCPUConfigOrderFieldOwnerID orders VirtualMachineCPUConfig by owner_id.
+	VirtualMachineCPUConfigOrderFieldOwnerID = &VirtualMachineCPUConfigOrderField{
+		Value: func(vmcc *VirtualMachineCPUConfig) (ent.Value, error) {
+			return vmcc.OwnerID, nil
+		},
+		column: virtualmachinecpuconfig.FieldOwnerID,
+		toTerm: virtualmachinecpuconfig.ByOwnerID,
+		toCursor: func(vmcc *VirtualMachineCPUConfig) Cursor {
+			return Cursor{
+				ID:    vmcc.ID,
+				Value: vmcc.OwnerID,
+			}
+		},
+	}
 	// VirtualMachineCPUConfigOrderFieldCores orders VirtualMachineCPUConfig by cores.
 	VirtualMachineCPUConfigOrderFieldCores = &VirtualMachineCPUConfigOrderField{
 		Value: func(vmcc *VirtualMachineCPUConfig) (ent.Value, error) {
@@ -753,6 +767,8 @@ func (f VirtualMachineCPUConfigOrderField) String() string {
 	switch f.column {
 	case VirtualMachineCPUConfigOrderFieldID.column:
 		str = "ID"
+	case VirtualMachineCPUConfigOrderFieldOwnerID.column:
+		str = "OWNER"
 	case VirtualMachineCPUConfigOrderFieldCores.column:
 		str = "cores"
 	case VirtualMachineCPUConfigOrderFieldSockets.column:
@@ -775,6 +791,8 @@ func (f *VirtualMachineCPUConfigOrderField) UnmarshalGQL(v interface{}) error {
 	switch str {
 	case "ID":
 		*f = *VirtualMachineCPUConfigOrderFieldID
+	case "OWNER":
+		*f = *VirtualMachineCPUConfigOrderFieldOwnerID
 	case "cores":
 		*f = *VirtualMachineCPUConfigOrderFieldCores
 	case "sockets":
