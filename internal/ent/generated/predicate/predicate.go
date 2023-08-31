@@ -22,3 +22,6 @@ import (
 
 // VirtualMachine is the predicate function for virtualmachine builders.
 type VirtualMachine func(*sql.Selector)
+
+// VirtualMachineCPUConfig is the predicate function for virtualmachinecpuconfig builders.
+type VirtualMachineCPUConfig func(*sql.Selector)

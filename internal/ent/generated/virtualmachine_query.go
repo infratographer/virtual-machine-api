@@ -26,18 +26,20 @@ import (
 	"entgo.io/ent/schema/field"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/x/gidx"
 )
 
 // VirtualMachineQuery is the builder for querying VirtualMachine entities.
 type VirtualMachineQuery struct {
 	config
-	ctx        *QueryContext
-	order      []virtualmachine.OrderOption
-	inters     []Interceptor
-	predicates []predicate.VirtualMachine
-	modifiers  []func(*sql.Selector)
-	loadTotal  []func(context.Context, []*VirtualMachine) error
+	ctx                         *QueryContext
+	order                       []virtualmachine.OrderOption
+	inters                      []Interceptor
+	predicates                  []predicate.VirtualMachine
+	withVirtualMachineCPUConfig *VirtualMachineCPUConfigQuery
+	modifiers                   []func(*sql.Selector)
+	loadTotal                   []func(context.Context, []*VirtualMachine) error
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -72,6 +74,28 @@ func (vmq *VirtualMachineQuery) Unique(unique bool) *VirtualMachineQuery {
 func (vmq *VirtualMachineQuery) Order(o ...virtualmachine.OrderOption) *VirtualMachineQuery {
 	vmq.order = append(vmq.order, o...)
 	return vmq
+}
+
+// QueryVirtualMachineCPUConfig chains the current query on the "virtual_machine_cpu_config" edge.
+func (vmq *VirtualMachineQuery) QueryVirtualMachineCPUConfig() *VirtualMachineCPUConfigQuery {
+	query := (&VirtualMachineCPUConfigClient{config: vmq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := vmq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := vmq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(virtualmachine.Table, virtualmachine.FieldID, selector),
+			sqlgraph.To(virtualmachinecpuconfig.Table, virtualmachinecpuconfig.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, virtualmachine.VirtualMachineCPUConfigTable, virtualmachine.VirtualMachineCPUConfigColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(vmq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first VirtualMachine entity from the query.
@@ -261,15 +285,27 @@ func (vmq *VirtualMachineQuery) Clone() *VirtualMachineQuery {
 		return nil
 	}
 	return &VirtualMachineQuery{
-		config:     vmq.config,
-		ctx:        vmq.ctx.Clone(),
-		order:      append([]virtualmachine.OrderOption{}, vmq.order...),
-		inters:     append([]Interceptor{}, vmq.inters...),
-		predicates: append([]predicate.VirtualMachine{}, vmq.predicates...),
+		config:                      vmq.config,
+		ctx:                         vmq.ctx.Clone(),
+		order:                       append([]virtualmachine.OrderOption{}, vmq.order...),
+		inters:                      append([]Interceptor{}, vmq.inters...),
+		predicates:                  append([]predicate.VirtualMachine{}, vmq.predicates...),
+		withVirtualMachineCPUConfig: vmq.withVirtualMachineCPUConfig.Clone(),
 		// clone intermediate query.
 		sql:  vmq.sql.Clone(),
 		path: vmq.path,
 	}
+}
+
+// WithVirtualMachineCPUConfig tells the query-builder to eager-load the nodes that are connected to
+// the "virtual_machine_cpu_config" edge. The optional arguments are used to configure the query builder of the edge.
+func (vmq *VirtualMachineQuery) WithVirtualMachineCPUConfig(opts ...func(*VirtualMachineCPUConfigQuery)) *VirtualMachineQuery {
+	query := (&VirtualMachineCPUConfigClient{config: vmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	vmq.withVirtualMachineCPUConfig = query
+	return vmq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -348,8 +384,11 @@ func (vmq *VirtualMachineQuery) prepareQuery(ctx context.Context) error {
 
 func (vmq *VirtualMachineQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*VirtualMachine, error) {
 	var (
-		nodes = []*VirtualMachine{}
-		_spec = vmq.querySpec()
+		nodes       = []*VirtualMachine{}
+		_spec       = vmq.querySpec()
+		loadedTypes = [1]bool{
+			vmq.withVirtualMachineCPUConfig != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*VirtualMachine).scanValues(nil, columns)
@@ -357,6 +396,7 @@ func (vmq *VirtualMachineQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &VirtualMachine{config: vmq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(vmq.modifiers) > 0 {
@@ -371,12 +411,48 @@ func (vmq *VirtualMachineQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := vmq.withVirtualMachineCPUConfig; query != nil {
+		if err := vmq.loadVirtualMachineCPUConfig(ctx, query, nodes, nil,
+			func(n *VirtualMachine, e *VirtualMachineCPUConfig) { n.Edges.VirtualMachineCPUConfig = e }); err != nil {
+			return nil, err
+		}
+	}
 	for i := range vmq.loadTotal {
 		if err := vmq.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
+}
+
+func (vmq *VirtualMachineQuery) loadVirtualMachineCPUConfig(ctx context.Context, query *VirtualMachineCPUConfigQuery, nodes []*VirtualMachine, init func(*VirtualMachine), assign func(*VirtualMachine, *VirtualMachineCPUConfig)) error {
+	ids := make([]gidx.PrefixedID, 0, len(nodes))
+	nodeids := make(map[gidx.PrefixedID][]*VirtualMachine)
+	for i := range nodes {
+		fk := nodes[i].VMCPUConfigID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(virtualmachinecpuconfig.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "vm_cpu_config_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (vmq *VirtualMachineQuery) sqlCount(ctx context.Context) (int, error) {
@@ -406,6 +482,9 @@ func (vmq *VirtualMachineQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != virtualmachine.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if vmq.withVirtualMachineCPUConfig != nil {
+			_spec.Node.AddColumnOnce(virtualmachine.FieldVMCPUConfigID)
 		}
 	}
 	if ps := vmq.predicates; len(ps) > 0 {

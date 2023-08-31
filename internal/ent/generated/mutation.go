@@ -27,6 +27,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -39,25 +40,28 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeVirtualMachine = "VirtualMachine"
+	TypeVirtualMachine          = "VirtualMachine"
+	TypeVirtualMachineCPUConfig = "VirtualMachineCPUConfig"
 )
 
 // VirtualMachineMutation represents an operation that mutates the VirtualMachine nodes in the graph.
 type VirtualMachineMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *gidx.PrefixedID
-	created_at    *time.Time
-	updated_at    *time.Time
-	name          *string
-	owner_id      *gidx.PrefixedID
-	location_id   *gidx.PrefixedID
-	userdata      *string
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*VirtualMachine, error)
-	predicates    []predicate.VirtualMachine
+	op                                Op
+	typ                               string
+	id                                *gidx.PrefixedID
+	created_at                        *time.Time
+	updated_at                        *time.Time
+	name                              *string
+	owner_id                          *gidx.PrefixedID
+	location_id                       *gidx.PrefixedID
+	userdata                          *string
+	clearedFields                     map[string]struct{}
+	virtual_machine_cpu_config        *gidx.PrefixedID
+	clearedvirtual_machine_cpu_config bool
+	done                              bool
+	oldValue                          func(context.Context) (*VirtualMachine, error)
+	predicates                        []predicate.VirtualMachine
 }
 
 var _ ent.Mutation = (*VirtualMachineMutation)(nil)
@@ -393,6 +397,82 @@ func (m *VirtualMachineMutation) ResetUserdata() {
 	delete(m.clearedFields, virtualmachine.FieldUserdata)
 }
 
+// SetVMCPUConfigID sets the "vm_cpu_config_id" field.
+func (m *VirtualMachineMutation) SetVMCPUConfigID(gi gidx.PrefixedID) {
+	m.virtual_machine_cpu_config = &gi
+}
+
+// VMCPUConfigID returns the value of the "vm_cpu_config_id" field in the mutation.
+func (m *VirtualMachineMutation) VMCPUConfigID() (r gidx.PrefixedID, exists bool) {
+	v := m.virtual_machine_cpu_config
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVMCPUConfigID returns the old "vm_cpu_config_id" field's value of the VirtualMachine entity.
+// If the VirtualMachine object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineMutation) OldVMCPUConfigID(ctx context.Context) (v gidx.PrefixedID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVMCPUConfigID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVMCPUConfigID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVMCPUConfigID: %w", err)
+	}
+	return oldValue.VMCPUConfigID, nil
+}
+
+// ResetVMCPUConfigID resets all changes to the "vm_cpu_config_id" field.
+func (m *VirtualMachineMutation) ResetVMCPUConfigID() {
+	m.virtual_machine_cpu_config = nil
+}
+
+// SetVirtualMachineCPUConfigID sets the "virtual_machine_cpu_config" edge to the VirtualMachineCPUConfig entity by id.
+func (m *VirtualMachineMutation) SetVirtualMachineCPUConfigID(id gidx.PrefixedID) {
+	m.virtual_machine_cpu_config = &id
+}
+
+// ClearVirtualMachineCPUConfig clears the "virtual_machine_cpu_config" edge to the VirtualMachineCPUConfig entity.
+func (m *VirtualMachineMutation) ClearVirtualMachineCPUConfig() {
+	m.clearedvirtual_machine_cpu_config = true
+	m.clearedFields[virtualmachine.FieldVMCPUConfigID] = struct{}{}
+}
+
+// VirtualMachineCPUConfigCleared reports if the "virtual_machine_cpu_config" edge to the VirtualMachineCPUConfig entity was cleared.
+func (m *VirtualMachineMutation) VirtualMachineCPUConfigCleared() bool {
+	return m.clearedvirtual_machine_cpu_config
+}
+
+// VirtualMachineCPUConfigID returns the "virtual_machine_cpu_config" edge ID in the mutation.
+func (m *VirtualMachineMutation) VirtualMachineCPUConfigID() (id gidx.PrefixedID, exists bool) {
+	if m.virtual_machine_cpu_config != nil {
+		return *m.virtual_machine_cpu_config, true
+	}
+	return
+}
+
+// VirtualMachineCPUConfigIDs returns the "virtual_machine_cpu_config" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// VirtualMachineCPUConfigID instead. It exists only for internal usage by the builders.
+func (m *VirtualMachineMutation) VirtualMachineCPUConfigIDs() (ids []gidx.PrefixedID) {
+	if id := m.virtual_machine_cpu_config; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetVirtualMachineCPUConfig resets all changes to the "virtual_machine_cpu_config" edge.
+func (m *VirtualMachineMutation) ResetVirtualMachineCPUConfig() {
+	m.virtual_machine_cpu_config = nil
+	m.clearedvirtual_machine_cpu_config = false
+}
+
 // Where appends a list predicates to the VirtualMachineMutation builder.
 func (m *VirtualMachineMutation) Where(ps ...predicate.VirtualMachine) {
 	m.predicates = append(m.predicates, ps...)
@@ -427,7 +507,7 @@ func (m *VirtualMachineMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VirtualMachineMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, virtualmachine.FieldCreatedAt)
 	}
@@ -445,6 +525,9 @@ func (m *VirtualMachineMutation) Fields() []string {
 	}
 	if m.userdata != nil {
 		fields = append(fields, virtualmachine.FieldUserdata)
+	}
+	if m.virtual_machine_cpu_config != nil {
+		fields = append(fields, virtualmachine.FieldVMCPUConfigID)
 	}
 	return fields
 }
@@ -466,6 +549,8 @@ func (m *VirtualMachineMutation) Field(name string) (ent.Value, bool) {
 		return m.LocationID()
 	case virtualmachine.FieldUserdata:
 		return m.Userdata()
+	case virtualmachine.FieldVMCPUConfigID:
+		return m.VMCPUConfigID()
 	}
 	return nil, false
 }
@@ -487,6 +572,8 @@ func (m *VirtualMachineMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldLocationID(ctx)
 	case virtualmachine.FieldUserdata:
 		return m.OldUserdata(ctx)
+	case virtualmachine.FieldVMCPUConfigID:
+		return m.OldVMCPUConfigID(ctx)
 	}
 	return nil, fmt.Errorf("unknown VirtualMachine field %s", name)
 }
@@ -537,6 +624,13 @@ func (m *VirtualMachineMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserdata(v)
+		return nil
+	case virtualmachine.FieldVMCPUConfigID:
+		v, ok := value.(gidx.PrefixedID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVMCPUConfigID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)
@@ -614,25 +708,37 @@ func (m *VirtualMachineMutation) ResetField(name string) error {
 	case virtualmachine.FieldUserdata:
 		m.ResetUserdata()
 		return nil
+	case virtualmachine.FieldVMCPUConfigID:
+		m.ResetVMCPUConfigID()
+		return nil
 	}
 	return fmt.Errorf("unknown VirtualMachine field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *VirtualMachineMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.virtual_machine_cpu_config != nil {
+		edges = append(edges, virtualmachine.EdgeVirtualMachineCPUConfig)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *VirtualMachineMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case virtualmachine.EdgeVirtualMachineCPUConfig:
+		if id := m.virtual_machine_cpu_config; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *VirtualMachineMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -644,24 +750,563 @@ func (m *VirtualMachineMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *VirtualMachineMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedvirtual_machine_cpu_config {
+		edges = append(edges, virtualmachine.EdgeVirtualMachineCPUConfig)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *VirtualMachineMutation) EdgeCleared(name string) bool {
+	switch name {
+	case virtualmachine.EdgeVirtualMachineCPUConfig:
+		return m.clearedvirtual_machine_cpu_config
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *VirtualMachineMutation) ClearEdge(name string) error {
+	switch name {
+	case virtualmachine.EdgeVirtualMachineCPUConfig:
+		m.ClearVirtualMachineCPUConfig()
+		return nil
+	}
 	return fmt.Errorf("unknown VirtualMachine unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *VirtualMachineMutation) ResetEdge(name string) error {
+	switch name {
+	case virtualmachine.EdgeVirtualMachineCPUConfig:
+		m.ResetVirtualMachineCPUConfig()
+		return nil
+	}
 	return fmt.Errorf("unknown VirtualMachine edge %s", name)
+}
+
+// VirtualMachineCPUConfigMutation represents an operation that mutates the VirtualMachineCPUConfig nodes in the graph.
+type VirtualMachineCPUConfigMutation struct {
+	config
+	op                     Op
+	typ                    string
+	id                     *gidx.PrefixedID
+	cores                  *int
+	addcores               *int
+	sockets                *int
+	addsockets             *int
+	clearedFields          map[string]struct{}
+	virtual_machine        *gidx.PrefixedID
+	clearedvirtual_machine bool
+	done                   bool
+	oldValue               func(context.Context) (*VirtualMachineCPUConfig, error)
+	predicates             []predicate.VirtualMachineCPUConfig
+}
+
+var _ ent.Mutation = (*VirtualMachineCPUConfigMutation)(nil)
+
+// virtualmachinecpuconfigOption allows management of the mutation configuration using functional options.
+type virtualmachinecpuconfigOption func(*VirtualMachineCPUConfigMutation)
+
+// newVirtualMachineCPUConfigMutation creates new mutation for the VirtualMachineCPUConfig entity.
+func newVirtualMachineCPUConfigMutation(c config, op Op, opts ...virtualmachinecpuconfigOption) *VirtualMachineCPUConfigMutation {
+	m := &VirtualMachineCPUConfigMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeVirtualMachineCPUConfig,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withVirtualMachineCPUConfigID sets the ID field of the mutation.
+func withVirtualMachineCPUConfigID(id gidx.PrefixedID) virtualmachinecpuconfigOption {
+	return func(m *VirtualMachineCPUConfigMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *VirtualMachineCPUConfig
+		)
+		m.oldValue = func(ctx context.Context) (*VirtualMachineCPUConfig, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().VirtualMachineCPUConfig.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withVirtualMachineCPUConfig sets the old VirtualMachineCPUConfig of the mutation.
+func withVirtualMachineCPUConfig(node *VirtualMachineCPUConfig) virtualmachinecpuconfigOption {
+	return func(m *VirtualMachineCPUConfigMutation) {
+		m.oldValue = func(context.Context) (*VirtualMachineCPUConfig, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m VirtualMachineCPUConfigMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m VirtualMachineCPUConfigMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("generated: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of VirtualMachineCPUConfig entities.
+func (m *VirtualMachineCPUConfigMutation) SetID(id gidx.PrefixedID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *VirtualMachineCPUConfigMutation) ID() (id gidx.PrefixedID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *VirtualMachineCPUConfigMutation) IDs(ctx context.Context) ([]gidx.PrefixedID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []gidx.PrefixedID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().VirtualMachineCPUConfig.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCores sets the "cores" field.
+func (m *VirtualMachineCPUConfigMutation) SetCores(i int) {
+	m.cores = &i
+	m.addcores = nil
+}
+
+// Cores returns the value of the "cores" field in the mutation.
+func (m *VirtualMachineCPUConfigMutation) Cores() (r int, exists bool) {
+	v := m.cores
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCores returns the old "cores" field's value of the VirtualMachineCPUConfig entity.
+// If the VirtualMachineCPUConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineCPUConfigMutation) OldCores(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCores is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCores requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCores: %w", err)
+	}
+	return oldValue.Cores, nil
+}
+
+// AddCores adds i to the "cores" field.
+func (m *VirtualMachineCPUConfigMutation) AddCores(i int) {
+	if m.addcores != nil {
+		*m.addcores += i
+	} else {
+		m.addcores = &i
+	}
+}
+
+// AddedCores returns the value that was added to the "cores" field in this mutation.
+func (m *VirtualMachineCPUConfigMutation) AddedCores() (r int, exists bool) {
+	v := m.addcores
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCores resets all changes to the "cores" field.
+func (m *VirtualMachineCPUConfigMutation) ResetCores() {
+	m.cores = nil
+	m.addcores = nil
+}
+
+// SetSockets sets the "sockets" field.
+func (m *VirtualMachineCPUConfigMutation) SetSockets(i int) {
+	m.sockets = &i
+	m.addsockets = nil
+}
+
+// Sockets returns the value of the "sockets" field in the mutation.
+func (m *VirtualMachineCPUConfigMutation) Sockets() (r int, exists bool) {
+	v := m.sockets
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSockets returns the old "sockets" field's value of the VirtualMachineCPUConfig entity.
+// If the VirtualMachineCPUConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualMachineCPUConfigMutation) OldSockets(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSockets is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSockets requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSockets: %w", err)
+	}
+	return oldValue.Sockets, nil
+}
+
+// AddSockets adds i to the "sockets" field.
+func (m *VirtualMachineCPUConfigMutation) AddSockets(i int) {
+	if m.addsockets != nil {
+		*m.addsockets += i
+	} else {
+		m.addsockets = &i
+	}
+}
+
+// AddedSockets returns the value that was added to the "sockets" field in this mutation.
+func (m *VirtualMachineCPUConfigMutation) AddedSockets() (r int, exists bool) {
+	v := m.addsockets
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSockets resets all changes to the "sockets" field.
+func (m *VirtualMachineCPUConfigMutation) ResetSockets() {
+	m.sockets = nil
+	m.addsockets = nil
+}
+
+// SetVirtualMachineID sets the "virtual_machine" edge to the VirtualMachine entity by id.
+func (m *VirtualMachineCPUConfigMutation) SetVirtualMachineID(id gidx.PrefixedID) {
+	m.virtual_machine = &id
+}
+
+// ClearVirtualMachine clears the "virtual_machine" edge to the VirtualMachine entity.
+func (m *VirtualMachineCPUConfigMutation) ClearVirtualMachine() {
+	m.clearedvirtual_machine = true
+}
+
+// VirtualMachineCleared reports if the "virtual_machine" edge to the VirtualMachine entity was cleared.
+func (m *VirtualMachineCPUConfigMutation) VirtualMachineCleared() bool {
+	return m.clearedvirtual_machine
+}
+
+// VirtualMachineID returns the "virtual_machine" edge ID in the mutation.
+func (m *VirtualMachineCPUConfigMutation) VirtualMachineID() (id gidx.PrefixedID, exists bool) {
+	if m.virtual_machine != nil {
+		return *m.virtual_machine, true
+	}
+	return
+}
+
+// VirtualMachineIDs returns the "virtual_machine" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// VirtualMachineID instead. It exists only for internal usage by the builders.
+func (m *VirtualMachineCPUConfigMutation) VirtualMachineIDs() (ids []gidx.PrefixedID) {
+	if id := m.virtual_machine; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetVirtualMachine resets all changes to the "virtual_machine" edge.
+func (m *VirtualMachineCPUConfigMutation) ResetVirtualMachine() {
+	m.virtual_machine = nil
+	m.clearedvirtual_machine = false
+}
+
+// Where appends a list predicates to the VirtualMachineCPUConfigMutation builder.
+func (m *VirtualMachineCPUConfigMutation) Where(ps ...predicate.VirtualMachineCPUConfig) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the VirtualMachineCPUConfigMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *VirtualMachineCPUConfigMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.VirtualMachineCPUConfig, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *VirtualMachineCPUConfigMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *VirtualMachineCPUConfigMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (VirtualMachineCPUConfig).
+func (m *VirtualMachineCPUConfigMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *VirtualMachineCPUConfigMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.cores != nil {
+		fields = append(fields, virtualmachinecpuconfig.FieldCores)
+	}
+	if m.sockets != nil {
+		fields = append(fields, virtualmachinecpuconfig.FieldSockets)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *VirtualMachineCPUConfigMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case virtualmachinecpuconfig.FieldCores:
+		return m.Cores()
+	case virtualmachinecpuconfig.FieldSockets:
+		return m.Sockets()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *VirtualMachineCPUConfigMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case virtualmachinecpuconfig.FieldCores:
+		return m.OldCores(ctx)
+	case virtualmachinecpuconfig.FieldSockets:
+		return m.OldSockets(ctx)
+	}
+	return nil, fmt.Errorf("unknown VirtualMachineCPUConfig field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *VirtualMachineCPUConfigMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case virtualmachinecpuconfig.FieldCores:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCores(v)
+		return nil
+	case virtualmachinecpuconfig.FieldSockets:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSockets(v)
+		return nil
+	}
+	return fmt.Errorf("unknown VirtualMachineCPUConfig field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *VirtualMachineCPUConfigMutation) AddedFields() []string {
+	var fields []string
+	if m.addcores != nil {
+		fields = append(fields, virtualmachinecpuconfig.FieldCores)
+	}
+	if m.addsockets != nil {
+		fields = append(fields, virtualmachinecpuconfig.FieldSockets)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *VirtualMachineCPUConfigMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case virtualmachinecpuconfig.FieldCores:
+		return m.AddedCores()
+	case virtualmachinecpuconfig.FieldSockets:
+		return m.AddedSockets()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *VirtualMachineCPUConfigMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case virtualmachinecpuconfig.FieldCores:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCores(v)
+		return nil
+	case virtualmachinecpuconfig.FieldSockets:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSockets(v)
+		return nil
+	}
+	return fmt.Errorf("unknown VirtualMachineCPUConfig numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *VirtualMachineCPUConfigMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *VirtualMachineCPUConfigMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *VirtualMachineCPUConfigMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown VirtualMachineCPUConfig nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *VirtualMachineCPUConfigMutation) ResetField(name string) error {
+	switch name {
+	case virtualmachinecpuconfig.FieldCores:
+		m.ResetCores()
+		return nil
+	case virtualmachinecpuconfig.FieldSockets:
+		m.ResetSockets()
+		return nil
+	}
+	return fmt.Errorf("unknown VirtualMachineCPUConfig field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *VirtualMachineCPUConfigMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.virtual_machine != nil {
+		edges = append(edges, virtualmachinecpuconfig.EdgeVirtualMachine)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *VirtualMachineCPUConfigMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case virtualmachinecpuconfig.EdgeVirtualMachine:
+		if id := m.virtual_machine; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *VirtualMachineCPUConfigMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *VirtualMachineCPUConfigMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *VirtualMachineCPUConfigMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedvirtual_machine {
+		edges = append(edges, virtualmachinecpuconfig.EdgeVirtualMachine)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *VirtualMachineCPUConfigMutation) EdgeCleared(name string) bool {
+	switch name {
+	case virtualmachinecpuconfig.EdgeVirtualMachine:
+		return m.clearedvirtual_machine
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *VirtualMachineCPUConfigMutation) ClearEdge(name string) error {
+	switch name {
+	case virtualmachinecpuconfig.EdgeVirtualMachine:
+		m.ClearVirtualMachine()
+		return nil
+	}
+	return fmt.Errorf("unknown VirtualMachineCPUConfig unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *VirtualMachineCPUConfigMutation) ResetEdge(name string) error {
+	switch name {
+	case virtualmachinecpuconfig.EdgeVirtualMachine:
+		m.ResetVirtualMachine()
+		return nil
+	}
+	return fmt.Errorf("unknown VirtualMachineCPUConfig edge %s", name)
 }

@@ -198,6 +198,28 @@ func VirtualMachineHooks() []ent.Hook {
 						})
 					}
 
+					cv_vm_cpu_config_id := ""
+					vm_cpu_config_id, ok := m.VMCPUConfigID()
+
+					if ok {
+						cv_vm_cpu_config_id = fmt.Sprintf("%s", fmt.Sprint(vm_cpu_config_id))
+						pv_vm_cpu_config_id := ""
+						if !m.Op().Is(ent.OpCreate) {
+							ov, err := m.OldVMCPUConfigID(ctx)
+							if err != nil {
+								pv_vm_cpu_config_id = "<unknown>"
+							} else {
+								pv_vm_cpu_config_id = fmt.Sprintf("%s", fmt.Sprint(ov))
+							}
+						}
+
+						changeset = append(changeset, events.FieldChange{
+							Field:         "vm_cpu_config_id",
+							PreviousValue: pv_vm_cpu_config_id,
+							CurrentValue:  cv_vm_cpu_config_id,
+						})
+					}
+
 					msg := events.ChangeMessage{
 						EventType:            eventType(m.Op()),
 						SubjectID:            objID,

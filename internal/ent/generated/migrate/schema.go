@@ -31,12 +31,21 @@ var (
 		{Name: "owner_id", Type: field.TypeString},
 		{Name: "location_id", Type: field.TypeString},
 		{Name: "userdata", Type: field.TypeString, Nullable: true},
+		{Name: "vm_cpu_config_id", Type: field.TypeString, Unique: true},
 	}
 	// VirtualMachinesTable holds the schema information for the "virtual_machines" table.
 	VirtualMachinesTable = &schema.Table{
 		Name:       "virtual_machines",
 		Columns:    VirtualMachinesColumns,
 		PrimaryKey: []*schema.Column{VirtualMachinesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "virtual_machines_virtual_machine_cpu_configs_virtual_machine",
+				Columns:    []*schema.Column{VirtualMachinesColumns[7]},
+				RefColumns: []*schema.Column{VirtualMachineCPUConfigsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "virtualmachine_created_at",
@@ -55,11 +64,25 @@ var (
 			},
 		},
 	}
+	// VirtualMachineCPUConfigsColumns holds the columns for the "virtual_machine_cpu_configs" table.
+	VirtualMachineCPUConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "cores", Type: field.TypeInt},
+		{Name: "sockets", Type: field.TypeInt},
+	}
+	// VirtualMachineCPUConfigsTable holds the schema information for the "virtual_machine_cpu_configs" table.
+	VirtualMachineCPUConfigsTable = &schema.Table{
+		Name:       "virtual_machine_cpu_configs",
+		Columns:    VirtualMachineCPUConfigsColumns,
+		PrimaryKey: []*schema.Column{VirtualMachineCPUConfigsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		VirtualMachinesTable,
+		VirtualMachineCPUConfigsTable,
 	}
 )
 
 func init() {
+	VirtualMachinesTable.ForeignKeys[0].RefTable = VirtualMachineCPUConfigsTable
 }

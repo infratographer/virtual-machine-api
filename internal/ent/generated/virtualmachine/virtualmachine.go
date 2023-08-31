@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -40,8 +41,19 @@ const (
 	FieldLocationID = "location_id"
 	// FieldUserdata holds the string denoting the userdata field in the database.
 	FieldUserdata = "userdata"
+	// FieldVMCPUConfigID holds the string denoting the vm_cpu_config_id field in the database.
+	FieldVMCPUConfigID = "vm_cpu_config_id"
+	// EdgeVirtualMachineCPUConfig holds the string denoting the virtual_machine_cpu_config edge name in mutations.
+	EdgeVirtualMachineCPUConfig = "virtual_machine_cpu_config"
 	// Table holds the table name of the virtualmachine in the database.
 	Table = "virtual_machines"
+	// VirtualMachineCPUConfigTable is the table that holds the virtual_machine_cpu_config relation/edge.
+	VirtualMachineCPUConfigTable = "virtual_machines"
+	// VirtualMachineCPUConfigInverseTable is the table name for the VirtualMachineCPUConfig entity.
+	// It exists in this package in order to avoid circular dependency with the "virtualmachinecpuconfig" package.
+	VirtualMachineCPUConfigInverseTable = "virtual_machine_cpu_configs"
+	// VirtualMachineCPUConfigColumn is the table column denoting the virtual_machine_cpu_config relation/edge.
+	VirtualMachineCPUConfigColumn = "vm_cpu_config_id"
 )
 
 // Columns holds all SQL columns for virtualmachine fields.
@@ -53,6 +65,7 @@ var Columns = []string{
 	FieldOwnerID,
 	FieldLocationID,
 	FieldUserdata,
+	FieldVMCPUConfigID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -116,4 +129,23 @@ func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserdata orders the results by the userdata field.
 func ByUserdata(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserdata, opts...).ToFunc()
+}
+
+// ByVMCPUConfigID orders the results by the vm_cpu_config_id field.
+func ByVMCPUConfigID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVMCPUConfigID, opts...).ToFunc()
+}
+
+// ByVirtualMachineCPUConfigField orders the results by virtual_machine_cpu_config field.
+func ByVirtualMachineCPUConfigField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newVirtualMachineCPUConfigStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newVirtualMachineCPUConfigStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(VirtualMachineCPUConfigInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, VirtualMachineCPUConfigTable, VirtualMachineCPUConfigColumn),
+	)
 }

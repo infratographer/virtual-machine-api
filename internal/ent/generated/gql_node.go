@@ -24,6 +24,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/hashicorp/go-multierror"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -34,6 +35,9 @@ type Noder interface {
 
 // IsNode implements the Node interface check for GQLGen.
 func (n *VirtualMachine) IsNode() {}
+
+// IsNode implements the Node interface check for GQLGen.
+func (n *VirtualMachineCPUConfig) IsNode() {}
 
 var errNodeInvalidID = &NotFoundError{"node"}
 
@@ -101,6 +105,22 @@ func (c *Client) noder(ctx context.Context, table string, id gidx.PrefixedID) (N
 		query := c.VirtualMachine.Query().
 			Where(virtualmachine.ID(uid))
 		query, err := query.CollectFields(ctx, "VirtualMachine")
+		if err != nil {
+			return nil, err
+		}
+		n, err := query.Only(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return n, nil
+	case virtualmachinecpuconfig.Table:
+		var uid gidx.PrefixedID
+		if err := uid.UnmarshalGQL(id); err != nil {
+			return nil, err
+		}
+		query := c.VirtualMachineCPUConfig.Query().
+			Where(virtualmachinecpuconfig.ID(uid))
+		query, err := query.CollectFields(ctx, "VirtualMachineCPUConfig")
 		if err != nil {
 			return nil, err
 		}
@@ -186,6 +206,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []gidx.PrefixedID
 		query := c.VirtualMachine.Query().
 			Where(virtualmachine.IDIn(ids...))
 		query, err := query.CollectFields(ctx, "VirtualMachine")
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case virtualmachinecpuconfig.Table:
+		query := c.VirtualMachineCPUConfig.Query().
+			Where(virtualmachinecpuconfig.IDIn(ids...))
+		query, err := query.CollectFields(ctx, "VirtualMachineCPUConfig")
 		if err != nil {
 			return nil, err
 		}

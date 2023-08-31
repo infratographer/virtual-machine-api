@@ -24,6 +24,7 @@ import (
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 )
 
 // The Query interface represents an operation that queries a graph.
@@ -109,11 +110,40 @@ func (f TraverseVirtualMachine) Traverse(ctx context.Context, q generated.Query)
 	return fmt.Errorf("unexpected query type %T. expect *generated.VirtualMachineQuery", q)
 }
 
+// The VirtualMachineCPUConfigFunc type is an adapter to allow the use of ordinary function as a Querier.
+type VirtualMachineCPUConfigFunc func(context.Context, *generated.VirtualMachineCPUConfigQuery) (generated.Value, error)
+
+// Query calls f(ctx, q).
+func (f VirtualMachineCPUConfigFunc) Query(ctx context.Context, q generated.Query) (generated.Value, error) {
+	if q, ok := q.(*generated.VirtualMachineCPUConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generated.VirtualMachineCPUConfigQuery", q)
+}
+
+// The TraverseVirtualMachineCPUConfig type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseVirtualMachineCPUConfig func(context.Context, *generated.VirtualMachineCPUConfigQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseVirtualMachineCPUConfig) Intercept(next generated.Querier) generated.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseVirtualMachineCPUConfig) Traverse(ctx context.Context, q generated.Query) error {
+	if q, ok := q.(*generated.VirtualMachineCPUConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generated.VirtualMachineCPUConfigQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q generated.Query) (Query, error) {
 	switch q := q.(type) {
 	case *generated.VirtualMachineQuery:
 		return &query[*generated.VirtualMachineQuery, predicate.VirtualMachine, virtualmachine.OrderOption]{typ: generated.TypeVirtualMachine, tq: q}, nil
+	case *generated.VirtualMachineCPUConfigQuery:
+		return &query[*generated.VirtualMachineCPUConfigQuery, predicate.VirtualMachineCPUConfig, virtualmachinecpuconfig.OrderOption]{typ: generated.TypeVirtualMachineCPUConfig, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}
