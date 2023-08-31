@@ -2,8 +2,6 @@
 directive @prefixedID(prefix: String!) on OBJECT
 """Input information to create a virtual machine cpu config."""
 input CreateVirtualMachineCPUConfigInput {
-	"""The ID for the owner for this virtual machine cpu config."""
-	ownerID: ID!
 	"""The number of cores for this virtual machine."""
 	cores: Int!
 	"""The number of sockets for this virtual machine."""
@@ -186,7 +184,6 @@ input VirtualMachineCPUConfigOrder {
 """Properties by which VirtualMachineCPUConfig connections can be ordered."""
 enum VirtualMachineCPUConfigOrderField {
 	ID
-	OWNER
 	cores
 	sockets
 }

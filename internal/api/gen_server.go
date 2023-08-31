@@ -592,8 +592,6 @@ var sources = []*ast.Source{
 directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
 """Input information to create a virtual machine cpu config."""
 input CreateVirtualMachineCPUConfigInput {
-  """The ID for the owner for this virtual machine cpu config."""
-  ownerID: ID!
   """The number of cores for this virtual machine."""
   cores: Int!
   """The number of sockets for this virtual machine."""
@@ -715,7 +713,6 @@ input VirtualMachineCPUConfigOrder {
 """Properties by which VirtualMachineCPUConfig connections can be ordered."""
 enum VirtualMachineCPUConfigOrderField {
   ID
-  OWNER
   cores
   sockets
 }
@@ -5265,22 +5262,13 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineCPUConfigInput(ctx
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ownerID", "cores", "sockets", "virtualMachineID"}
+	fieldsInOrder := [...]string{"cores", "sockets", "virtualMachineID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ownerID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerID"))
-			data, err := ec.unmarshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.OwnerID = data
 		case "cores":
 			var err error
 

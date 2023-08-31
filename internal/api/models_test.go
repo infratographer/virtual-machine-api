@@ -18,7 +18,6 @@ const (
 
 type VirtualMachineCPUConfigBuilder struct {
 	ID      gidx.PrefixedID
-	OwnerID gidx.PrefixedID
 	cores   int
 	sockets int
 }
@@ -26,10 +25,6 @@ type VirtualMachineCPUConfigBuilder struct {
 func (p *VirtualMachineCPUConfigBuilder) MustNew(ctx context.Context) *ent.VirtualMachineCPUConfig {
 	if p.ID == "" {
 		p.ID = gidx.MustNewID(cpuConfigPrefix)
-	}
-
-	if p.OwnerID == "" {
-		p.OwnerID = gidx.MustNewID(ownerPrefix)
 	}
 
 	if p.cores == 0 {
@@ -40,7 +35,7 @@ func (p *VirtualMachineCPUConfigBuilder) MustNew(ctx context.Context) *ent.Virtu
 		p.sockets = 2
 	}
 
-	return EntClient.VirtualMachineCPUConfig.Create().SetID(p.ID).SetOwnerID(p.OwnerID).SetCores(p.cores).SetSockets(p.sockets).SaveX(ctx)
+	return EntClient.VirtualMachineCPUConfig.Create().SetID(p.ID).SetCores(p.cores).SetSockets(p.sockets).SaveX(ctx)
 }
 
 type VirtualMachineBuilder struct {
@@ -52,7 +47,7 @@ type VirtualMachineBuilder struct {
 
 func (l *VirtualMachineBuilder) MustNew(ctx context.Context) *ent.VirtualMachine {
 	if l.CPUConfig == nil {
-		pb := &VirtualMachineCPUConfigBuilder{OwnerID: l.OwnerID}
+		pb := &VirtualMachineCPUConfigBuilder{}
 		l.CPUConfig = pb.MustNew(ctx)
 	}
 

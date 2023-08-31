@@ -25,8 +25,6 @@ type Entity interface {
 
 // Input information to create a virtual machine cpu config.
 type CreateVirtualMachineCPUConfigInput struct {
-	// The ID for the owner for this virtual machine cpu config.
-	OwnerID gidx.PrefixedID `json:"ownerID"`
 	// The number of cores for this virtual machine.
 	Cores int64 `json:"cores"`
 	// The number of sockets for this virtual machine.
@@ -343,21 +341,19 @@ type VirtualMachineCPUConfigOrderField string
 
 const (
 	VirtualMachineCPUConfigOrderFieldID      VirtualMachineCPUConfigOrderField = "ID"
-	VirtualMachineCPUConfigOrderFieldOwner   VirtualMachineCPUConfigOrderField = "OWNER"
 	VirtualMachineCPUConfigOrderFieldCores   VirtualMachineCPUConfigOrderField = "cores"
 	VirtualMachineCPUConfigOrderFieldSockets VirtualMachineCPUConfigOrderField = "sockets"
 )
 
 var AllVirtualMachineCPUConfigOrderField = []VirtualMachineCPUConfigOrderField{
 	VirtualMachineCPUConfigOrderFieldID,
-	VirtualMachineCPUConfigOrderFieldOwner,
 	VirtualMachineCPUConfigOrderFieldCores,
 	VirtualMachineCPUConfigOrderFieldSockets,
 }
 
 func (e VirtualMachineCPUConfigOrderField) IsValid() bool {
 	switch e {
-	case VirtualMachineCPUConfigOrderFieldID, VirtualMachineCPUConfigOrderFieldOwner, VirtualMachineCPUConfigOrderFieldCores, VirtualMachineCPUConfigOrderFieldSockets:
+	case VirtualMachineCPUConfigOrderFieldID, VirtualMachineCPUConfigOrderFieldCores, VirtualMachineCPUConfigOrderFieldSockets:
 		return true
 	}
 	return false

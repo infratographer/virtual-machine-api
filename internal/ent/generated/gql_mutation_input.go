@@ -80,7 +80,6 @@ func (c *VirtualMachineUpdateOne) SetInput(i UpdateVirtualMachineInput) *Virtual
 
 // CreateVirtualMachineCPUConfigInput represents a mutation input for creating virtualmachinecpuconfigs.
 type CreateVirtualMachineCPUConfigInput struct {
-	OwnerID          gidx.PrefixedID
 	Cores            int
 	Sockets          int
 	VirtualMachineID *gidx.PrefixedID
@@ -88,7 +87,6 @@ type CreateVirtualMachineCPUConfigInput struct {
 
 // Mutate applies the CreateVirtualMachineCPUConfigInput on the VirtualMachineCPUConfigMutation builder.
 func (i *CreateVirtualMachineCPUConfigInput) Mutate(m *VirtualMachineCPUConfigMutation) {
-	m.SetOwnerID(i.OwnerID)
 	m.SetCores(i.Cores)
 	m.SetSockets(i.Sockets)
 	if v := i.VirtualMachineID; v != nil {

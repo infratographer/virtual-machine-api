@@ -25,17 +25,6 @@ func (VirtualMachineCPUConfig) Fields() []ent.Field {
 			Annotations(
 				entgql.OrderField("ID"),
 			),
-		field.String("owner_id").
-			GoType(gidx.PrefixedID("")).
-			Immutable().
-			NotEmpty().
-			Comment("The ID for the owner for this virtual machine cpu config.").
-			Annotations(
-				entgql.QueryField(),
-				entgql.Type("ID"),
-				entgql.Skip(entgql.SkipWhereInput, entgql.SkipMutationUpdateInput, entgql.SkipType),
-				entgql.OrderField("OWNER"),
-			),
 		field.Int("cores").
 			Comment("The number of cores for this virtual machine.").
 			Annotations(

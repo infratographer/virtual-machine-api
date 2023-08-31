@@ -67,7 +67,6 @@ var (
 	// VirtualMachineCPUConfigsColumns holds the columns for the "virtual_machine_cpu_configs" table.
 	VirtualMachineCPUConfigsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "owner_id", Type: field.TypeString},
 		{Name: "cores", Type: field.TypeInt},
 		{Name: "sockets", Type: field.TypeInt},
 	}

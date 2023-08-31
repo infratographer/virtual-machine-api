@@ -68,11 +68,6 @@ func IDLTE(id gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldLTE(FieldID, id))
 }
 
-// OwnerID applies equality check predicate on the "owner_id" field. It's identical to OwnerIDEQ.
-func OwnerID(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldOwnerID, v))
-}
-
 // Cores applies equality check predicate on the "cores" field. It's identical to CoresEQ.
 func Cores(v int) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldCores, v))
@@ -81,76 +76,6 @@ func Cores(v int) predicate.VirtualMachineCPUConfig {
 // Sockets applies equality check predicate on the "sockets" field. It's identical to SocketsEQ.
 func Sockets(v int) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldSockets, v))
-}
-
-// OwnerIDEQ applies the EQ predicate on the "owner_id" field.
-func OwnerIDEQ(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldOwnerID, v))
-}
-
-// OwnerIDNEQ applies the NEQ predicate on the "owner_id" field.
-func OwnerIDNEQ(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldNEQ(FieldOwnerID, v))
-}
-
-// OwnerIDIn applies the In predicate on the "owner_id" field.
-func OwnerIDIn(vs ...gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldIn(FieldOwnerID, vs...))
-}
-
-// OwnerIDNotIn applies the NotIn predicate on the "owner_id" field.
-func OwnerIDNotIn(vs ...gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldNotIn(FieldOwnerID, vs...))
-}
-
-// OwnerIDGT applies the GT predicate on the "owner_id" field.
-func OwnerIDGT(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldGT(FieldOwnerID, v))
-}
-
-// OwnerIDGTE applies the GTE predicate on the "owner_id" field.
-func OwnerIDGTE(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldGTE(FieldOwnerID, v))
-}
-
-// OwnerIDLT applies the LT predicate on the "owner_id" field.
-func OwnerIDLT(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldLT(FieldOwnerID, v))
-}
-
-// OwnerIDLTE applies the LTE predicate on the "owner_id" field.
-func OwnerIDLTE(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	return predicate.VirtualMachineCPUConfig(sql.FieldLTE(FieldOwnerID, v))
-}
-
-// OwnerIDContains applies the Contains predicate on the "owner_id" field.
-func OwnerIDContains(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	vc := string(v)
-	return predicate.VirtualMachineCPUConfig(sql.FieldContains(FieldOwnerID, vc))
-}
-
-// OwnerIDHasPrefix applies the HasPrefix predicate on the "owner_id" field.
-func OwnerIDHasPrefix(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	vc := string(v)
-	return predicate.VirtualMachineCPUConfig(sql.FieldHasPrefix(FieldOwnerID, vc))
-}
-
-// OwnerIDHasSuffix applies the HasSuffix predicate on the "owner_id" field.
-func OwnerIDHasSuffix(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	vc := string(v)
-	return predicate.VirtualMachineCPUConfig(sql.FieldHasSuffix(FieldOwnerID, vc))
-}
-
-// OwnerIDEqualFold applies the EqualFold predicate on the "owner_id" field.
-func OwnerIDEqualFold(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	vc := string(v)
-	return predicate.VirtualMachineCPUConfig(sql.FieldEqualFold(FieldOwnerID, vc))
-}
-
-// OwnerIDContainsFold applies the ContainsFold predicate on the "owner_id" field.
-func OwnerIDContainsFold(v gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
-	vc := string(v)
-	return predicate.VirtualMachineCPUConfig(sql.FieldContainsFold(FieldOwnerID, vc))
 }
 
 // CoresEQ applies the EQ predicate on the "cores" field.

@@ -35,12 +35,6 @@ type VirtualMachineCPUConfigCreate struct {
 	hooks    []Hook
 }
 
-// SetOwnerID sets the "owner_id" field.
-func (vmccc *VirtualMachineCPUConfigCreate) SetOwnerID(gi gidx.PrefixedID) *VirtualMachineCPUConfigCreate {
-	vmccc.mutation.SetOwnerID(gi)
-	return vmccc
-}
-
 // SetCores sets the "cores" field.
 func (vmccc *VirtualMachineCPUConfigCreate) SetCores(i int) *VirtualMachineCPUConfigCreate {
 	vmccc.mutation.SetCores(i)
@@ -112,14 +106,6 @@ func (vmccc *VirtualMachineCPUConfigCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (vmccc *VirtualMachineCPUConfigCreate) check() error {
-	if _, ok := vmccc.mutation.OwnerID(); !ok {
-		return &ValidationError{Name: "owner_id", err: errors.New(`generated: missing required field "VirtualMachineCPUConfig.owner_id"`)}
-	}
-	if v, ok := vmccc.mutation.OwnerID(); ok {
-		if err := virtualmachinecpuconfig.OwnerIDValidator(string(v)); err != nil {
-			return &ValidationError{Name: "owner_id", err: fmt.Errorf(`generated: validator failed for field "VirtualMachineCPUConfig.owner_id": %w`, err)}
-		}
-	}
 	if _, ok := vmccc.mutation.Cores(); !ok {
 		return &ValidationError{Name: "cores", err: errors.New(`generated: missing required field "VirtualMachineCPUConfig.cores"`)}
 	}
@@ -160,10 +146,6 @@ func (vmccc *VirtualMachineCPUConfigCreate) createSpec() (*VirtualMachineCPUConf
 	if id, ok := vmccc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
-	}
-	if value, ok := vmccc.mutation.OwnerID(); ok {
-		_spec.SetField(virtualmachinecpuconfig.FieldOwnerID, field.TypeString, value)
-		_node.OwnerID = value
 	}
 	if value, ok := vmccc.mutation.Cores(); ok {
 		_spec.SetField(virtualmachinecpuconfig.FieldCores, field.TypeInt, value)
