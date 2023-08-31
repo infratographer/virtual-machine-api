@@ -23,9 +23,10 @@ func NewClient(cli *http.Client, baseURL string, options ...client.HTTPRequestOp
 }
 
 type Query struct {
-	VirtualMachine VirtualMachine "json:\"virtualMachine\" graphql:\"virtualMachine\""
-	Entities       []Entity       "json:\"_entities\" graphql:\"_entities\""
-	Service        Service        "json:\"_service\" graphql:\"_service\""
+	VirtualMachine          VirtualMachine          "json:\"virtualMachine\" graphql:\"virtualMachine\""
+	VirtualMachineCPUConfig VirtualMachineCPUConfig "json:\"virtualMachineCPUConfig\" graphql:\"virtualMachineCPUConfig\""
+	Entities                []Entity                "json:\"_entities\" graphql:\"_entities\""
+	Service                 Service                 "json:\"_service\" graphql:\"_service\""
 }
 type GetVirtualMachineByID struct {
 	VirtualMachine struct {

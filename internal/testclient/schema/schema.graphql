@@ -99,6 +99,11 @@ type Query {
 		"""The virtual machine ID."""
 		id: ID!
 	): VirtualMachine!
+	"""Lookup a virtual machine cpu config by ID."""
+	virtualMachineCPUConfig(
+		"""The virtual machine cpu config ID."""
+		id: ID!
+	): VirtualMachineCPUConfig!
 	_entities(representations: [_Any!]!): [_Entity]!
 	_service: _Service!
 }
