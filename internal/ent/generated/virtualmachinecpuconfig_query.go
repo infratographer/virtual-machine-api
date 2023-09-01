@@ -315,7 +315,7 @@ func (vmccq *VirtualMachineCPUConfigQuery) WithVirtualMachine(opts ...func(*Virt
 // Example:
 //
 //	var v []struct {
-//		Cores int `json:"cores,omitempty"`
+//		Cores int64 `json:"cores,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -338,7 +338,7 @@ func (vmccq *VirtualMachineCPUConfigQuery) GroupBy(field string, fields ...strin
 // Example:
 //
 //	var v []struct {
-//		Cores int `json:"cores,omitempty"`
+//		Cores int64 `json:"cores,omitempty"`
 //	}
 //
 //	client.VirtualMachineCPUConfig.Query().

@@ -36,13 +36,13 @@ type VirtualMachineCPUConfigCreate struct {
 }
 
 // SetCores sets the "cores" field.
-func (vmccc *VirtualMachineCPUConfigCreate) SetCores(i int) *VirtualMachineCPUConfigCreate {
+func (vmccc *VirtualMachineCPUConfigCreate) SetCores(i int64) *VirtualMachineCPUConfigCreate {
 	vmccc.mutation.SetCores(i)
 	return vmccc
 }
 
 // SetSockets sets the "sockets" field.
-func (vmccc *VirtualMachineCPUConfigCreate) SetSockets(i int) *VirtualMachineCPUConfigCreate {
+func (vmccc *VirtualMachineCPUConfigCreate) SetSockets(i int64) *VirtualMachineCPUConfigCreate {
 	vmccc.mutation.SetSockets(i)
 	return vmccc
 }
@@ -148,11 +148,11 @@ func (vmccc *VirtualMachineCPUConfigCreate) createSpec() (*VirtualMachineCPUConf
 		_spec.ID.Value = &id
 	}
 	if value, ok := vmccc.mutation.Cores(); ok {
-		_spec.SetField(virtualmachinecpuconfig.FieldCores, field.TypeInt, value)
+		_spec.SetField(virtualmachinecpuconfig.FieldCores, field.TypeInt64, value)
 		_node.Cores = value
 	}
 	if value, ok := vmccc.mutation.Sockets(); ok {
-		_spec.SetField(virtualmachinecpuconfig.FieldSockets, field.TypeInt, value)
+		_spec.SetField(virtualmachinecpuconfig.FieldSockets, field.TypeInt64, value)
 		_node.Sockets = value
 	}
 	if nodes := vmccc.mutation.VirtualMachineIDs(); len(nodes) > 0 {

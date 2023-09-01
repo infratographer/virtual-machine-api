@@ -34,9 +34,9 @@ type VirtualMachineCPUConfig struct {
 	// The ID for the virtual machaine cpu config.
 	ID gidx.PrefixedID `json:"id,omitempty"`
 	// The number of cores for this virtual machine.
-	Cores int `json:"cores,omitempty"`
+	Cores int64 `json:"cores,omitempty"`
 	// The number of sockets for this virtual machine.
-	Sockets int `json:"sockets,omitempty"`
+	Sockets int64 `json:"sockets,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the VirtualMachineCPUConfigQuery when eager-loading is set.
 	Edges        VirtualMachineCPUConfigEdges `json:"edges"`
@@ -101,13 +101,13 @@ func (vmcc *VirtualMachineCPUConfig) assignValues(columns []string, values []any
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field cores", values[i])
 			} else if value.Valid {
-				vmcc.Cores = int(value.Int64)
+				vmcc.Cores = value.Int64
 			}
 		case virtualmachinecpuconfig.FieldSockets:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field sockets", values[i])
 			} else if value.Valid {
-				vmcc.Sockets = int(value.Int64)
+				vmcc.Sockets = value.Int64
 			}
 		default:
 			vmcc.selectValues.Set(columns[i], values[i])

@@ -795,10 +795,10 @@ type VirtualMachineCPUConfigMutation struct {
 	op                     Op
 	typ                    string
 	id                     *gidx.PrefixedID
-	cores                  *int
-	addcores               *int
-	sockets                *int
-	addsockets             *int
+	cores                  *int64
+	addcores               *int64
+	sockets                *int64
+	addsockets             *int64
 	clearedFields          map[string]struct{}
 	virtual_machine        *gidx.PrefixedID
 	clearedvirtual_machine bool
@@ -912,13 +912,13 @@ func (m *VirtualMachineCPUConfigMutation) IDs(ctx context.Context) ([]gidx.Prefi
 }
 
 // SetCores sets the "cores" field.
-func (m *VirtualMachineCPUConfigMutation) SetCores(i int) {
+func (m *VirtualMachineCPUConfigMutation) SetCores(i int64) {
 	m.cores = &i
 	m.addcores = nil
 }
 
 // Cores returns the value of the "cores" field in the mutation.
-func (m *VirtualMachineCPUConfigMutation) Cores() (r int, exists bool) {
+func (m *VirtualMachineCPUConfigMutation) Cores() (r int64, exists bool) {
 	v := m.cores
 	if v == nil {
 		return
@@ -929,7 +929,7 @@ func (m *VirtualMachineCPUConfigMutation) Cores() (r int, exists bool) {
 // OldCores returns the old "cores" field's value of the VirtualMachineCPUConfig entity.
 // If the VirtualMachineCPUConfig object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VirtualMachineCPUConfigMutation) OldCores(ctx context.Context) (v int, err error) {
+func (m *VirtualMachineCPUConfigMutation) OldCores(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCores is only allowed on UpdateOne operations")
 	}
@@ -944,7 +944,7 @@ func (m *VirtualMachineCPUConfigMutation) OldCores(ctx context.Context) (v int, 
 }
 
 // AddCores adds i to the "cores" field.
-func (m *VirtualMachineCPUConfigMutation) AddCores(i int) {
+func (m *VirtualMachineCPUConfigMutation) AddCores(i int64) {
 	if m.addcores != nil {
 		*m.addcores += i
 	} else {
@@ -953,7 +953,7 @@ func (m *VirtualMachineCPUConfigMutation) AddCores(i int) {
 }
 
 // AddedCores returns the value that was added to the "cores" field in this mutation.
-func (m *VirtualMachineCPUConfigMutation) AddedCores() (r int, exists bool) {
+func (m *VirtualMachineCPUConfigMutation) AddedCores() (r int64, exists bool) {
 	v := m.addcores
 	if v == nil {
 		return
@@ -968,13 +968,13 @@ func (m *VirtualMachineCPUConfigMutation) ResetCores() {
 }
 
 // SetSockets sets the "sockets" field.
-func (m *VirtualMachineCPUConfigMutation) SetSockets(i int) {
+func (m *VirtualMachineCPUConfigMutation) SetSockets(i int64) {
 	m.sockets = &i
 	m.addsockets = nil
 }
 
 // Sockets returns the value of the "sockets" field in the mutation.
-func (m *VirtualMachineCPUConfigMutation) Sockets() (r int, exists bool) {
+func (m *VirtualMachineCPUConfigMutation) Sockets() (r int64, exists bool) {
 	v := m.sockets
 	if v == nil {
 		return
@@ -985,7 +985,7 @@ func (m *VirtualMachineCPUConfigMutation) Sockets() (r int, exists bool) {
 // OldSockets returns the old "sockets" field's value of the VirtualMachineCPUConfig entity.
 // If the VirtualMachineCPUConfig object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VirtualMachineCPUConfigMutation) OldSockets(ctx context.Context) (v int, err error) {
+func (m *VirtualMachineCPUConfigMutation) OldSockets(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSockets is only allowed on UpdateOne operations")
 	}
@@ -1000,7 +1000,7 @@ func (m *VirtualMachineCPUConfigMutation) OldSockets(ctx context.Context) (v int
 }
 
 // AddSockets adds i to the "sockets" field.
-func (m *VirtualMachineCPUConfigMutation) AddSockets(i int) {
+func (m *VirtualMachineCPUConfigMutation) AddSockets(i int64) {
 	if m.addsockets != nil {
 		*m.addsockets += i
 	} else {
@@ -1009,7 +1009,7 @@ func (m *VirtualMachineCPUConfigMutation) AddSockets(i int) {
 }
 
 // AddedSockets returns the value that was added to the "sockets" field in this mutation.
-func (m *VirtualMachineCPUConfigMutation) AddedSockets() (r int, exists bool) {
+func (m *VirtualMachineCPUConfigMutation) AddedSockets() (r int64, exists bool) {
 	v := m.addsockets
 	if v == nil {
 		return
@@ -1138,14 +1138,14 @@ func (m *VirtualMachineCPUConfigMutation) OldField(ctx context.Context, name str
 func (m *VirtualMachineCPUConfigMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case virtualmachinecpuconfig.FieldCores:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCores(v)
 		return nil
 	case virtualmachinecpuconfig.FieldSockets:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1187,14 +1187,14 @@ func (m *VirtualMachineCPUConfigMutation) AddedField(name string) (ent.Value, bo
 func (m *VirtualMachineCPUConfigMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case virtualmachinecpuconfig.FieldCores:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddCores(v)
 		return nil
 	case virtualmachinecpuconfig.FieldSockets:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

@@ -367,24 +367,24 @@ type VirtualMachineCPUConfigWhereInput struct {
 	IDLTE   *gidx.PrefixedID  `json:"idLTE,omitempty"`
 
 	// "cores" field predicates.
-	Cores      *int  `json:"cores,omitempty"`
-	CoresNEQ   *int  `json:"coresNEQ,omitempty"`
-	CoresIn    []int `json:"coresIn,omitempty"`
-	CoresNotIn []int `json:"coresNotIn,omitempty"`
-	CoresGT    *int  `json:"coresGT,omitempty"`
-	CoresGTE   *int  `json:"coresGTE,omitempty"`
-	CoresLT    *int  `json:"coresLT,omitempty"`
-	CoresLTE   *int  `json:"coresLTE,omitempty"`
+	Cores      *int64  `json:"cores,omitempty"`
+	CoresNEQ   *int64  `json:"coresNEQ,omitempty"`
+	CoresIn    []int64 `json:"coresIn,omitempty"`
+	CoresNotIn []int64 `json:"coresNotIn,omitempty"`
+	CoresGT    *int64  `json:"coresGT,omitempty"`
+	CoresGTE   *int64  `json:"coresGTE,omitempty"`
+	CoresLT    *int64  `json:"coresLT,omitempty"`
+	CoresLTE   *int64  `json:"coresLTE,omitempty"`
 
 	// "sockets" field predicates.
-	Sockets      *int  `json:"sockets,omitempty"`
-	SocketsNEQ   *int  `json:"socketsNEQ,omitempty"`
-	SocketsIn    []int `json:"socketsIn,omitempty"`
-	SocketsNotIn []int `json:"socketsNotIn,omitempty"`
-	SocketsGT    *int  `json:"socketsGT,omitempty"`
-	SocketsGTE   *int  `json:"socketsGTE,omitempty"`
-	SocketsLT    *int  `json:"socketsLT,omitempty"`
-	SocketsLTE   *int  `json:"socketsLTE,omitempty"`
+	Sockets      *int64  `json:"sockets,omitempty"`
+	SocketsNEQ   *int64  `json:"socketsNEQ,omitempty"`
+	SocketsIn    []int64 `json:"socketsIn,omitempty"`
+	SocketsNotIn []int64 `json:"socketsNotIn,omitempty"`
+	SocketsGT    *int64  `json:"socketsGT,omitempty"`
+	SocketsGTE   *int64  `json:"socketsGTE,omitempty"`
+	SocketsLT    *int64  `json:"socketsLT,omitempty"`
+	SocketsLTE   *int64  `json:"socketsLTE,omitempty"`
 
 	// "virtual_machine" edge predicates.
 	HasVirtualMachine     *bool                       `json:"hasVirtualMachine,omitempty"`

@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"context"
+	"math/rand"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"go.infratographer.com/x/gidx"
@@ -18,8 +19,8 @@ const (
 
 type VirtualMachineCPUConfigBuilder struct {
 	ID      gidx.PrefixedID
-	cores   int
-	sockets int
+	cores   int64
+	sockets int64
 }
 
 func (p *VirtualMachineCPUConfigBuilder) MustNew(ctx context.Context) *ent.VirtualMachineCPUConfig {
@@ -28,11 +29,11 @@ func (p *VirtualMachineCPUConfigBuilder) MustNew(ctx context.Context) *ent.Virtu
 	}
 
 	if p.cores == 0 {
-		p.cores = 2
+		p.cores = rand.Int63()
 	}
 
 	if p.sockets == 0 {
-		p.sockets = 2
+		p.sockets = rand.Int63()
 	}
 
 	return EntClient.VirtualMachineCPUConfig.Create().SetID(p.ID).SetCores(p.cores).SetSockets(p.sockets).SaveX(ctx)

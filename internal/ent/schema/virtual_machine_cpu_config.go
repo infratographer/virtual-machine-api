@@ -25,12 +25,12 @@ func (VirtualMachineCPUConfig) Fields() []ent.Field {
 			Annotations(
 				entgql.OrderField("ID"),
 			),
-		field.Int("cores").
+		field.Int64("cores").
 			Comment("The number of cores for this virtual machine.").
 			Annotations(
 				entgql.OrderField("cores"),
 			),
-		field.Int("sockets").
+		field.Int64("sockets").
 			Comment("The number of sockets for this virtual machine.").
 			Annotations(
 				entgql.OrderField("sockets"),

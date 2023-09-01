@@ -42,27 +42,27 @@ func (vmccu *VirtualMachineCPUConfigUpdate) Where(ps ...predicate.VirtualMachine
 }
 
 // SetCores sets the "cores" field.
-func (vmccu *VirtualMachineCPUConfigUpdate) SetCores(i int) *VirtualMachineCPUConfigUpdate {
+func (vmccu *VirtualMachineCPUConfigUpdate) SetCores(i int64) *VirtualMachineCPUConfigUpdate {
 	vmccu.mutation.ResetCores()
 	vmccu.mutation.SetCores(i)
 	return vmccu
 }
 
 // AddCores adds i to the "cores" field.
-func (vmccu *VirtualMachineCPUConfigUpdate) AddCores(i int) *VirtualMachineCPUConfigUpdate {
+func (vmccu *VirtualMachineCPUConfigUpdate) AddCores(i int64) *VirtualMachineCPUConfigUpdate {
 	vmccu.mutation.AddCores(i)
 	return vmccu
 }
 
 // SetSockets sets the "sockets" field.
-func (vmccu *VirtualMachineCPUConfigUpdate) SetSockets(i int) *VirtualMachineCPUConfigUpdate {
+func (vmccu *VirtualMachineCPUConfigUpdate) SetSockets(i int64) *VirtualMachineCPUConfigUpdate {
 	vmccu.mutation.ResetSockets()
 	vmccu.mutation.SetSockets(i)
 	return vmccu
 }
 
 // AddSockets adds i to the "sockets" field.
-func (vmccu *VirtualMachineCPUConfigUpdate) AddSockets(i int) *VirtualMachineCPUConfigUpdate {
+func (vmccu *VirtualMachineCPUConfigUpdate) AddSockets(i int64) *VirtualMachineCPUConfigUpdate {
 	vmccu.mutation.AddSockets(i)
 	return vmccu
 }
@@ -109,16 +109,16 @@ func (vmccu *VirtualMachineCPUConfigUpdate) sqlSave(ctx context.Context) (n int,
 		}
 	}
 	if value, ok := vmccu.mutation.Cores(); ok {
-		_spec.SetField(virtualmachinecpuconfig.FieldCores, field.TypeInt, value)
+		_spec.SetField(virtualmachinecpuconfig.FieldCores, field.TypeInt64, value)
 	}
 	if value, ok := vmccu.mutation.AddedCores(); ok {
-		_spec.AddField(virtualmachinecpuconfig.FieldCores, field.TypeInt, value)
+		_spec.AddField(virtualmachinecpuconfig.FieldCores, field.TypeInt64, value)
 	}
 	if value, ok := vmccu.mutation.Sockets(); ok {
-		_spec.SetField(virtualmachinecpuconfig.FieldSockets, field.TypeInt, value)
+		_spec.SetField(virtualmachinecpuconfig.FieldSockets, field.TypeInt64, value)
 	}
 	if value, ok := vmccu.mutation.AddedSockets(); ok {
-		_spec.AddField(virtualmachinecpuconfig.FieldSockets, field.TypeInt, value)
+		_spec.AddField(virtualmachinecpuconfig.FieldSockets, field.TypeInt64, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, vmccu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -141,27 +141,27 @@ type VirtualMachineCPUConfigUpdateOne struct {
 }
 
 // SetCores sets the "cores" field.
-func (vmccuo *VirtualMachineCPUConfigUpdateOne) SetCores(i int) *VirtualMachineCPUConfigUpdateOne {
+func (vmccuo *VirtualMachineCPUConfigUpdateOne) SetCores(i int64) *VirtualMachineCPUConfigUpdateOne {
 	vmccuo.mutation.ResetCores()
 	vmccuo.mutation.SetCores(i)
 	return vmccuo
 }
 
 // AddCores adds i to the "cores" field.
-func (vmccuo *VirtualMachineCPUConfigUpdateOne) AddCores(i int) *VirtualMachineCPUConfigUpdateOne {
+func (vmccuo *VirtualMachineCPUConfigUpdateOne) AddCores(i int64) *VirtualMachineCPUConfigUpdateOne {
 	vmccuo.mutation.AddCores(i)
 	return vmccuo
 }
 
 // SetSockets sets the "sockets" field.
-func (vmccuo *VirtualMachineCPUConfigUpdateOne) SetSockets(i int) *VirtualMachineCPUConfigUpdateOne {
+func (vmccuo *VirtualMachineCPUConfigUpdateOne) SetSockets(i int64) *VirtualMachineCPUConfigUpdateOne {
 	vmccuo.mutation.ResetSockets()
 	vmccuo.mutation.SetSockets(i)
 	return vmccuo
 }
 
 // AddSockets adds i to the "sockets" field.
-func (vmccuo *VirtualMachineCPUConfigUpdateOne) AddSockets(i int) *VirtualMachineCPUConfigUpdateOne {
+func (vmccuo *VirtualMachineCPUConfigUpdateOne) AddSockets(i int64) *VirtualMachineCPUConfigUpdateOne {
 	vmccuo.mutation.AddSockets(i)
 	return vmccuo
 }
@@ -238,16 +238,16 @@ func (vmccuo *VirtualMachineCPUConfigUpdateOne) sqlSave(ctx context.Context) (_n
 		}
 	}
 	if value, ok := vmccuo.mutation.Cores(); ok {
-		_spec.SetField(virtualmachinecpuconfig.FieldCores, field.TypeInt, value)
+		_spec.SetField(virtualmachinecpuconfig.FieldCores, field.TypeInt64, value)
 	}
 	if value, ok := vmccuo.mutation.AddedCores(); ok {
-		_spec.AddField(virtualmachinecpuconfig.FieldCores, field.TypeInt, value)
+		_spec.AddField(virtualmachinecpuconfig.FieldCores, field.TypeInt64, value)
 	}
 	if value, ok := vmccuo.mutation.Sockets(); ok {
-		_spec.SetField(virtualmachinecpuconfig.FieldSockets, field.TypeInt, value)
+		_spec.SetField(virtualmachinecpuconfig.FieldSockets, field.TypeInt64, value)
 	}
 	if value, ok := vmccuo.mutation.AddedSockets(); ok {
-		_spec.AddField(virtualmachinecpuconfig.FieldSockets, field.TypeInt, value)
+		_spec.AddField(virtualmachinecpuconfig.FieldSockets, field.TypeInt64, value)
 	}
 	_node = &VirtualMachineCPUConfig{config: vmccuo.config}
 	_spec.Assign = _node.assignValues

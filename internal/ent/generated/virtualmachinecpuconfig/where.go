@@ -69,92 +69,92 @@ func IDLTE(id gidx.PrefixedID) predicate.VirtualMachineCPUConfig {
 }
 
 // Cores applies equality check predicate on the "cores" field. It's identical to CoresEQ.
-func Cores(v int) predicate.VirtualMachineCPUConfig {
+func Cores(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldCores, v))
 }
 
 // Sockets applies equality check predicate on the "sockets" field. It's identical to SocketsEQ.
-func Sockets(v int) predicate.VirtualMachineCPUConfig {
+func Sockets(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldSockets, v))
 }
 
 // CoresEQ applies the EQ predicate on the "cores" field.
-func CoresEQ(v int) predicate.VirtualMachineCPUConfig {
+func CoresEQ(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldCores, v))
 }
 
 // CoresNEQ applies the NEQ predicate on the "cores" field.
-func CoresNEQ(v int) predicate.VirtualMachineCPUConfig {
+func CoresNEQ(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldNEQ(FieldCores, v))
 }
 
 // CoresIn applies the In predicate on the "cores" field.
-func CoresIn(vs ...int) predicate.VirtualMachineCPUConfig {
+func CoresIn(vs ...int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldIn(FieldCores, vs...))
 }
 
 // CoresNotIn applies the NotIn predicate on the "cores" field.
-func CoresNotIn(vs ...int) predicate.VirtualMachineCPUConfig {
+func CoresNotIn(vs ...int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldNotIn(FieldCores, vs...))
 }
 
 // CoresGT applies the GT predicate on the "cores" field.
-func CoresGT(v int) predicate.VirtualMachineCPUConfig {
+func CoresGT(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldGT(FieldCores, v))
 }
 
 // CoresGTE applies the GTE predicate on the "cores" field.
-func CoresGTE(v int) predicate.VirtualMachineCPUConfig {
+func CoresGTE(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldGTE(FieldCores, v))
 }
 
 // CoresLT applies the LT predicate on the "cores" field.
-func CoresLT(v int) predicate.VirtualMachineCPUConfig {
+func CoresLT(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldLT(FieldCores, v))
 }
 
 // CoresLTE applies the LTE predicate on the "cores" field.
-func CoresLTE(v int) predicate.VirtualMachineCPUConfig {
+func CoresLTE(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldLTE(FieldCores, v))
 }
 
 // SocketsEQ applies the EQ predicate on the "sockets" field.
-func SocketsEQ(v int) predicate.VirtualMachineCPUConfig {
+func SocketsEQ(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldEQ(FieldSockets, v))
 }
 
 // SocketsNEQ applies the NEQ predicate on the "sockets" field.
-func SocketsNEQ(v int) predicate.VirtualMachineCPUConfig {
+func SocketsNEQ(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldNEQ(FieldSockets, v))
 }
 
 // SocketsIn applies the In predicate on the "sockets" field.
-func SocketsIn(vs ...int) predicate.VirtualMachineCPUConfig {
+func SocketsIn(vs ...int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldIn(FieldSockets, vs...))
 }
 
 // SocketsNotIn applies the NotIn predicate on the "sockets" field.
-func SocketsNotIn(vs ...int) predicate.VirtualMachineCPUConfig {
+func SocketsNotIn(vs ...int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldNotIn(FieldSockets, vs...))
 }
 
 // SocketsGT applies the GT predicate on the "sockets" field.
-func SocketsGT(v int) predicate.VirtualMachineCPUConfig {
+func SocketsGT(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldGT(FieldSockets, v))
 }
 
 // SocketsGTE applies the GTE predicate on the "sockets" field.
-func SocketsGTE(v int) predicate.VirtualMachineCPUConfig {
+func SocketsGTE(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldGTE(FieldSockets, v))
 }
 
 // SocketsLT applies the LT predicate on the "sockets" field.
-func SocketsLT(v int) predicate.VirtualMachineCPUConfig {
+func SocketsLT(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldLT(FieldSockets, v))
 }
 
 // SocketsLTE applies the LTE predicate on the "sockets" field.
-func SocketsLTE(v int) predicate.VirtualMachineCPUConfig {
+func SocketsLTE(v int64) predicate.VirtualMachineCPUConfig {
 	return predicate.VirtualMachineCPUConfig(sql.FieldLTE(FieldSockets, v))
 }
 
