@@ -8,8 +8,9 @@ import (
 	"context"
 	"fmt"
 
-	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
 	"go.infratographer.com/x/gidx"
+
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
 )
 
 // FindLocationByID is the resolver for the findLocationByID field.
@@ -24,12 +25,12 @@ func (r *entityResolver) FindResourceOwnerByID(ctx context.Context, id gidx.Pref
 
 // FindVirtualMachineByID is the resolver for the findVirtualMachineByID field.
 func (r *entityResolver) FindVirtualMachineByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error) {
-	panic(fmt.Errorf("not implemented: FindVirtualMachineByID - findVirtualMachineByID"))
+	return r.client.VirtualMachine.Get(ctx, id)
 }
 
 // FindVirtualMachineCPUConfigByID is the resolver for the findVirtualMachineCPUConfigByID field.
 func (r *entityResolver) FindVirtualMachineCPUConfigByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachineCPUConfig, error) {
-	panic(fmt.Errorf("not implemented: FindVirtualMachineCPUConfigByID - findVirtualMachineCPUConfigByID"))
+	return r.client.VirtualMachineCPUConfig.Get(ctx, id)
 }
 
 // Entity returns EntityResolver implementation.
