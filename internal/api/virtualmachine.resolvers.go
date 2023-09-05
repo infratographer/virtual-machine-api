@@ -7,8 +7,9 @@ package api
 import (
 	"context"
 
-	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
 	"go.infratographer.com/x/gidx"
+
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated"
 )
 
 // VirtualMachine is the resolver for the virtualMachine field.
