@@ -10,6 +10,11 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
+const (
+	min = 1
+	max = 128
+)
+
 // VirtualMachineCPUConfig holds the schema definition for the VirtualMachineCPUConfig entity.
 type VirtualMachineCPUConfig struct {
 	ent.Schema
@@ -26,11 +31,15 @@ func (VirtualMachineCPUConfig) Fields() []ent.Field {
 				entgql.OrderField("ID"),
 			),
 		field.Int64("cores").
+			Min(min).
+			Max(max).
 			Comment("The number of cores for this virtual machine.").
 			Annotations(
 				entgql.OrderField("cores"),
 			),
 		field.Int64("sockets").
+			Min(min).
+			Max(max).
 			Comment("The number of sockets for this virtual machine.").
 			Annotations(
 				entgql.OrderField("sockets"),

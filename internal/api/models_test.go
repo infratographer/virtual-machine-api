@@ -29,11 +29,11 @@ func (p *VirtualMachineCPUConfigBuilder) MustNew(ctx context.Context) *ent.Virtu
 	}
 
 	if p.cores == 0 {
-		p.cores = rand.Int63()
+		p.cores = int64(rand.Intn(128))
 	}
 
 	if p.sockets == 0 {
-		p.sockets = rand.Int63()
+		p.sockets = int64(rand.Intn(128))
 	}
 
 	return EntClient.VirtualMachineCPUConfig.Create().SetID(p.ID).SetCores(p.cores).SetSockets(p.sockets).SaveX(ctx)

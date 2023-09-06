@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/virtual-machine-api/internal/ent/schema"
 	"go.infratographer.com/x/gidx"
 )
@@ -55,4 +56,42 @@ func init() {
 	virtualmachineDescID := virtualmachineFields[0].Descriptor()
 	// virtualmachine.DefaultID holds the default value on creation for the id field.
 	virtualmachine.DefaultID = virtualmachineDescID.Default.(func() gidx.PrefixedID)
+	virtualmachinecpuconfigFields := schema.VirtualMachineCPUConfig{}.Fields()
+	_ = virtualmachinecpuconfigFields
+	// virtualmachinecpuconfigDescCores is the schema descriptor for cores field.
+	virtualmachinecpuconfigDescCores := virtualmachinecpuconfigFields[1].Descriptor()
+	// virtualmachinecpuconfig.CoresValidator is a validator for the "cores" field. It is called by the builders before save.
+	virtualmachinecpuconfig.CoresValidator = func() func(int64) error {
+		validators := virtualmachinecpuconfigDescCores.Validators
+		fns := [...]func(int64) error{
+			validators[0].(func(int64) error),
+			validators[1].(func(int64) error),
+		}
+		return func(cores int64) error {
+			for _, fn := range fns {
+				if err := fn(cores); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// virtualmachinecpuconfigDescSockets is the schema descriptor for sockets field.
+	virtualmachinecpuconfigDescSockets := virtualmachinecpuconfigFields[2].Descriptor()
+	// virtualmachinecpuconfig.SocketsValidator is a validator for the "sockets" field. It is called by the builders before save.
+	virtualmachinecpuconfig.SocketsValidator = func() func(int64) error {
+		validators := virtualmachinecpuconfigDescSockets.Validators
+		fns := [...]func(int64) error{
+			validators[0].(func(int64) error),
+			validators[1].(func(int64) error),
+		}
+		return func(sockets int64) error {
+			for _, fn := range fns {
+				if err := fn(sockets); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 }

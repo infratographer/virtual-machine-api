@@ -99,7 +99,25 @@ func (vmccu *VirtualMachineCPUConfigUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (vmccu *VirtualMachineCPUConfigUpdate) check() error {
+	if v, ok := vmccu.mutation.Cores(); ok {
+		if err := virtualmachinecpuconfig.CoresValidator(v); err != nil {
+			return &ValidationError{Name: "cores", err: fmt.Errorf(`generated: validator failed for field "VirtualMachineCPUConfig.cores": %w`, err)}
+		}
+	}
+	if v, ok := vmccu.mutation.Sockets(); ok {
+		if err := virtualmachinecpuconfig.SocketsValidator(v); err != nil {
+			return &ValidationError{Name: "sockets", err: fmt.Errorf(`generated: validator failed for field "VirtualMachineCPUConfig.sockets": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (vmccu *VirtualMachineCPUConfigUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := vmccu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(virtualmachinecpuconfig.Table, virtualmachinecpuconfig.Columns, sqlgraph.NewFieldSpec(virtualmachinecpuconfig.FieldID, field.TypeString))
 	if ps := vmccu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -211,7 +229,25 @@ func (vmccuo *VirtualMachineCPUConfigUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (vmccuo *VirtualMachineCPUConfigUpdateOne) check() error {
+	if v, ok := vmccuo.mutation.Cores(); ok {
+		if err := virtualmachinecpuconfig.CoresValidator(v); err != nil {
+			return &ValidationError{Name: "cores", err: fmt.Errorf(`generated: validator failed for field "VirtualMachineCPUConfig.cores": %w`, err)}
+		}
+	}
+	if v, ok := vmccuo.mutation.Sockets(); ok {
+		if err := virtualmachinecpuconfig.SocketsValidator(v); err != nil {
+			return &ValidationError{Name: "sockets", err: fmt.Errorf(`generated: validator failed for field "VirtualMachineCPUConfig.sockets": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (vmccuo *VirtualMachineCPUConfigUpdateOne) sqlSave(ctx context.Context) (_node *VirtualMachineCPUConfig, err error) {
+	if err := vmccuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(virtualmachinecpuconfig.Table, virtualmachinecpuconfig.Columns, sqlgraph.NewFieldSpec(virtualmachinecpuconfig.FieldID, field.TypeString))
 	id, ok := vmccuo.mutation.ID()
 	if !ok {

@@ -60,6 +60,13 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// CoresValidator is a validator for the "cores" field. It is called by the builders before save.
+	CoresValidator func(int64) error
+	// SocketsValidator is a validator for the "sockets" field. It is called by the builders before save.
+	SocketsValidator func(int64) error
+)
+
 // OrderOption defines the ordering options for the VirtualMachineCPUConfig queries.
 type OrderOption func(*sql.Selector)
 

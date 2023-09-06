@@ -109,8 +109,18 @@ func (vmccc *VirtualMachineCPUConfigCreate) check() error {
 	if _, ok := vmccc.mutation.Cores(); !ok {
 		return &ValidationError{Name: "cores", err: errors.New(`generated: missing required field "VirtualMachineCPUConfig.cores"`)}
 	}
+	if v, ok := vmccc.mutation.Cores(); ok {
+		if err := virtualmachinecpuconfig.CoresValidator(v); err != nil {
+			return &ValidationError{Name: "cores", err: fmt.Errorf(`generated: validator failed for field "VirtualMachineCPUConfig.cores": %w`, err)}
+		}
+	}
 	if _, ok := vmccc.mutation.Sockets(); !ok {
 		return &ValidationError{Name: "sockets", err: errors.New(`generated: missing required field "VirtualMachineCPUConfig.sockets"`)}
+	}
+	if v, ok := vmccc.mutation.Sockets(); ok {
+		if err := virtualmachinecpuconfig.SocketsValidator(v); err != nil {
+			return &ValidationError{Name: "sockets", err: fmt.Errorf(`generated: validator failed for field "VirtualMachineCPUConfig.sockets": %w`, err)}
+		}
 	}
 	return nil
 }
