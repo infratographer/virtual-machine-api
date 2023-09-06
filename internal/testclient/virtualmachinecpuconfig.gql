@@ -1,0 +1,7 @@
+query GetVirtualMachineCPUConfigByID($id: ID!) {
+  virtualMachineCPUConfig(id: $id) {
+    id
+    cores
+    sockets
+  }
+}

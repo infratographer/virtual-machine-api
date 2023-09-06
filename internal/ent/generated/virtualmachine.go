@@ -24,6 +24,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -44,8 +45,37 @@ type VirtualMachine struct {
 	// The ID for the location of this virtual machine.
 	LocationID gidx.PrefixedID `json:"location_id,omitempty"`
 	// The userdata for this virtual machine.
-	Userdata     string `json:"userdata,omitempty"`
+	Userdata string `json:"userdata,omitempty"`
+	// The ID for the virtual machine cpu config.
+	VMCPUConfigID gidx.PrefixedID `json:"vm_cpu_config_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the VirtualMachineQuery when eager-loading is set.
+	Edges        VirtualMachineEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// VirtualMachineEdges holds the relations/edges for other nodes in the graph.
+type VirtualMachineEdges struct {
+	// The virtual machine cpu config for the virtual machine.
+	VirtualMachineCPUConfig *VirtualMachineCPUConfig `json:"virtual_machine_cpu_config,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+	// totalCount holds the count of the edges above.
+	totalCount [1]map[string]int
+}
+
+// VirtualMachineCPUConfigOrErr returns the VirtualMachineCPUConfig value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e VirtualMachineEdges) VirtualMachineCPUConfigOrErr() (*VirtualMachineCPUConfig, error) {
+	if e.loadedTypes[0] {
+		if e.VirtualMachineCPUConfig == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: virtualmachinecpuconfig.Label}
+		}
+		return e.VirtualMachineCPUConfig, nil
+	}
+	return nil, &NotLoadedError{edge: "virtual_machine_cpu_config"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -53,7 +83,7 @@ func (*VirtualMachine) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case virtualmachine.FieldID, virtualmachine.FieldOwnerID, virtualmachine.FieldLocationID:
+		case virtualmachine.FieldID, virtualmachine.FieldOwnerID, virtualmachine.FieldLocationID, virtualmachine.FieldVMCPUConfigID:
 			values[i] = new(gidx.PrefixedID)
 		case virtualmachine.FieldName, virtualmachine.FieldUserdata:
 			values[i] = new(sql.NullString)
@@ -116,6 +146,12 @@ func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				vm.Userdata = value.String
 			}
+		case virtualmachine.FieldVMCPUConfigID:
+			if value, ok := values[i].(*gidx.PrefixedID); !ok {
+				return fmt.Errorf("unexpected type %T for field vm_cpu_config_id", values[i])
+			} else if value != nil {
+				vm.VMCPUConfigID = *value
+			}
 		default:
 			vm.selectValues.Set(columns[i], values[i])
 		}
@@ -127,6 +163,11 @@ func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (vm *VirtualMachine) Value(name string) (ent.Value, error) {
 	return vm.selectValues.Get(name)
+}
+
+// QueryVirtualMachineCPUConfig queries the "virtual_machine_cpu_config" edge of the VirtualMachine entity.
+func (vm *VirtualMachine) QueryVirtualMachineCPUConfig() *VirtualMachineCPUConfigQuery {
+	return NewVirtualMachineClient(vm.config).QueryVirtualMachineCPUConfig(vm)
 }
 
 // Update returns a builder for updating this VirtualMachine.
@@ -169,6 +210,9 @@ func (vm *VirtualMachine) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("userdata=")
 	builder.WriteString(vm.Userdata)
+	builder.WriteString(", ")
+	builder.WriteString("vm_cpu_config_id=")
+	builder.WriteString(fmt.Sprintf("%v", vm.VMCPUConfigID))
 	builder.WriteByte(')')
 	return builder.String()
 }

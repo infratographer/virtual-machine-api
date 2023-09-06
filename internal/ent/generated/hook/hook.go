@@ -35,6 +35,18 @@ func (f VirtualMachineFunc) Mutate(ctx context.Context, m generated.Mutation) (g
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.VirtualMachineMutation", m)
 }
 
+// The VirtualMachineCPUConfigFunc type is an adapter to allow the use of ordinary
+// function as VirtualMachineCPUConfig mutator.
+type VirtualMachineCPUConfigFunc func(context.Context, *generated.VirtualMachineCPUConfigMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f VirtualMachineCPUConfigFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.VirtualMachineCPUConfigMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.VirtualMachineCPUConfigMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, generated.Mutation) bool
 

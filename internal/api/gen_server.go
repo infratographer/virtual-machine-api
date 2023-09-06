@@ -53,9 +53,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Entity struct {
-		FindLocationByID       func(childComplexity int, id gidx.PrefixedID) int
-		FindResourceOwnerByID  func(childComplexity int, id gidx.PrefixedID) int
-		FindVirtualMachineByID func(childComplexity int, id gidx.PrefixedID) int
+		FindLocationByID                func(childComplexity int, id gidx.PrefixedID) int
+		FindResourceOwnerByID           func(childComplexity int, id gidx.PrefixedID) int
+		FindVirtualMachineByID          func(childComplexity int, id gidx.PrefixedID) int
+		FindVirtualMachineCPUConfigByID func(childComplexity int, id gidx.PrefixedID) int
 	}
 
 	Location struct {
@@ -71,9 +72,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		VirtualMachine     func(childComplexity int, id gidx.PrefixedID) int
-		__resolve__service func(childComplexity int) int
-		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
+		VirtualMachine          func(childComplexity int, id gidx.PrefixedID) int
+		VirtualMachineCPUConfig func(childComplexity int, id gidx.PrefixedID) int
+		__resolve__service      func(childComplexity int) int
+		__resolve_entities      func(childComplexity int, representations []map[string]interface{}) int
 	}
 
 	ResourceOwner struct {
@@ -82,13 +84,33 @@ type ComplexityRoot struct {
 	}
 
 	VirtualMachine struct {
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Location  func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Owner     func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		Userdata  func(childComplexity int) int
+		CreatedAt               func(childComplexity int) int
+		ID                      func(childComplexity int) int
+		Location                func(childComplexity int) int
+		Name                    func(childComplexity int) int
+		Owner                   func(childComplexity int) int
+		UpdatedAt               func(childComplexity int) int
+		Userdata                func(childComplexity int) int
+		VMCPUConfigID           func(childComplexity int) int
+		VirtualMachineCPUConfig func(childComplexity int) int
+	}
+
+	VirtualMachineCPUConfig struct {
+		Cores          func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Sockets        func(childComplexity int) int
+		VirtualMachine func(childComplexity int) int
+	}
+
+	VirtualMachineCPUConfigConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	VirtualMachineCPUConfigEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	VirtualMachineConnection struct {
@@ -111,12 +133,14 @@ type EntityResolver interface {
 	FindLocationByID(ctx context.Context, id gidx.PrefixedID) (*Location, error)
 	FindResourceOwnerByID(ctx context.Context, id gidx.PrefixedID) (*ResourceOwner, error)
 	FindVirtualMachineByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error)
+	FindVirtualMachineCPUConfigByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachineCPUConfig, error)
 }
 type LocationResolver interface {
 	VirtualMachines(ctx context.Context, obj *Location, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) (*generated.VirtualMachineConnection, error)
 }
 type QueryResolver interface {
 	VirtualMachine(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error)
+	VirtualMachineCPUConfig(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachineCPUConfig, error)
 }
 type ResourceOwnerResolver interface {
 	VirtualMachine(ctx context.Context, obj *ResourceOwner, after *entgql.Cursor[gidx.PrefixedID], first *int, before *entgql.Cursor[gidx.PrefixedID], last *int, orderBy *generated.VirtualMachineOrder, where *generated.VirtualMachineWhereInput) (*generated.VirtualMachineConnection, error)
@@ -177,6 +201,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Entity.FindVirtualMachineByID(childComplexity, args["id"].(gidx.PrefixedID)), true
 
+	case "Entity.findVirtualMachineCPUConfigByID":
+		if e.complexity.Entity.FindVirtualMachineCPUConfigByID == nil {
+			break
+		}
+
+		args, err := ec.field_Entity_findVirtualMachineCPUConfigByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Entity.FindVirtualMachineCPUConfigByID(childComplexity, args["id"].(gidx.PrefixedID)), true
+
 	case "Location.id":
 		if e.complexity.Location.ID == nil {
 			break
@@ -235,6 +271,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.VirtualMachine(childComplexity, args["id"].(gidx.PrefixedID)), true
+
+	case "Query.virtualMachineCPUConfig":
+		if e.complexity.Query.VirtualMachineCPUConfig == nil {
+			break
+		}
+
+		args, err := ec.field_Query_virtualMachineCPUConfig_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.VirtualMachineCPUConfig(childComplexity, args["id"].(gidx.PrefixedID)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -323,6 +371,83 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VirtualMachine.Userdata(childComplexity), true
 
+	case "VirtualMachine.vmCPUConfigID":
+		if e.complexity.VirtualMachine.VMCPUConfigID == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachine.VMCPUConfigID(childComplexity), true
+
+	case "VirtualMachine.virtualMachineCPUConfig":
+		if e.complexity.VirtualMachine.VirtualMachineCPUConfig == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachine.VirtualMachineCPUConfig(childComplexity), true
+
+	case "VirtualMachineCPUConfig.cores":
+		if e.complexity.VirtualMachineCPUConfig.Cores == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfig.Cores(childComplexity), true
+
+	case "VirtualMachineCPUConfig.id":
+		if e.complexity.VirtualMachineCPUConfig.ID == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfig.ID(childComplexity), true
+
+	case "VirtualMachineCPUConfig.sockets":
+		if e.complexity.VirtualMachineCPUConfig.Sockets == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfig.Sockets(childComplexity), true
+
+	case "VirtualMachineCPUConfig.virtualMachine":
+		if e.complexity.VirtualMachineCPUConfig.VirtualMachine == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfig.VirtualMachine(childComplexity), true
+
+	case "VirtualMachineCPUConfigConnection.edges":
+		if e.complexity.VirtualMachineCPUConfigConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfigConnection.Edges(childComplexity), true
+
+	case "VirtualMachineCPUConfigConnection.pageInfo":
+		if e.complexity.VirtualMachineCPUConfigConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfigConnection.PageInfo(childComplexity), true
+
+	case "VirtualMachineCPUConfigConnection.totalCount":
+		if e.complexity.VirtualMachineCPUConfigConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfigConnection.TotalCount(childComplexity), true
+
+	case "VirtualMachineCPUConfigEdge.cursor":
+		if e.complexity.VirtualMachineCPUConfigEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfigEdge.Cursor(childComplexity), true
+
+	case "VirtualMachineCPUConfigEdge.node":
+		if e.complexity.VirtualMachineCPUConfigEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.VirtualMachineCPUConfigEdge.Node(childComplexity), true
+
 	case "VirtualMachineConnection.edges":
 		if e.complexity.VirtualMachineConnection.Edges == nil {
 			break
@@ -373,8 +498,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCreateVirtualMachineCPUConfigInput,
 		ec.unmarshalInputCreateVirtualMachineInput,
+		ec.unmarshalInputUpdateVirtualMachineCPUConfigInput,
 		ec.unmarshalInputUpdateVirtualMachineInput,
+		ec.unmarshalInputVirtualMachineCPUConfigOrder,
+		ec.unmarshalInputVirtualMachineCPUConfigWhereInput,
 		ec.unmarshalInputVirtualMachineOrder,
 		ec.unmarshalInputVirtualMachineWhereInput,
 	)
@@ -461,6 +590,14 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../../schema/ent.graphql", Input: `directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+"""Input information to create a virtual machine cpu config."""
+input CreateVirtualMachineCPUConfigInput {
+  """The number of cores for this virtual machine."""
+  cores: Int!
+  """The number of sockets for this virtual machine."""
+  sockets: Int!
+  virtualMachineID: ID
+}
 """Create a new virtual machine."""
 input CreateVirtualMachineInput {
   """The name of the Virtual Machine."""
@@ -471,6 +608,7 @@ input CreateVirtualMachineInput {
   locationID: ID!
   """The userdata for this virtual machine."""
   userdata: String
+  virtualMachineCPUConfigID: ID!
 }
 """
 Define a Relay Cursor type:
@@ -511,6 +649,13 @@ type PageInfo @shareable {
 type Query
 """The builtin Time type"""
 scalar Time
+"""Input information to update a virtual machine cpu config."""
+input UpdateVirtualMachineCPUConfigInput {
+  """The number of cores for this virtual machine."""
+  cores: Int
+  """The number of sockets for this virtual machine."""
+  sockets: Int
+}
 """Update an existing virtual machine."""
 input UpdateVirtualMachineInput {
   """The name of the Virtual Machine."""
@@ -528,6 +673,87 @@ type VirtualMachine implements Node @key(fields: "id") @prefixedID(prefix: "virt
   name: String!
   """The userdata for this virtual machine."""
   userdata: String
+  """The ID for the virtual machine cpu config."""
+  vmCPUConfigID: ID!
+  """The virtual machine cpu config for the virtual machine."""
+  virtualMachineCPUConfig: VirtualMachineCPUConfig!
+}
+type VirtualMachineCPUConfig implements Node @key(fields: "id") @prefixedID(prefix: "virtmac") {
+  """The ID for the virtual machaine cpu config."""
+  id: ID!
+  """The number of cores for this virtual machine."""
+  cores: Int!
+  """The number of sockets for this virtual machine."""
+  sockets: Int!
+  virtualMachine: VirtualMachine
+}
+"""A connection to a list of items."""
+type VirtualMachineCPUConfigConnection {
+  """A list of edges."""
+  edges: [VirtualMachineCPUConfigEdge]
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+  """Identifies the total count of items in the connection."""
+  totalCount: Int!
+}
+"""An edge in a connection."""
+type VirtualMachineCPUConfigEdge {
+  """The item at the end of the edge."""
+  node: VirtualMachineCPUConfig
+  """A cursor for use in pagination."""
+  cursor: Cursor!
+}
+"""Ordering options for VirtualMachineCPUConfig connections"""
+input VirtualMachineCPUConfigOrder {
+  """The ordering direction."""
+  direction: OrderDirection! = ASC
+  """The field by which to order VirtualMachineCPUConfigs."""
+  field: VirtualMachineCPUConfigOrderField!
+}
+"""Properties by which VirtualMachineCPUConfig connections can be ordered."""
+enum VirtualMachineCPUConfigOrderField {
+  ID
+  cores
+  sockets
+}
+"""
+VirtualMachineCPUConfigWhereInput is used for filtering VirtualMachineCPUConfig objects.
+Input was generated by ent.
+"""
+input VirtualMachineCPUConfigWhereInput {
+  not: VirtualMachineCPUConfigWhereInput
+  and: [VirtualMachineCPUConfigWhereInput!]
+  or: [VirtualMachineCPUConfigWhereInput!]
+  """id field predicates"""
+  id: ID
+  idNEQ: ID
+  idIn: [ID!]
+  idNotIn: [ID!]
+  idGT: ID
+  idGTE: ID
+  idLT: ID
+  idLTE: ID
+  """cores field predicates"""
+  cores: Int
+  coresNEQ: Int
+  coresIn: [Int!]
+  coresNotIn: [Int!]
+  coresGT: Int
+  coresGTE: Int
+  coresLT: Int
+  coresLTE: Int
+  """sockets field predicates"""
+  sockets: Int
+  socketsNEQ: Int
+  socketsIn: [Int!]
+  socketsNotIn: [Int!]
+  socketsGT: Int
+  socketsGTE: Int
+  socketsLT: Int
+  socketsLTE: Int
+  """virtual_machine edge predicates"""
+  hasVirtualMachine: Boolean
+  hasVirtualMachineWith: [VirtualMachineWhereInput!]
 }
 """A connection to a list of items."""
 type VirtualMachineConnection {
@@ -559,6 +785,7 @@ enum VirtualMachineOrderField {
   UPDATED_AT
   NAME
   OWNER
+  VM_CPU_CONFIG
 }
 """
 VirtualMachineWhereInput is used for filtering VirtualMachine objects.
@@ -609,6 +836,23 @@ input VirtualMachineWhereInput {
   nameHasSuffix: String
   nameEqualFold: String
   nameContainsFold: String
+  """vm_cpu_config_id field predicates"""
+  vmCPUConfigID: ID
+  vmCPUConfigIDNEQ: ID
+  vmCPUConfigIDIn: [ID!]
+  vmCPUConfigIDNotIn: [ID!]
+  vmCPUConfigIDGT: ID
+  vmCPUConfigIDGTE: ID
+  vmCPUConfigIDLT: ID
+  vmCPUConfigIDLTE: ID
+  vmCPUConfigIDContains: ID
+  vmCPUConfigIDHasPrefix: ID
+  vmCPUConfigIDHasSuffix: ID
+  vmCPUConfigIDEqualFold: ID
+  vmCPUConfigIDContainsFold: ID
+  """virtual_machine_cpu_config edge predicates"""
+  hasVirtualMachineCPUConfig: Boolean
+  hasVirtualMachineCPUConfigWith: [VirtualMachineCPUConfigWhereInput!]
 }
 `, BuiltIn: false},
 	{Name: "../../schema/location.graphql", Input: `type Location @key(fields: "id") {
@@ -710,7 +954,18 @@ directive @prefixedID(prefix: String!) on OBJECT`, BuiltIn: false},
     id: ID!
   ): VirtualMachine!
 }
-
+`, BuiltIn: false},
+	{Name: "../../schema/virtualmachinecpuconfig.graphql", Input: `extend type Query {
+ """
+  Lookup a virtual machine cpu config by ID.
+  """
+  virtualMachineCPUConfig(
+    """
+    The virtual machine cpu config ID.
+    """
+    id: ID!
+  ): VirtualMachineCPUConfig!
+}
 `, BuiltIn: false},
 	{Name: "../../federation/directives.graphql", Input: `
 	directive @composeDirective(name: String!) repeatable on SCHEMA
@@ -750,13 +1005,14 @@ directive @prefixedID(prefix: String!) on OBJECT`, BuiltIn: false},
 `, BuiltIn: true},
 	{Name: "../../federation/entity.graphql", Input: `
 # a union of all types that use the @key directive
-union _Entity = Location | ResourceOwner | VirtualMachine
+union _Entity = Location | ResourceOwner | VirtualMachine | VirtualMachineCPUConfig
 
 # fake type to build resolver interfaces for users to implement
 type Entity {
 		findLocationByID(id: ID!,): Location!
 	findResourceOwnerByID(id: ID!,): ResourceOwner!
 	findVirtualMachineByID(id: ID!,): VirtualMachine!
+	findVirtualMachineCPUConfigByID(id: ID!,): VirtualMachineCPUConfig!
 
 }
 
@@ -822,6 +1078,21 @@ func (ec *executionContext) field_Entity_findResourceOwnerByID_args(ctx context.
 }
 
 func (ec *executionContext) field_Entity_findVirtualMachineByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gidx.PrefixedID
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Entity_findVirtualMachineCPUConfigByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 gidx.PrefixedID
@@ -923,6 +1194,21 @@ func (ec *executionContext) field_Query__entities_args(ctx context.Context, rawA
 		}
 	}
 	args["representations"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_virtualMachineCPUConfig_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gidx.PrefixedID
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1210,6 +1496,10 @@ func (ec *executionContext) fieldContext_Entity_findVirtualMachineByID(ctx conte
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "vmCPUConfigID":
+				return ec.fieldContext_VirtualMachine_vmCPUConfigID(ctx, field)
+			case "virtualMachineCPUConfig":
+				return ec.fieldContext_VirtualMachine_virtualMachineCPUConfig(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -1226,6 +1516,71 @@ func (ec *executionContext) fieldContext_Entity_findVirtualMachineByID(ctx conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Entity_findVirtualMachineByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Entity_findVirtualMachineCPUConfigByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Entity_findVirtualMachineCPUConfigByID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Entity().FindVirtualMachineCPUConfigByID(rctx, fc.Args["id"].(gidx.PrefixedID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.VirtualMachineCPUConfig)
+	fc.Result = res
+	return ec.marshalNVirtualMachineCPUConfig2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Entity_findVirtualMachineCPUConfigByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Entity",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_VirtualMachineCPUConfig_id(ctx, field)
+			case "cores":
+				return ec.fieldContext_VirtualMachineCPUConfig_cores(ctx, field)
+			case "sockets":
+				return ec.fieldContext_VirtualMachineCPUConfig_sockets(ctx, field)
+			case "virtualMachine":
+				return ec.fieldContext_VirtualMachineCPUConfig_virtualMachine(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VirtualMachineCPUConfig", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Entity_findVirtualMachineCPUConfigByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1558,6 +1913,10 @@ func (ec *executionContext) fieldContext_Query_virtualMachine(ctx context.Contex
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "vmCPUConfigID":
+				return ec.fieldContext_VirtualMachine_vmCPUConfigID(ctx, field)
+			case "virtualMachineCPUConfig":
+				return ec.fieldContext_VirtualMachine_virtualMachineCPUConfig(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -1574,6 +1933,71 @@ func (ec *executionContext) fieldContext_Query_virtualMachine(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_virtualMachine_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_virtualMachineCPUConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_virtualMachineCPUConfig(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().VirtualMachineCPUConfig(rctx, fc.Args["id"].(gidx.PrefixedID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.VirtualMachineCPUConfig)
+	fc.Result = res
+	return ec.marshalNVirtualMachineCPUConfig2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_virtualMachineCPUConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_VirtualMachineCPUConfig_id(ctx, field)
+			case "cores":
+				return ec.fieldContext_VirtualMachineCPUConfig_cores(ctx, field)
+			case "sockets":
+				return ec.fieldContext_VirtualMachineCPUConfig_sockets(ctx, field)
+			case "virtualMachine":
+				return ec.fieldContext_VirtualMachineCPUConfig_virtualMachine(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VirtualMachineCPUConfig", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_virtualMachineCPUConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2136,6 +2560,104 @@ func (ec *executionContext) fieldContext_VirtualMachine_userdata(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _VirtualMachine_vmCPUConfigID(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachine_vmCPUConfigID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VMCPUConfigID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gidx.PrefixedID)
+	fc.Result = res
+	return ec.marshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachine_vmCPUConfigID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachine_virtualMachineCPUConfig(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachine_virtualMachineCPUConfig(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VirtualMachineCPUConfig(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*generated.VirtualMachineCPUConfig)
+	fc.Result = res
+	return ec.marshalNVirtualMachineCPUConfig2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachine_virtualMachineCPUConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachine",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_VirtualMachineCPUConfig_id(ctx, field)
+			case "cores":
+				return ec.fieldContext_VirtualMachineCPUConfig_cores(ctx, field)
+			case "sockets":
+				return ec.fieldContext_VirtualMachineCPUConfig_sockets(ctx, field)
+			case "virtualMachine":
+				return ec.fieldContext_VirtualMachineCPUConfig_virtualMachine(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VirtualMachineCPUConfig", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VirtualMachine_location(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VirtualMachine_location(ctx, field)
 	if err != nil {
@@ -2231,6 +2753,439 @@ func (ec *executionContext) fieldContext_VirtualMachine_owner(ctx context.Contex
 				return ec.fieldContext_ResourceOwner_virtualMachine(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ResourceOwner", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfig_id(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfig_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gidx.PrefixedID)
+	fc.Result = res
+	return ec.marshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfig_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfig_cores(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfig_cores(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cores, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfig_cores(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfig_sockets(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfig_sockets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sockets, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfig_sockets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfig_virtualMachine(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfig_virtualMachine(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VirtualMachine(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*generated.VirtualMachine)
+	fc.Result = res
+	return ec.marshalOVirtualMachine2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachine(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfig_virtualMachine(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfig",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_VirtualMachine_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_VirtualMachine_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_VirtualMachine_updatedAt(ctx, field)
+			case "name":
+				return ec.fieldContext_VirtualMachine_name(ctx, field)
+			case "userdata":
+				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "vmCPUConfigID":
+				return ec.fieldContext_VirtualMachine_vmCPUConfigID(ctx, field)
+			case "virtualMachineCPUConfig":
+				return ec.fieldContext_VirtualMachine_virtualMachineCPUConfig(ctx, field)
+			case "location":
+				return ec.fieldContext_VirtualMachine_location(ctx, field)
+			case "owner":
+				return ec.fieldContext_VirtualMachine_owner(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VirtualMachine", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfigConnection_edges(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfigConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*generated.VirtualMachineCPUConfigEdge)
+	fc.Result = res
+	return ec.marshalOVirtualMachineCPUConfigEdge2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigEdge(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfigConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "node":
+				return ec.fieldContext_VirtualMachineCPUConfigEdge_node(ctx, field)
+			case "cursor":
+				return ec.fieldContext_VirtualMachineCPUConfigEdge_cursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VirtualMachineCPUConfigEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfigConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entgql.PageInfo[gidx.PrefixedID])
+	fc.Result = res
+	return ec.marshalNPageInfo2entgoᚗioᚋcontribᚋentgqlᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfigConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfigConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfigConnection_totalCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfigEdge_node(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfigEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfigEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*generated.VirtualMachineCPUConfig)
+	fc.Result = res
+	return ec.marshalOVirtualMachineCPUConfig2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfigEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfigEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_VirtualMachineCPUConfig_id(ctx, field)
+			case "cores":
+				return ec.fieldContext_VirtualMachineCPUConfig_cores(ctx, field)
+			case "sockets":
+				return ec.fieldContext_VirtualMachineCPUConfig_sockets(ctx, field)
+			case "virtualMachine":
+				return ec.fieldContext_VirtualMachineCPUConfig_virtualMachine(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VirtualMachineCPUConfig", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VirtualMachineCPUConfigEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *generated.VirtualMachineCPUConfigEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VirtualMachineCPUConfigEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entgql.Cursor[gidx.PrefixedID])
+	fc.Result = res
+	return ec.marshalNCursor2entgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VirtualMachineCPUConfigEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VirtualMachineCPUConfigEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2427,6 +3382,10 @@ func (ec *executionContext) fieldContext_VirtualMachineEdge_node(ctx context.Con
 				return ec.fieldContext_VirtualMachine_name(ctx, field)
 			case "userdata":
 				return ec.fieldContext_VirtualMachine_userdata(ctx, field)
+			case "vmCPUConfigID":
+				return ec.fieldContext_VirtualMachine_vmCPUConfigID(ctx, field)
+			case "virtualMachineCPUConfig":
+				return ec.fieldContext_VirtualMachine_virtualMachineCPUConfig(ctx, field)
 			case "location":
 				return ec.fieldContext_VirtualMachine_location(ctx, field)
 			case "owner":
@@ -4296,6 +5255,53 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateVirtualMachineCPUConfigInput(ctx context.Context, obj interface{}) (generated.CreateVirtualMachineCPUConfigInput, error) {
+	var it generated.CreateVirtualMachineCPUConfigInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"cores", "sockets", "virtualMachineID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "cores":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cores"))
+			data, err := ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cores = data
+		case "sockets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sockets"))
+			data, err := ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sockets = data
+		case "virtualMachineID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("virtualMachineID"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VirtualMachineID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.Context, obj interface{}) (generated.CreateVirtualMachineInput, error) {
 	var it generated.CreateVirtualMachineInput
 	asMap := map[string]interface{}{}
@@ -4303,7 +5309,7 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "ownerID", "locationID", "userdata"}
+	fieldsInOrder := [...]string{"name", "ownerID", "locationID", "userdata", "virtualMachineCPUConfigID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4346,6 +5352,53 @@ func (ec *executionContext) unmarshalInputCreateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.Userdata = data
+		case "virtualMachineCPUConfigID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("virtualMachineCPUConfigID"))
+			data, err := ec.unmarshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VirtualMachineCPUConfigID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateVirtualMachineCPUConfigInput(ctx context.Context, obj interface{}) (generated.UpdateVirtualMachineCPUConfigInput, error) {
+	var it generated.UpdateVirtualMachineCPUConfigInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"cores", "sockets"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "cores":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cores"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cores = data
+		case "sockets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sockets"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sockets = data
 		}
 	}
 
@@ -4393,6 +5446,329 @@ func (ec *executionContext) unmarshalInputUpdateVirtualMachineInput(ctx context.
 				return it, err
 			}
 			it.ClearUserdata = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputVirtualMachineCPUConfigOrder(ctx context.Context, obj interface{}) (generated.VirtualMachineCPUConfigOrder, error) {
+	var it generated.VirtualMachineCPUConfigOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	if _, present := asMap["direction"]; !present {
+		asMap["direction"] = "ASC"
+	}
+
+	fieldsInOrder := [...]string{"direction", "field"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "direction":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2entgoᚗioᚋcontribᚋentgqlᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		case "field":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNVirtualMachineCPUConfigOrderField2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputVirtualMachineCPUConfigWhereInput(ctx context.Context, obj interface{}) (generated.VirtualMachineCPUConfigWhereInput, error) {
+	var it generated.VirtualMachineCPUConfigWhereInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "cores", "coresNEQ", "coresIn", "coresNotIn", "coresGT", "coresGTE", "coresLT", "coresLTE", "sockets", "socketsNEQ", "socketsIn", "socketsNotIn", "socketsGT", "socketsGTE", "socketsLT", "socketsLTE", "hasVirtualMachine", "hasVirtualMachineWith"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "not":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOVirtualMachineCPUConfigWhereInput2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		case "and":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOVirtualMachineCPUConfigWhereInput2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOVirtualMachineCPUConfigWhereInput2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "idNEQ":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNEQ = data
+		case "idIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
+			data, err := ec.unmarshalOID2ᚕgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDIn = data
+		case "idNotIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
+			data, err := ec.unmarshalOID2ᚕgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNotIn = data
+		case "idGT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGT = data
+		case "idGTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGTE = data
+		case "idLT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLT = data
+		case "idLTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLTE = data
+		case "cores":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cores"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cores = data
+		case "coresNEQ":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coresNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CoresNEQ = data
+		case "coresIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coresIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CoresIn = data
+		case "coresNotIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coresNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CoresNotIn = data
+		case "coresGT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coresGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CoresGT = data
+		case "coresGTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coresGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CoresGTE = data
+		case "coresLT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coresLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CoresLT = data
+		case "coresLTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("coresLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CoresLTE = data
+		case "sockets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sockets"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sockets = data
+		case "socketsNEQ":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("socketsNEQ"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SocketsNEQ = data
+		case "socketsIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("socketsIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SocketsIn = data
+		case "socketsNotIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("socketsNotIn"))
+			data, err := ec.unmarshalOInt2ᚕint64ᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SocketsNotIn = data
+		case "socketsGT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("socketsGT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SocketsGT = data
+		case "socketsGTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("socketsGTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SocketsGTE = data
+		case "socketsLT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("socketsLT"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SocketsLT = data
+		case "socketsLTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("socketsLTE"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SocketsLTE = data
+		case "hasVirtualMachine":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasVirtualMachine"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasVirtualMachine = data
+		case "hasVirtualMachineWith":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasVirtualMachineWith"))
+			data, err := ec.unmarshalOVirtualMachineWhereInput2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasVirtualMachineWith = data
 		}
 	}
 
@@ -4448,7 +5824,7 @@ func (ec *executionContext) unmarshalInputVirtualMachineWhereInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameEqualFold", "nameContainsFold"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameEqualFold", "nameContainsFold", "vmCPUConfigID", "vmCPUConfigIDNEQ", "vmCPUConfigIDIn", "vmCPUConfigIDNotIn", "vmCPUConfigIDGT", "vmCPUConfigIDGTE", "vmCPUConfigIDLT", "vmCPUConfigIDLTE", "vmCPUConfigIDContains", "vmCPUConfigIDHasPrefix", "vmCPUConfigIDHasSuffix", "vmCPUConfigIDEqualFold", "vmCPUConfigIDContainsFold", "hasVirtualMachineCPUConfig", "hasVirtualMachineCPUConfigWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4815,6 +6191,141 @@ func (ec *executionContext) unmarshalInputVirtualMachineWhereInput(ctx context.C
 				return it, err
 			}
 			it.NameContainsFold = data
+		case "vmCPUConfigID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigID"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigID = data
+		case "vmCPUConfigIDNEQ":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDNEQ"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDNEQ = data
+		case "vmCPUConfigIDIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDIn"))
+			data, err := ec.unmarshalOID2ᚕgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDIn = data
+		case "vmCPUConfigIDNotIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDNotIn"))
+			data, err := ec.unmarshalOID2ᚕgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDNotIn = data
+		case "vmCPUConfigIDGT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDGT"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDGT = data
+		case "vmCPUConfigIDGTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDGTE"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDGTE = data
+		case "vmCPUConfigIDLT":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDLT"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDLT = data
+		case "vmCPUConfigIDLTE":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDLTE"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDLTE = data
+		case "vmCPUConfigIDContains":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDContains"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDContains = data
+		case "vmCPUConfigIDHasPrefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDHasPrefix"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDHasPrefix = data
+		case "vmCPUConfigIDHasSuffix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDHasSuffix"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDHasSuffix = data
+		case "vmCPUConfigIDEqualFold":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDEqualFold"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDEqualFold = data
+		case "vmCPUConfigIDContainsFold":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vmCPUConfigIDContainsFold"))
+			data, err := ec.unmarshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VMCPUConfigIDContainsFold = data
+		case "hasVirtualMachineCPUConfig":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasVirtualMachineCPUConfig"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasVirtualMachineCPUConfig = data
+		case "hasVirtualMachineCPUConfigWith":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasVirtualMachineCPUConfigWith"))
+			data, err := ec.unmarshalOVirtualMachineCPUConfigWhereInput2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasVirtualMachineCPUConfigWith = data
 		}
 	}
 
@@ -4834,6 +6345,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._VirtualMachine(ctx, sel, obj)
+	case *generated.VirtualMachineCPUConfig:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._VirtualMachineCPUConfig(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -4864,6 +6380,13 @@ func (ec *executionContext) __Entity(ctx context.Context, sel ast.SelectionSet, 
 			return graphql.Null
 		}
 		return ec._VirtualMachine(ctx, sel, obj)
+	case generated.VirtualMachineCPUConfig:
+		return ec._VirtualMachineCPUConfig(ctx, sel, &obj)
+	case *generated.VirtualMachineCPUConfig:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._VirtualMachineCPUConfig(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -4946,6 +6469,28 @@ func (ec *executionContext) _Entity(ctx context.Context, sel ast.SelectionSet) g
 					}
 				}()
 				res = ec._Entity_findVirtualMachineByID(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "findVirtualMachineCPUConfigByID":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Entity_findVirtualMachineCPUConfigByID(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5145,6 +6690,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "virtualMachineCPUConfig":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_virtualMachineCPUConfig(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "_entities":
 			field := field
 
@@ -5328,6 +6895,47 @@ func (ec *executionContext) _VirtualMachine(ctx context.Context, sel ast.Selecti
 			}
 		case "userdata":
 			out.Values[i] = ec._VirtualMachine_userdata(ctx, field, obj)
+		case "vmCPUConfigID":
+			out.Values[i] = ec._VirtualMachine_vmCPUConfigID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "virtualMachineCPUConfig":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._VirtualMachine_virtualMachineCPUConfig(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "location":
 			field := field
 
@@ -5400,6 +7008,175 @@ func (ec *executionContext) _VirtualMachine(ctx context.Context, sel ast.Selecti
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var virtualMachineCPUConfigImplementors = []string{"VirtualMachineCPUConfig", "Node", "_Entity"}
+
+func (ec *executionContext) _VirtualMachineCPUConfig(ctx context.Context, sel ast.SelectionSet, obj *generated.VirtualMachineCPUConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, virtualMachineCPUConfigImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VirtualMachineCPUConfig")
+		case "id":
+			out.Values[i] = ec._VirtualMachineCPUConfig_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "cores":
+			out.Values[i] = ec._VirtualMachineCPUConfig_cores(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "sockets":
+			out.Values[i] = ec._VirtualMachineCPUConfig_sockets(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "virtualMachine":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._VirtualMachineCPUConfig_virtualMachine(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var virtualMachineCPUConfigConnectionImplementors = []string{"VirtualMachineCPUConfigConnection"}
+
+func (ec *executionContext) _VirtualMachineCPUConfigConnection(ctx context.Context, sel ast.SelectionSet, obj *generated.VirtualMachineCPUConfigConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, virtualMachineCPUConfigConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VirtualMachineCPUConfigConnection")
+		case "edges":
+			out.Values[i] = ec._VirtualMachineCPUConfigConnection_edges(ctx, field, obj)
+		case "pageInfo":
+			out.Values[i] = ec._VirtualMachineCPUConfigConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalCount":
+			out.Values[i] = ec._VirtualMachineCPUConfigConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var virtualMachineCPUConfigEdgeImplementors = []string{"VirtualMachineCPUConfigEdge"}
+
+func (ec *executionContext) _VirtualMachineCPUConfigEdge(ctx context.Context, sel ast.SelectionSet, obj *generated.VirtualMachineCPUConfigEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, virtualMachineCPUConfigEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VirtualMachineCPUConfigEdge")
+		case "node":
+			out.Values[i] = ec._VirtualMachineCPUConfigEdge_node(ctx, field, obj)
+		case "cursor":
+			out.Values[i] = ec._VirtualMachineCPUConfigEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5937,6 +7714,21 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2int64(ctx context.Context, v interface{}) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNLocation2goᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋapiᚐLocation(ctx context.Context, sel ast.SelectionSet, v Location) graphql.Marshaler {
 	return ec._Location(ctx, sel, &v)
 }
@@ -6021,6 +7813,41 @@ func (ec *executionContext) marshalNVirtualMachine2ᚖgoᚗinfratographerᚗcom�
 		return graphql.Null
 	}
 	return ec._VirtualMachine(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNVirtualMachineCPUConfig2goᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfig(ctx context.Context, sel ast.SelectionSet, v generated.VirtualMachineCPUConfig) graphql.Marshaler {
+	return ec._VirtualMachineCPUConfig(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNVirtualMachineCPUConfig2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfig(ctx context.Context, sel ast.SelectionSet, v *generated.VirtualMachineCPUConfig) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VirtualMachineCPUConfig(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNVirtualMachineCPUConfigOrderField2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigOrderField(ctx context.Context, v interface{}) (*generated.VirtualMachineCPUConfigOrderField, error) {
+	var res = new(generated.VirtualMachineCPUConfigOrderField)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNVirtualMachineCPUConfigOrderField2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigOrderField(ctx context.Context, sel ast.SelectionSet, v *generated.VirtualMachineCPUConfigOrderField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalNVirtualMachineCPUConfigWhereInput2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInput(ctx context.Context, v interface{}) (*generated.VirtualMachineCPUConfigWhereInput, error) {
+	res, err := ec.unmarshalInputVirtualMachineCPUConfigWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNVirtualMachineConnection2goᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineConnection(ctx context.Context, sel ast.SelectionSet, v generated.VirtualMachineConnection) graphql.Marshaler {
@@ -6502,6 +8329,44 @@ func (ec *executionContext) marshalOID2ᚖgoᚗinfratographerᚗcomᚋxᚋgidx�
 	return v
 }
 
+func (ec *executionContext) unmarshalOInt2ᚕint64ᚄ(ctx context.Context, v interface{}) ([]int64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]int64, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNInt2int64(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOInt2ᚕint64ᚄ(ctx context.Context, sel ast.SelectionSet, v []int64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNInt2int64(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
 	if v == nil {
 		return nil, nil
@@ -6515,6 +8380,22 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	res := graphql.MarshalInt(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt64(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt64(*v)
 	return res
 }
 
@@ -6641,6 +8522,89 @@ func (ec *executionContext) marshalOVirtualMachine2ᚖgoᚗinfratographerᚗcom�
 		return graphql.Null
 	}
 	return ec._VirtualMachine(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOVirtualMachineCPUConfig2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfig(ctx context.Context, sel ast.SelectionSet, v *generated.VirtualMachineCPUConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._VirtualMachineCPUConfig(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOVirtualMachineCPUConfigEdge2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigEdge(ctx context.Context, sel ast.SelectionSet, v []*generated.VirtualMachineCPUConfigEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOVirtualMachineCPUConfigEdge2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOVirtualMachineCPUConfigEdge2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigEdge(ctx context.Context, sel ast.SelectionSet, v *generated.VirtualMachineCPUConfigEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._VirtualMachineCPUConfigEdge(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOVirtualMachineCPUConfigWhereInput2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInputᚄ(ctx context.Context, v interface{}) ([]*generated.VirtualMachineCPUConfigWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*generated.VirtualMachineCPUConfigWhereInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNVirtualMachineCPUConfigWhereInput2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOVirtualMachineCPUConfigWhereInput2ᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineCPUConfigWhereInput(ctx context.Context, v interface{}) (*generated.VirtualMachineCPUConfigWhereInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputVirtualMachineCPUConfigWhereInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOVirtualMachineEdge2ᚕᚖgoᚗinfratographerᚗcomᚋvirtualᚑmachineᚑapiᚋinternalᚋentᚋgeneratedᚐVirtualMachineEdge(ctx context.Context, sel ast.SelectionSet, v []*generated.VirtualMachineEdge) graphql.Marshaler {

@@ -8,5 +8,6 @@ query GetVirtualMachineByID($id: ID!) {
     location {
       id
     }
+    vmCPUConfigID
   }
 }

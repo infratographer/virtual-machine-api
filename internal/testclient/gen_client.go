@@ -12,6 +12,7 @@ import (
 
 type TestClient interface {
 	GetVirtualMachineByID(ctx context.Context, id gidx.PrefixedID, httpRequestOptions ...client.HTTPRequestOption) (*GetVirtualMachineByID, error)
+	GetVirtualMachineCPUConfigByID(ctx context.Context, id gidx.PrefixedID, httpRequestOptions ...client.HTTPRequestOption) (*GetVirtualMachineCPUConfigByID, error)
 }
 
 type Client struct {
@@ -23,9 +24,10 @@ func NewClient(cli *http.Client, baseURL string, options ...client.HTTPRequestOp
 }
 
 type Query struct {
-	VirtualMachine VirtualMachine "json:\"virtualMachine\" graphql:\"virtualMachine\""
-	Entities       []Entity       "json:\"_entities\" graphql:\"_entities\""
-	Service        Service        "json:\"_service\" graphql:\"_service\""
+	VirtualMachine          VirtualMachine          "json:\"virtualMachine\" graphql:\"virtualMachine\""
+	VirtualMachineCPUConfig VirtualMachineCPUConfig "json:\"virtualMachineCPUConfig\" graphql:\"virtualMachineCPUConfig\""
+	Entities                []Entity                "json:\"_entities\" graphql:\"_entities\""
+	Service                 Service                 "json:\"_service\" graphql:\"_service\""
 }
 type GetVirtualMachineByID struct {
 	VirtualMachine struct {
@@ -37,7 +39,15 @@ type GetVirtualMachineByID struct {
 		Location struct {
 			ID gidx.PrefixedID "json:\"id\" graphql:\"id\""
 		} "json:\"location\" graphql:\"location\""
+		VMCPUConfigID gidx.PrefixedID "json:\"vmCPUConfigID\" graphql:\"vmCPUConfigID\""
 	} "json:\"virtualMachine\" graphql:\"virtualMachine\""
+}
+type GetVirtualMachineCPUConfigByID struct {
+	VirtualMachineCPUConfig struct {
+		ID      gidx.PrefixedID "json:\"id\" graphql:\"id\""
+		Cores   int64           "json:\"cores\" graphql:\"cores\""
+		Sockets int64           "json:\"sockets\" graphql:\"sockets\""
+	} "json:\"virtualMachineCPUConfig\" graphql:\"virtualMachineCPUConfig\""
 }
 
 const GetVirtualMachineByIDDocument = `query GetVirtualMachineByID ($id: ID!) {
@@ -50,6 +60,7 @@ const GetVirtualMachineByIDDocument = `query GetVirtualMachineByID ($id: ID!) {
 		location {
 			id
 		}
+		vmCPUConfigID
 	}
 }
 `
@@ -61,6 +72,28 @@ func (c *Client) GetVirtualMachineByID(ctx context.Context, id gidx.PrefixedID, 
 
 	var res GetVirtualMachineByID
 	if err := c.Client.Post(ctx, "GetVirtualMachineByID", GetVirtualMachineByIDDocument, &res, vars, httpRequestOptions...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetVirtualMachineCPUConfigByIDDocument = `query GetVirtualMachineCPUConfigByID ($id: ID!) {
+	virtualMachineCPUConfig(id: $id) {
+		id
+		cores
+		sockets
+	}
+}
+`
+
+func (c *Client) GetVirtualMachineCPUConfigByID(ctx context.Context, id gidx.PrefixedID, httpRequestOptions ...client.HTTPRequestOption) (*GetVirtualMachineCPUConfigByID, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetVirtualMachineCPUConfigByID
+	if err := c.Client.Post(ctx, "GetVirtualMachineCPUConfigByID", GetVirtualMachineCPUConfigByIDDocument, &res, vars, httpRequestOptions...); err != nil {
 		return nil, err
 	}
 

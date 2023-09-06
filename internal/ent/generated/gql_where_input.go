@@ -23,6 +23,7 @@ import (
 
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -77,6 +78,25 @@ type VirtualMachineWhereInput struct {
 	NameHasSuffix    *string  `json:"nameHasSuffix,omitempty"`
 	NameEqualFold    *string  `json:"nameEqualFold,omitempty"`
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
+
+	// "vm_cpu_config_id" field predicates.
+	VMCPUConfigID             *gidx.PrefixedID  `json:"vmCPUConfigID,omitempty"`
+	VMCPUConfigIDNEQ          *gidx.PrefixedID  `json:"vmCPUConfigIDNEQ,omitempty"`
+	VMCPUConfigIDIn           []gidx.PrefixedID `json:"vmCPUConfigIDIn,omitempty"`
+	VMCPUConfigIDNotIn        []gidx.PrefixedID `json:"vmCPUConfigIDNotIn,omitempty"`
+	VMCPUConfigIDGT           *gidx.PrefixedID  `json:"vmCPUConfigIDGT,omitempty"`
+	VMCPUConfigIDGTE          *gidx.PrefixedID  `json:"vmCPUConfigIDGTE,omitempty"`
+	VMCPUConfigIDLT           *gidx.PrefixedID  `json:"vmCPUConfigIDLT,omitempty"`
+	VMCPUConfigIDLTE          *gidx.PrefixedID  `json:"vmCPUConfigIDLTE,omitempty"`
+	VMCPUConfigIDContains     *gidx.PrefixedID  `json:"vmCPUConfigIDContains,omitempty"`
+	VMCPUConfigIDHasPrefix    *gidx.PrefixedID  `json:"vmCPUConfigIDHasPrefix,omitempty"`
+	VMCPUConfigIDHasSuffix    *gidx.PrefixedID  `json:"vmCPUConfigIDHasSuffix,omitempty"`
+	VMCPUConfigIDEqualFold    *gidx.PrefixedID  `json:"vmCPUConfigIDEqualFold,omitempty"`
+	VMCPUConfigIDContainsFold *gidx.PrefixedID  `json:"vmCPUConfigIDContainsFold,omitempty"`
+
+	// "virtual_machine_cpu_config" edge predicates.
+	HasVirtualMachineCPUConfig     *bool                                `json:"hasVirtualMachineCPUConfig,omitempty"`
+	HasVirtualMachineCPUConfigWith []*VirtualMachineCPUConfigWhereInput `json:"hasVirtualMachineCPUConfigWith,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -261,7 +281,64 @@ func (i *VirtualMachineWhereInput) P() (predicate.VirtualMachine, error) {
 	if i.NameContainsFold != nil {
 		predicates = append(predicates, virtualmachine.NameContainsFold(*i.NameContainsFold))
 	}
+	if i.VMCPUConfigID != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDEQ(*i.VMCPUConfigID))
+	}
+	if i.VMCPUConfigIDNEQ != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDNEQ(*i.VMCPUConfigIDNEQ))
+	}
+	if len(i.VMCPUConfigIDIn) > 0 {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDIn(i.VMCPUConfigIDIn...))
+	}
+	if len(i.VMCPUConfigIDNotIn) > 0 {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDNotIn(i.VMCPUConfigIDNotIn...))
+	}
+	if i.VMCPUConfigIDGT != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDGT(*i.VMCPUConfigIDGT))
+	}
+	if i.VMCPUConfigIDGTE != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDGTE(*i.VMCPUConfigIDGTE))
+	}
+	if i.VMCPUConfigIDLT != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDLT(*i.VMCPUConfigIDLT))
+	}
+	if i.VMCPUConfigIDLTE != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDLTE(*i.VMCPUConfigIDLTE))
+	}
+	if i.VMCPUConfigIDContains != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDContains(*i.VMCPUConfigIDContains))
+	}
+	if i.VMCPUConfigIDHasPrefix != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDHasPrefix(*i.VMCPUConfigIDHasPrefix))
+	}
+	if i.VMCPUConfigIDHasSuffix != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDHasSuffix(*i.VMCPUConfigIDHasSuffix))
+	}
+	if i.VMCPUConfigIDEqualFold != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDEqualFold(*i.VMCPUConfigIDEqualFold))
+	}
+	if i.VMCPUConfigIDContainsFold != nil {
+		predicates = append(predicates, virtualmachine.VMCPUConfigIDContainsFold(*i.VMCPUConfigIDContainsFold))
+	}
 
+	if i.HasVirtualMachineCPUConfig != nil {
+		p := virtualmachine.HasVirtualMachineCPUConfig()
+		if !*i.HasVirtualMachineCPUConfig {
+			p = virtualmachine.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasVirtualMachineCPUConfigWith) > 0 {
+		with := make([]predicate.VirtualMachineCPUConfig, 0, len(i.HasVirtualMachineCPUConfigWith))
+		for _, w := range i.HasVirtualMachineCPUConfigWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasVirtualMachineCPUConfigWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, virtualmachine.HasVirtualMachineCPUConfigWith(with...))
+	}
 	switch len(predicates) {
 	case 0:
 		return nil, ErrEmptyVirtualMachineWhereInput
@@ -269,5 +346,219 @@ func (i *VirtualMachineWhereInput) P() (predicate.VirtualMachine, error) {
 		return predicates[0], nil
 	default:
 		return virtualmachine.And(predicates...), nil
+	}
+}
+
+// VirtualMachineCPUConfigWhereInput represents a where input for filtering VirtualMachineCPUConfig queries.
+type VirtualMachineCPUConfigWhereInput struct {
+	Predicates []predicate.VirtualMachineCPUConfig  `json:"-"`
+	Not        *VirtualMachineCPUConfigWhereInput   `json:"not,omitempty"`
+	Or         []*VirtualMachineCPUConfigWhereInput `json:"or,omitempty"`
+	And        []*VirtualMachineCPUConfigWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID      *gidx.PrefixedID  `json:"id,omitempty"`
+	IDNEQ   *gidx.PrefixedID  `json:"idNEQ,omitempty"`
+	IDIn    []gidx.PrefixedID `json:"idIn,omitempty"`
+	IDNotIn []gidx.PrefixedID `json:"idNotIn,omitempty"`
+	IDGT    *gidx.PrefixedID  `json:"idGT,omitempty"`
+	IDGTE   *gidx.PrefixedID  `json:"idGTE,omitempty"`
+	IDLT    *gidx.PrefixedID  `json:"idLT,omitempty"`
+	IDLTE   *gidx.PrefixedID  `json:"idLTE,omitempty"`
+
+	// "cores" field predicates.
+	Cores      *int64  `json:"cores,omitempty"`
+	CoresNEQ   *int64  `json:"coresNEQ,omitempty"`
+	CoresIn    []int64 `json:"coresIn,omitempty"`
+	CoresNotIn []int64 `json:"coresNotIn,omitempty"`
+	CoresGT    *int64  `json:"coresGT,omitempty"`
+	CoresGTE   *int64  `json:"coresGTE,omitempty"`
+	CoresLT    *int64  `json:"coresLT,omitempty"`
+	CoresLTE   *int64  `json:"coresLTE,omitempty"`
+
+	// "sockets" field predicates.
+	Sockets      *int64  `json:"sockets,omitempty"`
+	SocketsNEQ   *int64  `json:"socketsNEQ,omitempty"`
+	SocketsIn    []int64 `json:"socketsIn,omitempty"`
+	SocketsNotIn []int64 `json:"socketsNotIn,omitempty"`
+	SocketsGT    *int64  `json:"socketsGT,omitempty"`
+	SocketsGTE   *int64  `json:"socketsGTE,omitempty"`
+	SocketsLT    *int64  `json:"socketsLT,omitempty"`
+	SocketsLTE   *int64  `json:"socketsLTE,omitempty"`
+
+	// "virtual_machine" edge predicates.
+	HasVirtualMachine     *bool                       `json:"hasVirtualMachine,omitempty"`
+	HasVirtualMachineWith []*VirtualMachineWhereInput `json:"hasVirtualMachineWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *VirtualMachineCPUConfigWhereInput) AddPredicates(predicates ...predicate.VirtualMachineCPUConfig) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the VirtualMachineCPUConfigWhereInput filter on the VirtualMachineCPUConfigQuery builder.
+func (i *VirtualMachineCPUConfigWhereInput) Filter(q *VirtualMachineCPUConfigQuery) (*VirtualMachineCPUConfigQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyVirtualMachineCPUConfigWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyVirtualMachineCPUConfigWhereInput is returned in case the VirtualMachineCPUConfigWhereInput is empty.
+var ErrEmptyVirtualMachineCPUConfigWhereInput = errors.New("generated: empty predicate VirtualMachineCPUConfigWhereInput")
+
+// P returns a predicate for filtering virtualmachinecpuconfigs.
+// An error is returned if the input is empty or invalid.
+func (i *VirtualMachineCPUConfigWhereInput) P() (predicate.VirtualMachineCPUConfig, error) {
+	var predicates []predicate.VirtualMachineCPUConfig
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, virtualmachinecpuconfig.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.VirtualMachineCPUConfig, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, virtualmachinecpuconfig.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.VirtualMachineCPUConfig, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, virtualmachinecpuconfig.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, virtualmachinecpuconfig.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, virtualmachinecpuconfig.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.IDLTE(*i.IDLTE))
+	}
+	if i.Cores != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresEQ(*i.Cores))
+	}
+	if i.CoresNEQ != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresNEQ(*i.CoresNEQ))
+	}
+	if len(i.CoresIn) > 0 {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresIn(i.CoresIn...))
+	}
+	if len(i.CoresNotIn) > 0 {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresNotIn(i.CoresNotIn...))
+	}
+	if i.CoresGT != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresGT(*i.CoresGT))
+	}
+	if i.CoresGTE != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresGTE(*i.CoresGTE))
+	}
+	if i.CoresLT != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresLT(*i.CoresLT))
+	}
+	if i.CoresLTE != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.CoresLTE(*i.CoresLTE))
+	}
+	if i.Sockets != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsEQ(*i.Sockets))
+	}
+	if i.SocketsNEQ != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsNEQ(*i.SocketsNEQ))
+	}
+	if len(i.SocketsIn) > 0 {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsIn(i.SocketsIn...))
+	}
+	if len(i.SocketsNotIn) > 0 {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsNotIn(i.SocketsNotIn...))
+	}
+	if i.SocketsGT != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsGT(*i.SocketsGT))
+	}
+	if i.SocketsGTE != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsGTE(*i.SocketsGTE))
+	}
+	if i.SocketsLT != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsLT(*i.SocketsLT))
+	}
+	if i.SocketsLTE != nil {
+		predicates = append(predicates, virtualmachinecpuconfig.SocketsLTE(*i.SocketsLTE))
+	}
+
+	if i.HasVirtualMachine != nil {
+		p := virtualmachinecpuconfig.HasVirtualMachine()
+		if !*i.HasVirtualMachine {
+			p = virtualmachinecpuconfig.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasVirtualMachineWith) > 0 {
+		with := make([]predicate.VirtualMachine, 0, len(i.HasVirtualMachineWith))
+		for _, w := range i.HasVirtualMachineWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasVirtualMachineWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, virtualmachinecpuconfig.HasVirtualMachineWith(with...))
+	}
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyVirtualMachineCPUConfigWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return virtualmachinecpuconfig.And(predicates...), nil
 	}
 }

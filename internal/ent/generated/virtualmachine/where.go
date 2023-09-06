@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
 	"go.infratographer.com/x/gidx"
 )
@@ -97,6 +98,11 @@ func LocationID(v gidx.PrefixedID) predicate.VirtualMachine {
 // Userdata applies equality check predicate on the "userdata" field. It's identical to UserdataEQ.
 func Userdata(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldUserdata, v))
+}
+
+// VMCPUConfigID applies equality check predicate on the "vm_cpu_config_id" field. It's identical to VMCPUConfigIDEQ.
+func VMCPUConfigID(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldVMCPUConfigID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -459,34 +465,110 @@ func UserdataContainsFold(v string) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldContainsFold(FieldUserdata, v))
 }
 
+// VMCPUConfigIDEQ applies the EQ predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDEQ(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldVMCPUConfigID, v))
+}
+
+// VMCPUConfigIDNEQ applies the NEQ predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDNEQ(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNEQ(FieldVMCPUConfigID, v))
+}
+
+// VMCPUConfigIDIn applies the In predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDIn(vs ...gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIn(FieldVMCPUConfigID, vs...))
+}
+
+// VMCPUConfigIDNotIn applies the NotIn predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDNotIn(vs ...gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotIn(FieldVMCPUConfigID, vs...))
+}
+
+// VMCPUConfigIDGT applies the GT predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDGT(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGT(FieldVMCPUConfigID, v))
+}
+
+// VMCPUConfigIDGTE applies the GTE predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDGTE(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGTE(FieldVMCPUConfigID, v))
+}
+
+// VMCPUConfigIDLT applies the LT predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDLT(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLT(FieldVMCPUConfigID, v))
+}
+
+// VMCPUConfigIDLTE applies the LTE predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDLTE(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLTE(FieldVMCPUConfigID, v))
+}
+
+// VMCPUConfigIDContains applies the Contains predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDContains(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldContains(FieldVMCPUConfigID, vc))
+}
+
+// VMCPUConfigIDHasPrefix applies the HasPrefix predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDHasPrefix(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldHasPrefix(FieldVMCPUConfigID, vc))
+}
+
+// VMCPUConfigIDHasSuffix applies the HasSuffix predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDHasSuffix(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldHasSuffix(FieldVMCPUConfigID, vc))
+}
+
+// VMCPUConfigIDEqualFold applies the EqualFold predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDEqualFold(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldEqualFold(FieldVMCPUConfigID, vc))
+}
+
+// VMCPUConfigIDContainsFold applies the ContainsFold predicate on the "vm_cpu_config_id" field.
+func VMCPUConfigIDContainsFold(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldContainsFold(FieldVMCPUConfigID, vc))
+}
+
+// HasVirtualMachineCPUConfig applies the HasEdge predicate on the "virtual_machine_cpu_config" edge.
+func HasVirtualMachineCPUConfig() predicate.VirtualMachine {
+	return predicate.VirtualMachine(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, VirtualMachineCPUConfigTable, VirtualMachineCPUConfigColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasVirtualMachineCPUConfigWith applies the HasEdge predicate on the "virtual_machine_cpu_config" edge with a given conditions (other predicates).
+func HasVirtualMachineCPUConfigWith(preds ...predicate.VirtualMachineCPUConfig) predicate.VirtualMachine {
+	return predicate.VirtualMachine(func(s *sql.Selector) {
+		step := newVirtualMachineCPUConfigStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for _, p := range predicates {
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.VirtualMachine(sql.AndPredicates(predicates...))
 }
 
 // Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for i, p := range predicates {
-			if i > 0 {
-				s1.Or()
-			}
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.VirtualMachine(sql.OrPredicates(predicates...))
 }
 
 // Not applies the not operator on the given predicate.
 func Not(p predicate.VirtualMachine) predicate.VirtualMachine {
-	return predicate.VirtualMachine(func(s *sql.Selector) {
-		p(s.Not())
-	})
+	return predicate.VirtualMachine(sql.NotPredicates(p))
 }

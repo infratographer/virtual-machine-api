@@ -11,12 +11,7 @@ import (
 	"go.infratographer.com/x/gidx"
 )
 
-// VirtualMachine is the resolver for the virtualMachine field.
-func (r *queryResolver) VirtualMachine(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachine, error) {
-	// TODO check locations
-	// if err := permissions.CheckAccess(ctx, id, actionVirtualMachineGet); err != nil {
-	// 	return nil, err
-	// }
-
-	return r.client.VirtualMachine.Get(ctx, id)
+// VirtualMachineCPUConfig is the resolver for the virtualMachineCPUConfig field.
+func (r *queryResolver) VirtualMachineCPUConfig(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachineCPUConfig, error) {
+	return r.client.VirtualMachineCPUConfig.Get(ctx, id)
 }

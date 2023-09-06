@@ -4,6 +4,7 @@ import (
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -71,12 +72,31 @@ func (VirtualMachine) Fields() []ent.Field {
 			Annotations(
 				entgql.Skip(entgql.SkipWhereInput),
 			),
+		field.String("vm_cpu_config_id").
+			GoType(gidx.PrefixedID("")).
+			Immutable().
+			Comment("The ID for the virtual machine cpu config.").
+			Annotations(
+				entgql.OrderField("VM_CPU_CONFIG"),
+				entgql.QueryField(),
+			),
 	}
 }
 
 // Edges of VirtualMachine
 func (VirtualMachine) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("virtual_machine_cpu_config", VirtualMachineCPUConfig.Type).
+			Unique().
+			Required().
+			Immutable().
+			Ref("virtual_machine").
+			Field("vm_cpu_config_id").
+			Comment("The virtual machine cpu config for the virtual machine.").
+			Annotations(
+				entgql.MapsTo("virtualMachineCPUConfig"),
+			),
+	}
 }
 
 // Indexes of VirtualMachine

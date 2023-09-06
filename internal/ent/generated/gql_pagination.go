@@ -30,6 +30,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/errcode"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -389,6 +390,20 @@ var (
 			}
 		},
 	}
+	// VirtualMachineOrderFieldVMCPUConfigID orders VirtualMachine by vm_cpu_config_id.
+	VirtualMachineOrderFieldVMCPUConfigID = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.VMCPUConfigID, nil
+		},
+		column: virtualmachine.FieldVMCPUConfigID,
+		toTerm: virtualmachine.ByVMCPUConfigID,
+		toCursor: func(vm *VirtualMachine) Cursor {
+			return Cursor{
+				ID:    vm.ID,
+				Value: vm.VMCPUConfigID,
+			}
+		},
+	}
 )
 
 // String implement fmt.Stringer interface.
@@ -405,6 +420,8 @@ func (f VirtualMachineOrderField) String() string {
 		str = "NAME"
 	case VirtualMachineOrderFieldOwnerID.column:
 		str = "OWNER"
+	case VirtualMachineOrderFieldVMCPUConfigID.column:
+		str = "VM_CPU_CONFIG"
 	}
 	return str
 }
@@ -431,6 +448,8 @@ func (f *VirtualMachineOrderField) UnmarshalGQL(v interface{}) error {
 		*f = *VirtualMachineOrderFieldName
 	case "OWNER":
 		*f = *VirtualMachineOrderFieldOwnerID
+	case "VM_CPU_CONFIG":
+		*f = *VirtualMachineOrderFieldVMCPUConfigID
 	default:
 		return fmt.Errorf("%s is not a valid VirtualMachineOrderField", str)
 	}
@@ -475,5 +494,334 @@ func (vm *VirtualMachine) ToEdge(order *VirtualMachineOrder) *VirtualMachineEdge
 	return &VirtualMachineEdge{
 		Node:   vm,
 		Cursor: order.Field.toCursor(vm),
+	}
+}
+
+// VirtualMachineCPUConfigEdge is the edge representation of VirtualMachineCPUConfig.
+type VirtualMachineCPUConfigEdge struct {
+	Node   *VirtualMachineCPUConfig `json:"node"`
+	Cursor Cursor                   `json:"cursor"`
+}
+
+// VirtualMachineCPUConfigConnection is the connection containing edges to VirtualMachineCPUConfig.
+type VirtualMachineCPUConfigConnection struct {
+	Edges      []*VirtualMachineCPUConfigEdge `json:"edges"`
+	PageInfo   PageInfo                       `json:"pageInfo"`
+	TotalCount int                            `json:"totalCount"`
+}
+
+func (c *VirtualMachineCPUConfigConnection) build(nodes []*VirtualMachineCPUConfig, pager *virtualmachinecpuconfigPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *VirtualMachineCPUConfig
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *VirtualMachineCPUConfig {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *VirtualMachineCPUConfig {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*VirtualMachineCPUConfigEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &VirtualMachineCPUConfigEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// VirtualMachineCPUConfigPaginateOption enables pagination customization.
+type VirtualMachineCPUConfigPaginateOption func(*virtualmachinecpuconfigPager) error
+
+// WithVirtualMachineCPUConfigOrder configures pagination ordering.
+func WithVirtualMachineCPUConfigOrder(order *VirtualMachineCPUConfigOrder) VirtualMachineCPUConfigPaginateOption {
+	if order == nil {
+		order = DefaultVirtualMachineCPUConfigOrder
+	}
+	o := *order
+	return func(pager *virtualmachinecpuconfigPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultVirtualMachineCPUConfigOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithVirtualMachineCPUConfigFilter configures pagination filter.
+func WithVirtualMachineCPUConfigFilter(filter func(*VirtualMachineCPUConfigQuery) (*VirtualMachineCPUConfigQuery, error)) VirtualMachineCPUConfigPaginateOption {
+	return func(pager *virtualmachinecpuconfigPager) error {
+		if filter == nil {
+			return errors.New("VirtualMachineCPUConfigQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type virtualmachinecpuconfigPager struct {
+	reverse bool
+	order   *VirtualMachineCPUConfigOrder
+	filter  func(*VirtualMachineCPUConfigQuery) (*VirtualMachineCPUConfigQuery, error)
+}
+
+func newVirtualMachineCPUConfigPager(opts []VirtualMachineCPUConfigPaginateOption, reverse bool) (*virtualmachinecpuconfigPager, error) {
+	pager := &virtualmachinecpuconfigPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultVirtualMachineCPUConfigOrder
+	}
+	return pager, nil
+}
+
+func (p *virtualmachinecpuconfigPager) applyFilter(query *VirtualMachineCPUConfigQuery) (*VirtualMachineCPUConfigQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *virtualmachinecpuconfigPager) toCursor(vmcc *VirtualMachineCPUConfig) Cursor {
+	return p.order.Field.toCursor(vmcc)
+}
+
+func (p *virtualmachinecpuconfigPager) applyCursors(query *VirtualMachineCPUConfigQuery, after, before *Cursor) (*VirtualMachineCPUConfigQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultVirtualMachineCPUConfigOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *virtualmachinecpuconfigPager) applyOrder(query *VirtualMachineCPUConfigQuery) *VirtualMachineCPUConfigQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultVirtualMachineCPUConfigOrder.Field {
+		query = query.Order(DefaultVirtualMachineCPUConfigOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *virtualmachinecpuconfigPager) orderExpr(query *VirtualMachineCPUConfigQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultVirtualMachineCPUConfigOrder.Field {
+			b.Comma().Ident(DefaultVirtualMachineCPUConfigOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to VirtualMachineCPUConfig.
+func (vmcc *VirtualMachineCPUConfigQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...VirtualMachineCPUConfigPaginateOption,
+) (*VirtualMachineCPUConfigConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newVirtualMachineCPUConfigPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if vmcc, err = pager.applyFilter(vmcc); err != nil {
+		return nil, err
+	}
+	conn := &VirtualMachineCPUConfigConnection{Edges: []*VirtualMachineCPUConfigEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			if conn.TotalCount, err = vmcc.Clone().Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if vmcc, err = pager.applyCursors(vmcc, after, before); err != nil {
+		return nil, err
+	}
+	if limit := paginateLimit(first, last); limit != 0 {
+		vmcc.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := vmcc.collectField(ctx, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	vmcc = pager.applyOrder(vmcc)
+	nodes, err := vmcc.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+var (
+	// VirtualMachineCPUConfigOrderFieldID orders VirtualMachineCPUConfig by id.
+	VirtualMachineCPUConfigOrderFieldID = &VirtualMachineCPUConfigOrderField{
+		Value: func(vmcc *VirtualMachineCPUConfig) (ent.Value, error) {
+			return vmcc.ID, nil
+		},
+		column: virtualmachinecpuconfig.FieldID,
+		toTerm: virtualmachinecpuconfig.ByID,
+		toCursor: func(vmcc *VirtualMachineCPUConfig) Cursor {
+			return Cursor{
+				ID:    vmcc.ID,
+				Value: vmcc.ID,
+			}
+		},
+	}
+	// VirtualMachineCPUConfigOrderFieldCores orders VirtualMachineCPUConfig by cores.
+	VirtualMachineCPUConfigOrderFieldCores = &VirtualMachineCPUConfigOrderField{
+		Value: func(vmcc *VirtualMachineCPUConfig) (ent.Value, error) {
+			return vmcc.Cores, nil
+		},
+		column: virtualmachinecpuconfig.FieldCores,
+		toTerm: virtualmachinecpuconfig.ByCores,
+		toCursor: func(vmcc *VirtualMachineCPUConfig) Cursor {
+			return Cursor{
+				ID:    vmcc.ID,
+				Value: vmcc.Cores,
+			}
+		},
+	}
+	// VirtualMachineCPUConfigOrderFieldSockets orders VirtualMachineCPUConfig by sockets.
+	VirtualMachineCPUConfigOrderFieldSockets = &VirtualMachineCPUConfigOrderField{
+		Value: func(vmcc *VirtualMachineCPUConfig) (ent.Value, error) {
+			return vmcc.Sockets, nil
+		},
+		column: virtualmachinecpuconfig.FieldSockets,
+		toTerm: virtualmachinecpuconfig.BySockets,
+		toCursor: func(vmcc *VirtualMachineCPUConfig) Cursor {
+			return Cursor{
+				ID:    vmcc.ID,
+				Value: vmcc.Sockets,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f VirtualMachineCPUConfigOrderField) String() string {
+	var str string
+	switch f.column {
+	case VirtualMachineCPUConfigOrderFieldID.column:
+		str = "ID"
+	case VirtualMachineCPUConfigOrderFieldCores.column:
+		str = "cores"
+	case VirtualMachineCPUConfigOrderFieldSockets.column:
+		str = "sockets"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f VirtualMachineCPUConfigOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *VirtualMachineCPUConfigOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("VirtualMachineCPUConfigOrderField %T must be a string", v)
+	}
+	switch str {
+	case "ID":
+		*f = *VirtualMachineCPUConfigOrderFieldID
+	case "cores":
+		*f = *VirtualMachineCPUConfigOrderFieldCores
+	case "sockets":
+		*f = *VirtualMachineCPUConfigOrderFieldSockets
+	default:
+		return fmt.Errorf("%s is not a valid VirtualMachineCPUConfigOrderField", str)
+	}
+	return nil
+}
+
+// VirtualMachineCPUConfigOrderField defines the ordering field of VirtualMachineCPUConfig.
+type VirtualMachineCPUConfigOrderField struct {
+	// Value extracts the ordering value from the given VirtualMachineCPUConfig.
+	Value    func(*VirtualMachineCPUConfig) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) virtualmachinecpuconfig.OrderOption
+	toCursor func(*VirtualMachineCPUConfig) Cursor
+}
+
+// VirtualMachineCPUConfigOrder defines the ordering of VirtualMachineCPUConfig.
+type VirtualMachineCPUConfigOrder struct {
+	Direction OrderDirection                     `json:"direction"`
+	Field     *VirtualMachineCPUConfigOrderField `json:"field"`
+}
+
+// DefaultVirtualMachineCPUConfigOrder is the default ordering of VirtualMachineCPUConfig.
+var DefaultVirtualMachineCPUConfigOrder = &VirtualMachineCPUConfigOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &VirtualMachineCPUConfigOrderField{
+		Value: func(vmcc *VirtualMachineCPUConfig) (ent.Value, error) {
+			return vmcc.ID, nil
+		},
+		column: virtualmachinecpuconfig.FieldID,
+		toTerm: virtualmachinecpuconfig.ByID,
+		toCursor: func(vmcc *VirtualMachineCPUConfig) Cursor {
+			return Cursor{ID: vmcc.ID}
+		},
+	},
+}
+
+// ToEdge converts VirtualMachineCPUConfig into VirtualMachineCPUConfigEdge.
+func (vmcc *VirtualMachineCPUConfig) ToEdge(order *VirtualMachineCPUConfigOrder) *VirtualMachineCPUConfigEdge {
+	if order == nil {
+		order = DefaultVirtualMachineCPUConfigOrder
+	}
+	return &VirtualMachineCPUConfigEdge{
+		Node:   vmcc,
+		Cursor: order.Field.toCursor(vmcc),
 	}
 }

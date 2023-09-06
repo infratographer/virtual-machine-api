@@ -25,6 +25,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -95,6 +96,12 @@ func (vmc *VirtualMachineCreate) SetNillableUserdata(s *string) *VirtualMachineC
 	return vmc
 }
 
+// SetVMCPUConfigID sets the "vm_cpu_config_id" field.
+func (vmc *VirtualMachineCreate) SetVMCPUConfigID(gi gidx.PrefixedID) *VirtualMachineCreate {
+	vmc.mutation.SetVMCPUConfigID(gi)
+	return vmc
+}
+
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -107,6 +114,17 @@ func (vmc *VirtualMachineCreate) SetNillableID(gi *gidx.PrefixedID) *VirtualMach
 		vmc.SetID(*gi)
 	}
 	return vmc
+}
+
+// SetVirtualMachineCPUConfigID sets the "virtual_machine_cpu_config" edge to the VirtualMachineCPUConfig entity by ID.
+func (vmc *VirtualMachineCreate) SetVirtualMachineCPUConfigID(id gidx.PrefixedID) *VirtualMachineCreate {
+	vmc.mutation.SetVirtualMachineCPUConfigID(id)
+	return vmc
+}
+
+// SetVirtualMachineCPUConfig sets the "virtual_machine_cpu_config" edge to the VirtualMachineCPUConfig entity.
+func (vmc *VirtualMachineCreate) SetVirtualMachineCPUConfig(v *VirtualMachineCPUConfig) *VirtualMachineCreate {
+	return vmc.SetVirtualMachineCPUConfigID(v.ID)
 }
 
 // Mutation returns the VirtualMachineMutation object of the builder.
@@ -185,6 +203,12 @@ func (vmc *VirtualMachineCreate) check() error {
 			return &ValidationError{Name: "location_id", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.location_id": %w`, err)}
 		}
 	}
+	if _, ok := vmc.mutation.VMCPUConfigID(); !ok {
+		return &ValidationError{Name: "vm_cpu_config_id", err: errors.New(`generated: missing required field "VirtualMachine.vm_cpu_config_id"`)}
+	}
+	if _, ok := vmc.mutation.VirtualMachineCPUConfigID(); !ok {
+		return &ValidationError{Name: "virtual_machine_cpu_config", err: errors.New(`generated: missing required edge "VirtualMachine.virtual_machine_cpu_config"`)}
+	}
 	return nil
 }
 
@@ -244,17 +268,38 @@ func (vmc *VirtualMachineCreate) createSpec() (*VirtualMachine, *sqlgraph.Create
 		_spec.SetField(virtualmachine.FieldUserdata, field.TypeString, value)
 		_node.Userdata = value
 	}
+	if nodes := vmc.mutation.VirtualMachineCPUConfigIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   virtualmachine.VirtualMachineCPUConfigTable,
+			Columns: []string{virtualmachine.VirtualMachineCPUConfigColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(virtualmachinecpuconfig.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.VMCPUConfigID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
 // VirtualMachineCreateBulk is the builder for creating many VirtualMachine entities in bulk.
 type VirtualMachineCreateBulk struct {
 	config
+	err      error
 	builders []*VirtualMachineCreate
 }
 
 // Save creates the VirtualMachine entities in the database.
 func (vmcb *VirtualMachineCreateBulk) Save(ctx context.Context) ([]*VirtualMachine, error) {
+	if vmcb.err != nil {
+		return nil, vmcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(vmcb.builders))
 	nodes := make([]*VirtualMachine, len(vmcb.builders))
 	mutators := make([]Mutator, len(vmcb.builders))

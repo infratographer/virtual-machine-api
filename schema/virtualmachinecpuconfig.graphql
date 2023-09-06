@@ -1,0 +1,11 @@
+extend type Query {
+ """
+  Lookup a virtual machine cpu config by ID.
+  """
+  virtualMachineCPUConfig(
+    """
+    The virtual machine cpu config ID.
+    """
+    id: ID!
+  ): VirtualMachineCPUConfig!
+}

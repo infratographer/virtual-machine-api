@@ -115,6 +115,9 @@ func (vmu *VirtualMachineUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
 	}
+	if _, ok := vmu.mutation.VirtualMachineCPUConfigID(); vmu.mutation.VirtualMachineCPUConfigCleared() && !ok {
+		return errors.New(`generated: clearing a required unique edge "VirtualMachine.virtual_machine_cpu_config"`)
+	}
 	return nil
 }
 
@@ -248,6 +251,9 @@ func (vmuo *VirtualMachineUpdateOne) check() error {
 		if err := virtualmachine.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`generated: validator failed for field "VirtualMachine.name": %w`, err)}
 		}
+	}
+	if _, ok := vmuo.mutation.VirtualMachineCPUConfigID(); vmuo.mutation.VirtualMachineCPUConfigCleared() && !ok {
+		return errors.New(`generated: clearing a required unique edge "VirtualMachine.virtual_machine_cpu_config"`)
 	}
 	return nil
 }
