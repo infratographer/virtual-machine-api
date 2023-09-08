@@ -43,8 +43,12 @@ const (
 	FieldUserdata = "userdata"
 	// FieldVMCPUConfigID holds the string denoting the vm_cpu_config_id field in the database.
 	FieldVMCPUConfigID = "vm_cpu_config_id"
+	// FieldVMMemoryConfigID holds the string denoting the vm_memory_config_id field in the database.
+	FieldVMMemoryConfigID = "vm_memory_config_id"
 	// EdgeVirtualMachineCPUConfig holds the string denoting the virtual_machine_cpu_config edge name in mutations.
 	EdgeVirtualMachineCPUConfig = "virtual_machine_cpu_config"
+	// EdgeVirtualMachineMemoryConfig holds the string denoting the virtual_machine_memory_config edge name in mutations.
+	EdgeVirtualMachineMemoryConfig = "virtual_machine_memory_config"
 	// Table holds the table name of the virtualmachine in the database.
 	Table = "virtual_machines"
 	// VirtualMachineCPUConfigTable is the table that holds the virtual_machine_cpu_config relation/edge.
@@ -54,6 +58,13 @@ const (
 	VirtualMachineCPUConfigInverseTable = "virtual_machine_cpu_configs"
 	// VirtualMachineCPUConfigColumn is the table column denoting the virtual_machine_cpu_config relation/edge.
 	VirtualMachineCPUConfigColumn = "vm_cpu_config_id"
+	// VirtualMachineMemoryConfigTable is the table that holds the virtual_machine_memory_config relation/edge.
+	VirtualMachineMemoryConfigTable = "virtual_machines"
+	// VirtualMachineMemoryConfigInverseTable is the table name for the VirtualMachineMemoryConfig entity.
+	// It exists in this package in order to avoid circular dependency with the "virtualmachinememoryconfig" package.
+	VirtualMachineMemoryConfigInverseTable = "virtual_machine_memory_configs"
+	// VirtualMachineMemoryConfigColumn is the table column denoting the virtual_machine_memory_config relation/edge.
+	VirtualMachineMemoryConfigColumn = "vm_memory_config_id"
 )
 
 // Columns holds all SQL columns for virtualmachine fields.
@@ -66,6 +77,7 @@ var Columns = []string{
 	FieldLocationID,
 	FieldUserdata,
 	FieldVMCPUConfigID,
+	FieldVMMemoryConfigID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -136,10 +148,22 @@ func ByVMCPUConfigID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVMCPUConfigID, opts...).ToFunc()
 }
 
+// ByVMMemoryConfigID orders the results by the vm_memory_config_id field.
+func ByVMMemoryConfigID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVMMemoryConfigID, opts...).ToFunc()
+}
+
 // ByVirtualMachineCPUConfigField orders the results by virtual_machine_cpu_config field.
 func ByVirtualMachineCPUConfigField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newVirtualMachineCPUConfigStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByVirtualMachineMemoryConfigField orders the results by virtual_machine_memory_config field.
+func ByVirtualMachineMemoryConfigField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newVirtualMachineMemoryConfigStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newVirtualMachineCPUConfigStep() *sqlgraph.Step {
@@ -147,5 +171,12 @@ func newVirtualMachineCPUConfigStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(VirtualMachineCPUConfigInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, VirtualMachineCPUConfigTable, VirtualMachineCPUConfigColumn),
+	)
+}
+func newVirtualMachineMemoryConfigStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(VirtualMachineMemoryConfigInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, VirtualMachineMemoryConfigTable, VirtualMachineMemoryConfigColumn),
 	)
 }

@@ -30,6 +30,8 @@ type Tx struct {
 	VirtualMachine *VirtualMachineClient
 	// VirtualMachineCPUConfig is the client for interacting with the VirtualMachineCPUConfig builders.
 	VirtualMachineCPUConfig *VirtualMachineCPUConfigClient
+	// VirtualMachineMemoryConfig is the client for interacting with the VirtualMachineMemoryConfig builders.
+	VirtualMachineMemoryConfig *VirtualMachineMemoryConfigClient
 
 	// lazily loaded.
 	client     *Client
@@ -163,6 +165,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.VirtualMachine = NewVirtualMachineClient(tx.config)
 	tx.VirtualMachineCPUConfig = NewVirtualMachineCPUConfigClient(tx.config)
+	tx.VirtualMachineMemoryConfig = NewVirtualMachineMemoryConfigClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

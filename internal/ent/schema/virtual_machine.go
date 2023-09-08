@@ -80,6 +80,14 @@ func (VirtualMachine) Fields() []ent.Field {
 				entgql.OrderField("VM_CPU_CONFIG"),
 				entgql.QueryField(),
 			),
+		field.String("vm_memory_config_id").
+			GoType(gidx.PrefixedID("")).
+			Immutable().
+			Comment("The ID for the virtual machine memory config.").
+			Annotations(
+				entgql.OrderField("VM_MEMORY_CONFIG"),
+				entgql.QueryField(),
+			),
 	}
 }
 
@@ -95,6 +103,16 @@ func (VirtualMachine) Edges() []ent.Edge {
 			Comment("The virtual machine cpu config for the virtual machine.").
 			Annotations(
 				entgql.MapsTo("virtualMachineCPUConfig"),
+			),
+		edge.From("virtual_machine_memory_config", VirtualMachineMemoryConfig.Type).
+			Unique().
+			Required().
+			Immutable().
+			Ref("virtual_machine").
+			Field("vm_memory_config_id").
+			Comment("The memory config for the virtual machine.").
+			Annotations(
+				entgql.MapsTo("virtualMachineMemoryConfig"),
 			),
 	}
 }

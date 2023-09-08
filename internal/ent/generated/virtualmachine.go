@@ -25,6 +25,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -48,6 +49,8 @@ type VirtualMachine struct {
 	Userdata string `json:"userdata,omitempty"`
 	// The ID for the virtual machine cpu config.
 	VMCPUConfigID gidx.PrefixedID `json:"vm_cpu_config_id,omitempty"`
+	// The ID for the virtual machine memory config.
+	VMMemoryConfigID gidx.PrefixedID `json:"vm_memory_config_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the VirtualMachineQuery when eager-loading is set.
 	Edges        VirtualMachineEdges `json:"edges"`
@@ -58,11 +61,13 @@ type VirtualMachine struct {
 type VirtualMachineEdges struct {
 	// The virtual machine cpu config for the virtual machine.
 	VirtualMachineCPUConfig *VirtualMachineCPUConfig `json:"virtual_machine_cpu_config,omitempty"`
+	// The memory config for the virtual machine.
+	VirtualMachineMemoryConfig *VirtualMachineMemoryConfig `json:"virtual_machine_memory_config,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 	// totalCount holds the count of the edges above.
-	totalCount [1]map[string]int
+	totalCount [2]map[string]int
 }
 
 // VirtualMachineCPUConfigOrErr returns the VirtualMachineCPUConfig value or an error if the edge
@@ -78,12 +83,25 @@ func (e VirtualMachineEdges) VirtualMachineCPUConfigOrErr() (*VirtualMachineCPUC
 	return nil, &NotLoadedError{edge: "virtual_machine_cpu_config"}
 }
 
+// VirtualMachineMemoryConfigOrErr returns the VirtualMachineMemoryConfig value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e VirtualMachineEdges) VirtualMachineMemoryConfigOrErr() (*VirtualMachineMemoryConfig, error) {
+	if e.loadedTypes[1] {
+		if e.VirtualMachineMemoryConfig == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: virtualmachinememoryconfig.Label}
+		}
+		return e.VirtualMachineMemoryConfig, nil
+	}
+	return nil, &NotLoadedError{edge: "virtual_machine_memory_config"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*VirtualMachine) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case virtualmachine.FieldID, virtualmachine.FieldOwnerID, virtualmachine.FieldLocationID, virtualmachine.FieldVMCPUConfigID:
+		case virtualmachine.FieldID, virtualmachine.FieldOwnerID, virtualmachine.FieldLocationID, virtualmachine.FieldVMCPUConfigID, virtualmachine.FieldVMMemoryConfigID:
 			values[i] = new(gidx.PrefixedID)
 		case virtualmachine.FieldName, virtualmachine.FieldUserdata:
 			values[i] = new(sql.NullString)
@@ -152,6 +170,12 @@ func (vm *VirtualMachine) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				vm.VMCPUConfigID = *value
 			}
+		case virtualmachine.FieldVMMemoryConfigID:
+			if value, ok := values[i].(*gidx.PrefixedID); !ok {
+				return fmt.Errorf("unexpected type %T for field vm_memory_config_id", values[i])
+			} else if value != nil {
+				vm.VMMemoryConfigID = *value
+			}
 		default:
 			vm.selectValues.Set(columns[i], values[i])
 		}
@@ -168,6 +192,11 @@ func (vm *VirtualMachine) Value(name string) (ent.Value, error) {
 // QueryVirtualMachineCPUConfig queries the "virtual_machine_cpu_config" edge of the VirtualMachine entity.
 func (vm *VirtualMachine) QueryVirtualMachineCPUConfig() *VirtualMachineCPUConfigQuery {
 	return NewVirtualMachineClient(vm.config).QueryVirtualMachineCPUConfig(vm)
+}
+
+// QueryVirtualMachineMemoryConfig queries the "virtual_machine_memory_config" edge of the VirtualMachine entity.
+func (vm *VirtualMachine) QueryVirtualMachineMemoryConfig() *VirtualMachineMemoryConfigQuery {
+	return NewVirtualMachineClient(vm.config).QueryVirtualMachineMemoryConfig(vm)
 }
 
 // Update returns a builder for updating this VirtualMachine.
@@ -213,6 +242,9 @@ func (vm *VirtualMachine) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("vm_cpu_config_id=")
 	builder.WriteString(fmt.Sprintf("%v", vm.VMCPUConfigID))
+	builder.WriteString(", ")
+	builder.WriteString("vm_memory_config_id=")
+	builder.WriteString(fmt.Sprintf("%v", vm.VMMemoryConfigID))
 	builder.WriteByte(')')
 	return builder.String()
 }

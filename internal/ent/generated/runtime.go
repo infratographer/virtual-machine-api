@@ -21,6 +21,7 @@ import (
 
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 	"go.infratographer.com/virtual-machine-api/internal/ent/schema"
 	"go.infratographer.com/x/gidx"
 )
@@ -94,4 +95,12 @@ func init() {
 			return nil
 		}
 	}()
+	virtualmachinememoryconfigFields := schema.VirtualMachineMemoryConfig{}.Fields()
+	_ = virtualmachinememoryconfigFields
+	// virtualmachinememoryconfigDescSize is the schema descriptor for size field.
+	virtualmachinememoryconfigDescSize := virtualmachinememoryconfigFields[1].Descriptor()
+	// virtualmachinememoryconfig.DefaultSize holds the default value on creation for the size field.
+	virtualmachinememoryconfig.DefaultSize = virtualmachinememoryconfigDescSize.Default.(int)
+	// virtualmachinememoryconfig.SizeValidator is a validator for the "size" field. It is called by the builders before save.
+	virtualmachinememoryconfig.SizeValidator = virtualmachinememoryconfigDescSize.Validators[0].(func(int) error)
 }

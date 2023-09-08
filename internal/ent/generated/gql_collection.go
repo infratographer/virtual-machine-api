@@ -24,6 +24,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 )
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
@@ -61,6 +62,20 @@ func (vm *VirtualMachineQuery) collectField(ctx context.Context, opCtx *graphql.
 				selectedFields = append(selectedFields, virtualmachine.FieldVMCPUConfigID)
 				fieldSeen[virtualmachine.FieldVMCPUConfigID] = struct{}{}
 			}
+		case "virtualMachineMemoryConfig":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&VirtualMachineMemoryConfigClient{config: vm.config}).Query()
+			)
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+				return err
+			}
+			vm.withVirtualMachineMemoryConfig = query
+			if _, ok := fieldSeen[virtualmachine.FieldVMMemoryConfigID]; !ok {
+				selectedFields = append(selectedFields, virtualmachine.FieldVMMemoryConfigID)
+				fieldSeen[virtualmachine.FieldVMMemoryConfigID] = struct{}{}
+			}
 		case "createdAt":
 			if _, ok := fieldSeen[virtualmachine.FieldCreatedAt]; !ok {
 				selectedFields = append(selectedFields, virtualmachine.FieldCreatedAt)
@@ -85,6 +100,11 @@ func (vm *VirtualMachineQuery) collectField(ctx context.Context, opCtx *graphql.
 			if _, ok := fieldSeen[virtualmachine.FieldVMCPUConfigID]; !ok {
 				selectedFields = append(selectedFields, virtualmachine.FieldVMCPUConfigID)
 				fieldSeen[virtualmachine.FieldVMCPUConfigID] = struct{}{}
+			}
+		case "vmMemoryConfigID":
+			if _, ok := fieldSeen[virtualmachine.FieldVMMemoryConfigID]; !ok {
+				selectedFields = append(selectedFields, virtualmachine.FieldVMMemoryConfigID)
+				fieldSeen[virtualmachine.FieldVMMemoryConfigID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -249,6 +269,105 @@ func newVirtualMachineCPUConfigPaginateArgs(rv map[string]any) *virtualmachinecp
 	}
 	if v, ok := rv[whereField].(*VirtualMachineCPUConfigWhereInput); ok {
 		args.opts = append(args.opts, WithVirtualMachineCPUConfigFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (vmmc *VirtualMachineMemoryConfigQuery) CollectFields(ctx context.Context, satisfies ...string) (*VirtualMachineMemoryConfigQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return vmmc, nil
+	}
+	if err := vmmc.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return vmmc, nil
+}
+
+func (vmmc *VirtualMachineMemoryConfigQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(virtualmachinememoryconfig.Columns))
+		selectedFields = []string{virtualmachinememoryconfig.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+		case "virtualMachine":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&VirtualMachineClient{config: vmmc.config}).Query()
+			)
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+				return err
+			}
+			vmmc.withVirtualMachine = query
+		case "size":
+			if _, ok := fieldSeen[virtualmachinememoryconfig.FieldSize]; !ok {
+				selectedFields = append(selectedFields, virtualmachinememoryconfig.FieldSize)
+				fieldSeen[virtualmachinememoryconfig.FieldSize] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		vmmc.Select(selectedFields...)
+	}
+	return nil
+}
+
+type virtualmachinememoryconfigPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []VirtualMachineMemoryConfigPaginateOption
+}
+
+func newVirtualMachineMemoryConfigPaginateArgs(rv map[string]any) *virtualmachinememoryconfigPaginateArgs {
+	args := &virtualmachinememoryconfigPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &VirtualMachineMemoryConfigOrder{Field: &VirtualMachineMemoryConfigOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithVirtualMachineMemoryConfigOrder(order))
+			}
+		case *VirtualMachineMemoryConfigOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithVirtualMachineMemoryConfigOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*VirtualMachineMemoryConfigWhereInput); ok {
+		args.opts = append(args.opts, WithVirtualMachineMemoryConfigFilter(v.Filter))
 	}
 	return args
 }

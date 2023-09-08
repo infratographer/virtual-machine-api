@@ -32,6 +32,7 @@ var (
 		{Name: "location_id", Type: field.TypeString},
 		{Name: "userdata", Type: field.TypeString, Nullable: true},
 		{Name: "vm_cpu_config_id", Type: field.TypeString, Unique: true},
+		{Name: "vm_memory_config_id", Type: field.TypeString, Unique: true},
 	}
 	// VirtualMachinesTable holds the schema information for the "virtual_machines" table.
 	VirtualMachinesTable = &schema.Table{
@@ -43,6 +44,12 @@ var (
 				Symbol:     "virtual_machines_virtual_machine_cpu_configs_virtual_machine",
 				Columns:    []*schema.Column{VirtualMachinesColumns[7]},
 				RefColumns: []*schema.Column{VirtualMachineCPUConfigsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "virtual_machines_virtual_machine_memory_configs_virtual_machine",
+				Columns:    []*schema.Column{VirtualMachinesColumns[8]},
+				RefColumns: []*schema.Column{VirtualMachineMemoryConfigsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -76,13 +83,26 @@ var (
 		Columns:    VirtualMachineCPUConfigsColumns,
 		PrimaryKey: []*schema.Column{VirtualMachineCPUConfigsColumns[0]},
 	}
+	// VirtualMachineMemoryConfigsColumns holds the columns for the "virtual_machine_memory_configs" table.
+	VirtualMachineMemoryConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "size", Type: field.TypeInt, Default: 8},
+	}
+	// VirtualMachineMemoryConfigsTable holds the schema information for the "virtual_machine_memory_configs" table.
+	VirtualMachineMemoryConfigsTable = &schema.Table{
+		Name:       "virtual_machine_memory_configs",
+		Columns:    VirtualMachineMemoryConfigsColumns,
+		PrimaryKey: []*schema.Column{VirtualMachineMemoryConfigsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		VirtualMachinesTable,
 		VirtualMachineCPUConfigsTable,
+		VirtualMachineMemoryConfigsTable,
 	}
 )
 
 func init() {
 	VirtualMachinesTable.ForeignKeys[0].RefTable = VirtualMachineCPUConfigsTable
+	VirtualMachinesTable.ForeignKeys[1].RefTable = VirtualMachineMemoryConfigsTable
 }

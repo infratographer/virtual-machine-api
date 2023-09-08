@@ -31,6 +31,7 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -404,6 +405,20 @@ var (
 			}
 		},
 	}
+	// VirtualMachineOrderFieldVMMemoryConfigID orders VirtualMachine by vm_memory_config_id.
+	VirtualMachineOrderFieldVMMemoryConfigID = &VirtualMachineOrderField{
+		Value: func(vm *VirtualMachine) (ent.Value, error) {
+			return vm.VMMemoryConfigID, nil
+		},
+		column: virtualmachine.FieldVMMemoryConfigID,
+		toTerm: virtualmachine.ByVMMemoryConfigID,
+		toCursor: func(vm *VirtualMachine) Cursor {
+			return Cursor{
+				ID:    vm.ID,
+				Value: vm.VMMemoryConfigID,
+			}
+		},
+	}
 )
 
 // String implement fmt.Stringer interface.
@@ -422,6 +437,8 @@ func (f VirtualMachineOrderField) String() string {
 		str = "OWNER"
 	case VirtualMachineOrderFieldVMCPUConfigID.column:
 		str = "VM_CPU_CONFIG"
+	case VirtualMachineOrderFieldVMMemoryConfigID.column:
+		str = "VM_MEMORY_CONFIG"
 	}
 	return str
 }
@@ -450,6 +467,8 @@ func (f *VirtualMachineOrderField) UnmarshalGQL(v interface{}) error {
 		*f = *VirtualMachineOrderFieldOwnerID
 	case "VM_CPU_CONFIG":
 		*f = *VirtualMachineOrderFieldVMCPUConfigID
+	case "VM_MEMORY_CONFIG":
+		*f = *VirtualMachineOrderFieldVMMemoryConfigID
 	default:
 		return fmt.Errorf("%s is not a valid VirtualMachineOrderField", str)
 	}
@@ -823,5 +842,316 @@ func (vmcc *VirtualMachineCPUConfig) ToEdge(order *VirtualMachineCPUConfigOrder)
 	return &VirtualMachineCPUConfigEdge{
 		Node:   vmcc,
 		Cursor: order.Field.toCursor(vmcc),
+	}
+}
+
+// VirtualMachineMemoryConfigEdge is the edge representation of VirtualMachineMemoryConfig.
+type VirtualMachineMemoryConfigEdge struct {
+	Node   *VirtualMachineMemoryConfig `json:"node"`
+	Cursor Cursor                      `json:"cursor"`
+}
+
+// VirtualMachineMemoryConfigConnection is the connection containing edges to VirtualMachineMemoryConfig.
+type VirtualMachineMemoryConfigConnection struct {
+	Edges      []*VirtualMachineMemoryConfigEdge `json:"edges"`
+	PageInfo   PageInfo                          `json:"pageInfo"`
+	TotalCount int                               `json:"totalCount"`
+}
+
+func (c *VirtualMachineMemoryConfigConnection) build(nodes []*VirtualMachineMemoryConfig, pager *virtualmachinememoryconfigPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *VirtualMachineMemoryConfig
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *VirtualMachineMemoryConfig {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *VirtualMachineMemoryConfig {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*VirtualMachineMemoryConfigEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &VirtualMachineMemoryConfigEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// VirtualMachineMemoryConfigPaginateOption enables pagination customization.
+type VirtualMachineMemoryConfigPaginateOption func(*virtualmachinememoryconfigPager) error
+
+// WithVirtualMachineMemoryConfigOrder configures pagination ordering.
+func WithVirtualMachineMemoryConfigOrder(order *VirtualMachineMemoryConfigOrder) VirtualMachineMemoryConfigPaginateOption {
+	if order == nil {
+		order = DefaultVirtualMachineMemoryConfigOrder
+	}
+	o := *order
+	return func(pager *virtualmachinememoryconfigPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultVirtualMachineMemoryConfigOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithVirtualMachineMemoryConfigFilter configures pagination filter.
+func WithVirtualMachineMemoryConfigFilter(filter func(*VirtualMachineMemoryConfigQuery) (*VirtualMachineMemoryConfigQuery, error)) VirtualMachineMemoryConfigPaginateOption {
+	return func(pager *virtualmachinememoryconfigPager) error {
+		if filter == nil {
+			return errors.New("VirtualMachineMemoryConfigQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type virtualmachinememoryconfigPager struct {
+	reverse bool
+	order   *VirtualMachineMemoryConfigOrder
+	filter  func(*VirtualMachineMemoryConfigQuery) (*VirtualMachineMemoryConfigQuery, error)
+}
+
+func newVirtualMachineMemoryConfigPager(opts []VirtualMachineMemoryConfigPaginateOption, reverse bool) (*virtualmachinememoryconfigPager, error) {
+	pager := &virtualmachinememoryconfigPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultVirtualMachineMemoryConfigOrder
+	}
+	return pager, nil
+}
+
+func (p *virtualmachinememoryconfigPager) applyFilter(query *VirtualMachineMemoryConfigQuery) (*VirtualMachineMemoryConfigQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *virtualmachinememoryconfigPager) toCursor(vmmc *VirtualMachineMemoryConfig) Cursor {
+	return p.order.Field.toCursor(vmmc)
+}
+
+func (p *virtualmachinememoryconfigPager) applyCursors(query *VirtualMachineMemoryConfigQuery, after, before *Cursor) (*VirtualMachineMemoryConfigQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultVirtualMachineMemoryConfigOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *virtualmachinememoryconfigPager) applyOrder(query *VirtualMachineMemoryConfigQuery) *VirtualMachineMemoryConfigQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultVirtualMachineMemoryConfigOrder.Field {
+		query = query.Order(DefaultVirtualMachineMemoryConfigOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *virtualmachinememoryconfigPager) orderExpr(query *VirtualMachineMemoryConfigQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultVirtualMachineMemoryConfigOrder.Field {
+			b.Comma().Ident(DefaultVirtualMachineMemoryConfigOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to VirtualMachineMemoryConfig.
+func (vmmc *VirtualMachineMemoryConfigQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...VirtualMachineMemoryConfigPaginateOption,
+) (*VirtualMachineMemoryConfigConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newVirtualMachineMemoryConfigPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if vmmc, err = pager.applyFilter(vmmc); err != nil {
+		return nil, err
+	}
+	conn := &VirtualMachineMemoryConfigConnection{Edges: []*VirtualMachineMemoryConfigEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			if conn.TotalCount, err = vmmc.Clone().Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if vmmc, err = pager.applyCursors(vmmc, after, before); err != nil {
+		return nil, err
+	}
+	if limit := paginateLimit(first, last); limit != 0 {
+		vmmc.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := vmmc.collectField(ctx, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	vmmc = pager.applyOrder(vmmc)
+	nodes, err := vmmc.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+var (
+	// VirtualMachineMemoryConfigOrderFieldID orders VirtualMachineMemoryConfig by id.
+	VirtualMachineMemoryConfigOrderFieldID = &VirtualMachineMemoryConfigOrderField{
+		Value: func(vmmc *VirtualMachineMemoryConfig) (ent.Value, error) {
+			return vmmc.ID, nil
+		},
+		column: virtualmachinememoryconfig.FieldID,
+		toTerm: virtualmachinememoryconfig.ByID,
+		toCursor: func(vmmc *VirtualMachineMemoryConfig) Cursor {
+			return Cursor{
+				ID:    vmmc.ID,
+				Value: vmmc.ID,
+			}
+		},
+	}
+	// VirtualMachineMemoryConfigOrderFieldSize orders VirtualMachineMemoryConfig by size.
+	VirtualMachineMemoryConfigOrderFieldSize = &VirtualMachineMemoryConfigOrderField{
+		Value: func(vmmc *VirtualMachineMemoryConfig) (ent.Value, error) {
+			return vmmc.Size, nil
+		},
+		column: virtualmachinememoryconfig.FieldSize,
+		toTerm: virtualmachinememoryconfig.BySize,
+		toCursor: func(vmmc *VirtualMachineMemoryConfig) Cursor {
+			return Cursor{
+				ID:    vmmc.ID,
+				Value: vmmc.Size,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f VirtualMachineMemoryConfigOrderField) String() string {
+	var str string
+	switch f.column {
+	case VirtualMachineMemoryConfigOrderFieldID.column:
+		str = "ID"
+	case VirtualMachineMemoryConfigOrderFieldSize.column:
+		str = "SIZE"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f VirtualMachineMemoryConfigOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *VirtualMachineMemoryConfigOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("VirtualMachineMemoryConfigOrderField %T must be a string", v)
+	}
+	switch str {
+	case "ID":
+		*f = *VirtualMachineMemoryConfigOrderFieldID
+	case "SIZE":
+		*f = *VirtualMachineMemoryConfigOrderFieldSize
+	default:
+		return fmt.Errorf("%s is not a valid VirtualMachineMemoryConfigOrderField", str)
+	}
+	return nil
+}
+
+// VirtualMachineMemoryConfigOrderField defines the ordering field of VirtualMachineMemoryConfig.
+type VirtualMachineMemoryConfigOrderField struct {
+	// Value extracts the ordering value from the given VirtualMachineMemoryConfig.
+	Value    func(*VirtualMachineMemoryConfig) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) virtualmachinememoryconfig.OrderOption
+	toCursor func(*VirtualMachineMemoryConfig) Cursor
+}
+
+// VirtualMachineMemoryConfigOrder defines the ordering of VirtualMachineMemoryConfig.
+type VirtualMachineMemoryConfigOrder struct {
+	Direction OrderDirection                        `json:"direction"`
+	Field     *VirtualMachineMemoryConfigOrderField `json:"field"`
+}
+
+// DefaultVirtualMachineMemoryConfigOrder is the default ordering of VirtualMachineMemoryConfig.
+var DefaultVirtualMachineMemoryConfigOrder = &VirtualMachineMemoryConfigOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &VirtualMachineMemoryConfigOrderField{
+		Value: func(vmmc *VirtualMachineMemoryConfig) (ent.Value, error) {
+			return vmmc.ID, nil
+		},
+		column: virtualmachinememoryconfig.FieldID,
+		toTerm: virtualmachinememoryconfig.ByID,
+		toCursor: func(vmmc *VirtualMachineMemoryConfig) Cursor {
+			return Cursor{ID: vmmc.ID}
+		},
+	},
+}
+
+// ToEdge converts VirtualMachineMemoryConfig into VirtualMachineMemoryConfigEdge.
+func (vmmc *VirtualMachineMemoryConfig) ToEdge(order *VirtualMachineMemoryConfigOrder) *VirtualMachineMemoryConfigEdge {
+	if order == nil {
+		order = DefaultVirtualMachineMemoryConfigOrder
+	}
+	return &VirtualMachineMemoryConfigEdge{
+		Node:   vmmc,
+		Cursor: order.Field.toCursor(vmmc),
 	}
 }

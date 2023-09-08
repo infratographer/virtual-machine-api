@@ -26,6 +26,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -102,6 +103,12 @@ func (vmc *VirtualMachineCreate) SetVMCPUConfigID(gi gidx.PrefixedID) *VirtualMa
 	return vmc
 }
 
+// SetVMMemoryConfigID sets the "vm_memory_config_id" field.
+func (vmc *VirtualMachineCreate) SetVMMemoryConfigID(gi gidx.PrefixedID) *VirtualMachineCreate {
+	vmc.mutation.SetVMMemoryConfigID(gi)
+	return vmc
+}
+
 // SetID sets the "id" field.
 func (vmc *VirtualMachineCreate) SetID(gi gidx.PrefixedID) *VirtualMachineCreate {
 	vmc.mutation.SetID(gi)
@@ -125,6 +132,17 @@ func (vmc *VirtualMachineCreate) SetVirtualMachineCPUConfigID(id gidx.PrefixedID
 // SetVirtualMachineCPUConfig sets the "virtual_machine_cpu_config" edge to the VirtualMachineCPUConfig entity.
 func (vmc *VirtualMachineCreate) SetVirtualMachineCPUConfig(v *VirtualMachineCPUConfig) *VirtualMachineCreate {
 	return vmc.SetVirtualMachineCPUConfigID(v.ID)
+}
+
+// SetVirtualMachineMemoryConfigID sets the "virtual_machine_memory_config" edge to the VirtualMachineMemoryConfig entity by ID.
+func (vmc *VirtualMachineCreate) SetVirtualMachineMemoryConfigID(id gidx.PrefixedID) *VirtualMachineCreate {
+	vmc.mutation.SetVirtualMachineMemoryConfigID(id)
+	return vmc
+}
+
+// SetVirtualMachineMemoryConfig sets the "virtual_machine_memory_config" edge to the VirtualMachineMemoryConfig entity.
+func (vmc *VirtualMachineCreate) SetVirtualMachineMemoryConfig(v *VirtualMachineMemoryConfig) *VirtualMachineCreate {
+	return vmc.SetVirtualMachineMemoryConfigID(v.ID)
 }
 
 // Mutation returns the VirtualMachineMutation object of the builder.
@@ -206,8 +224,14 @@ func (vmc *VirtualMachineCreate) check() error {
 	if _, ok := vmc.mutation.VMCPUConfigID(); !ok {
 		return &ValidationError{Name: "vm_cpu_config_id", err: errors.New(`generated: missing required field "VirtualMachine.vm_cpu_config_id"`)}
 	}
+	if _, ok := vmc.mutation.VMMemoryConfigID(); !ok {
+		return &ValidationError{Name: "vm_memory_config_id", err: errors.New(`generated: missing required field "VirtualMachine.vm_memory_config_id"`)}
+	}
 	if _, ok := vmc.mutation.VirtualMachineCPUConfigID(); !ok {
 		return &ValidationError{Name: "virtual_machine_cpu_config", err: errors.New(`generated: missing required edge "VirtualMachine.virtual_machine_cpu_config"`)}
+	}
+	if _, ok := vmc.mutation.VirtualMachineMemoryConfigID(); !ok {
+		return &ValidationError{Name: "virtual_machine_memory_config", err: errors.New(`generated: missing required edge "VirtualMachine.virtual_machine_memory_config"`)}
 	}
 	return nil
 }
@@ -283,6 +307,23 @@ func (vmc *VirtualMachineCreate) createSpec() (*VirtualMachine, *sqlgraph.Create
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.VMCPUConfigID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := vmc.mutation.VirtualMachineMemoryConfigIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   virtualmachine.VirtualMachineMemoryConfigTable,
+			Columns: []string{virtualmachine.VirtualMachineMemoryConfigColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(virtualmachinememoryconfig.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.VMMemoryConfigID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

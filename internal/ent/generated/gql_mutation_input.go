@@ -22,11 +22,12 @@ import (
 
 // CreateVirtualMachineInput represents a mutation input for creating virtualmachines.
 type CreateVirtualMachineInput struct {
-	Name                      string
-	OwnerID                   gidx.PrefixedID
-	LocationID                gidx.PrefixedID
-	Userdata                  *string
-	VirtualMachineCPUConfigID gidx.PrefixedID
+	Name                         string
+	OwnerID                      gidx.PrefixedID
+	LocationID                   gidx.PrefixedID
+	Userdata                     *string
+	VirtualMachineCPUConfigID    gidx.PrefixedID
+	VirtualMachineMemoryConfigID gidx.PrefixedID
 }
 
 // Mutate applies the CreateVirtualMachineInput on the VirtualMachineMutation builder.
@@ -38,6 +39,7 @@ func (i *CreateVirtualMachineInput) Mutate(m *VirtualMachineMutation) {
 		m.SetUserdata(*v)
 	}
 	m.SetVirtualMachineCPUConfigID(i.VirtualMachineCPUConfigID)
+	m.SetVirtualMachineMemoryConfigID(i.VirtualMachineMemoryConfigID)
 }
 
 // SetInput applies the change-set in the CreateVirtualMachineInput on the VirtualMachineCreate builder.
@@ -124,6 +126,52 @@ func (c *VirtualMachineCPUConfigUpdate) SetInput(i UpdateVirtualMachineCPUConfig
 
 // SetInput applies the change-set in the UpdateVirtualMachineCPUConfigInput on the VirtualMachineCPUConfigUpdateOne builder.
 func (c *VirtualMachineCPUConfigUpdateOne) SetInput(i UpdateVirtualMachineCPUConfigInput) *VirtualMachineCPUConfigUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// CreateVirtualMachineMemoryConfigInput represents a mutation input for creating virtualmachinememoryconfigs.
+type CreateVirtualMachineMemoryConfigInput struct {
+	Size             *int
+	VirtualMachineID *gidx.PrefixedID
+}
+
+// Mutate applies the CreateVirtualMachineMemoryConfigInput on the VirtualMachineMemoryConfigMutation builder.
+func (i *CreateVirtualMachineMemoryConfigInput) Mutate(m *VirtualMachineMemoryConfigMutation) {
+	if v := i.Size; v != nil {
+		m.SetSize(*v)
+	}
+	if v := i.VirtualMachineID; v != nil {
+		m.SetVirtualMachineID(*v)
+	}
+}
+
+// SetInput applies the change-set in the CreateVirtualMachineMemoryConfigInput on the VirtualMachineMemoryConfigCreate builder.
+func (c *VirtualMachineMemoryConfigCreate) SetInput(i CreateVirtualMachineMemoryConfigInput) *VirtualMachineMemoryConfigCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdateVirtualMachineMemoryConfigInput represents a mutation input for updating virtualmachinememoryconfigs.
+type UpdateVirtualMachineMemoryConfigInput struct {
+	Size *int
+}
+
+// Mutate applies the UpdateVirtualMachineMemoryConfigInput on the VirtualMachineMemoryConfigMutation builder.
+func (i *UpdateVirtualMachineMemoryConfigInput) Mutate(m *VirtualMachineMemoryConfigMutation) {
+	if v := i.Size; v != nil {
+		m.SetSize(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdateVirtualMachineMemoryConfigInput on the VirtualMachineMemoryConfigUpdate builder.
+func (c *VirtualMachineMemoryConfigUpdate) SetInput(i UpdateVirtualMachineMemoryConfigInput) *VirtualMachineMemoryConfigUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdateVirtualMachineMemoryConfigInput on the VirtualMachineMemoryConfigUpdateOne builder.
+func (c *VirtualMachineMemoryConfigUpdateOne) SetInput(i UpdateVirtualMachineMemoryConfigInput) *VirtualMachineMemoryConfigUpdateOne {
 	i.Mutate(c.Mutation())
 	return c
 }

@@ -24,6 +24,7 @@ import (
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 	"go.infratographer.com/x/gidx"
 )
 
@@ -94,9 +95,28 @@ type VirtualMachineWhereInput struct {
 	VMCPUConfigIDEqualFold    *gidx.PrefixedID  `json:"vmCPUConfigIDEqualFold,omitempty"`
 	VMCPUConfigIDContainsFold *gidx.PrefixedID  `json:"vmCPUConfigIDContainsFold,omitempty"`
 
+	// "vm_memory_config_id" field predicates.
+	VMMemoryConfigID             *gidx.PrefixedID  `json:"vmMemoryConfigID,omitempty"`
+	VMMemoryConfigIDNEQ          *gidx.PrefixedID  `json:"vmMemoryConfigIDNEQ,omitempty"`
+	VMMemoryConfigIDIn           []gidx.PrefixedID `json:"vmMemoryConfigIDIn,omitempty"`
+	VMMemoryConfigIDNotIn        []gidx.PrefixedID `json:"vmMemoryConfigIDNotIn,omitempty"`
+	VMMemoryConfigIDGT           *gidx.PrefixedID  `json:"vmMemoryConfigIDGT,omitempty"`
+	VMMemoryConfigIDGTE          *gidx.PrefixedID  `json:"vmMemoryConfigIDGTE,omitempty"`
+	VMMemoryConfigIDLT           *gidx.PrefixedID  `json:"vmMemoryConfigIDLT,omitempty"`
+	VMMemoryConfigIDLTE          *gidx.PrefixedID  `json:"vmMemoryConfigIDLTE,omitempty"`
+	VMMemoryConfigIDContains     *gidx.PrefixedID  `json:"vmMemoryConfigIDContains,omitempty"`
+	VMMemoryConfigIDHasPrefix    *gidx.PrefixedID  `json:"vmMemoryConfigIDHasPrefix,omitempty"`
+	VMMemoryConfigIDHasSuffix    *gidx.PrefixedID  `json:"vmMemoryConfigIDHasSuffix,omitempty"`
+	VMMemoryConfigIDEqualFold    *gidx.PrefixedID  `json:"vmMemoryConfigIDEqualFold,omitempty"`
+	VMMemoryConfigIDContainsFold *gidx.PrefixedID  `json:"vmMemoryConfigIDContainsFold,omitempty"`
+
 	// "virtual_machine_cpu_config" edge predicates.
 	HasVirtualMachineCPUConfig     *bool                                `json:"hasVirtualMachineCPUConfig,omitempty"`
 	HasVirtualMachineCPUConfigWith []*VirtualMachineCPUConfigWhereInput `json:"hasVirtualMachineCPUConfigWith,omitempty"`
+
+	// "virtual_machine_memory_config" edge predicates.
+	HasVirtualMachineMemoryConfig     *bool                                   `json:"hasVirtualMachineMemoryConfig,omitempty"`
+	HasVirtualMachineMemoryConfigWith []*VirtualMachineMemoryConfigWhereInput `json:"hasVirtualMachineMemoryConfigWith,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -320,6 +340,45 @@ func (i *VirtualMachineWhereInput) P() (predicate.VirtualMachine, error) {
 	if i.VMCPUConfigIDContainsFold != nil {
 		predicates = append(predicates, virtualmachine.VMCPUConfigIDContainsFold(*i.VMCPUConfigIDContainsFold))
 	}
+	if i.VMMemoryConfigID != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDEQ(*i.VMMemoryConfigID))
+	}
+	if i.VMMemoryConfigIDNEQ != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDNEQ(*i.VMMemoryConfigIDNEQ))
+	}
+	if len(i.VMMemoryConfigIDIn) > 0 {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDIn(i.VMMemoryConfigIDIn...))
+	}
+	if len(i.VMMemoryConfigIDNotIn) > 0 {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDNotIn(i.VMMemoryConfigIDNotIn...))
+	}
+	if i.VMMemoryConfigIDGT != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDGT(*i.VMMemoryConfigIDGT))
+	}
+	if i.VMMemoryConfigIDGTE != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDGTE(*i.VMMemoryConfigIDGTE))
+	}
+	if i.VMMemoryConfigIDLT != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDLT(*i.VMMemoryConfigIDLT))
+	}
+	if i.VMMemoryConfigIDLTE != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDLTE(*i.VMMemoryConfigIDLTE))
+	}
+	if i.VMMemoryConfigIDContains != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDContains(*i.VMMemoryConfigIDContains))
+	}
+	if i.VMMemoryConfigIDHasPrefix != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDHasPrefix(*i.VMMemoryConfigIDHasPrefix))
+	}
+	if i.VMMemoryConfigIDHasSuffix != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDHasSuffix(*i.VMMemoryConfigIDHasSuffix))
+	}
+	if i.VMMemoryConfigIDEqualFold != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDEqualFold(*i.VMMemoryConfigIDEqualFold))
+	}
+	if i.VMMemoryConfigIDContainsFold != nil {
+		predicates = append(predicates, virtualmachine.VMMemoryConfigIDContainsFold(*i.VMMemoryConfigIDContainsFold))
+	}
 
 	if i.HasVirtualMachineCPUConfig != nil {
 		p := virtualmachine.HasVirtualMachineCPUConfig()
@@ -338,6 +397,24 @@ func (i *VirtualMachineWhereInput) P() (predicate.VirtualMachine, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, virtualmachine.HasVirtualMachineCPUConfigWith(with...))
+	}
+	if i.HasVirtualMachineMemoryConfig != nil {
+		p := virtualmachine.HasVirtualMachineMemoryConfig()
+		if !*i.HasVirtualMachineMemoryConfig {
+			p = virtualmachine.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasVirtualMachineMemoryConfigWith) > 0 {
+		with := make([]predicate.VirtualMachineMemoryConfig, 0, len(i.HasVirtualMachineMemoryConfigWith))
+		for _, w := range i.HasVirtualMachineMemoryConfigWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasVirtualMachineMemoryConfigWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, virtualmachine.HasVirtualMachineMemoryConfigWith(with...))
 	}
 	switch len(predicates) {
 	case 0:
@@ -560,5 +637,185 @@ func (i *VirtualMachineCPUConfigWhereInput) P() (predicate.VirtualMachineCPUConf
 		return predicates[0], nil
 	default:
 		return virtualmachinecpuconfig.And(predicates...), nil
+	}
+}
+
+// VirtualMachineMemoryConfigWhereInput represents a where input for filtering VirtualMachineMemoryConfig queries.
+type VirtualMachineMemoryConfigWhereInput struct {
+	Predicates []predicate.VirtualMachineMemoryConfig  `json:"-"`
+	Not        *VirtualMachineMemoryConfigWhereInput   `json:"not,omitempty"`
+	Or         []*VirtualMachineMemoryConfigWhereInput `json:"or,omitempty"`
+	And        []*VirtualMachineMemoryConfigWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID      *gidx.PrefixedID  `json:"id,omitempty"`
+	IDNEQ   *gidx.PrefixedID  `json:"idNEQ,omitempty"`
+	IDIn    []gidx.PrefixedID `json:"idIn,omitempty"`
+	IDNotIn []gidx.PrefixedID `json:"idNotIn,omitempty"`
+	IDGT    *gidx.PrefixedID  `json:"idGT,omitempty"`
+	IDGTE   *gidx.PrefixedID  `json:"idGTE,omitempty"`
+	IDLT    *gidx.PrefixedID  `json:"idLT,omitempty"`
+	IDLTE   *gidx.PrefixedID  `json:"idLTE,omitempty"`
+
+	// "size" field predicates.
+	Size      *int  `json:"size,omitempty"`
+	SizeNEQ   *int  `json:"sizeNEQ,omitempty"`
+	SizeIn    []int `json:"sizeIn,omitempty"`
+	SizeNotIn []int `json:"sizeNotIn,omitempty"`
+	SizeGT    *int  `json:"sizeGT,omitempty"`
+	SizeGTE   *int  `json:"sizeGTE,omitempty"`
+	SizeLT    *int  `json:"sizeLT,omitempty"`
+	SizeLTE   *int  `json:"sizeLTE,omitempty"`
+
+	// "virtual_machine" edge predicates.
+	HasVirtualMachine     *bool                       `json:"hasVirtualMachine,omitempty"`
+	HasVirtualMachineWith []*VirtualMachineWhereInput `json:"hasVirtualMachineWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *VirtualMachineMemoryConfigWhereInput) AddPredicates(predicates ...predicate.VirtualMachineMemoryConfig) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the VirtualMachineMemoryConfigWhereInput filter on the VirtualMachineMemoryConfigQuery builder.
+func (i *VirtualMachineMemoryConfigWhereInput) Filter(q *VirtualMachineMemoryConfigQuery) (*VirtualMachineMemoryConfigQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyVirtualMachineMemoryConfigWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyVirtualMachineMemoryConfigWhereInput is returned in case the VirtualMachineMemoryConfigWhereInput is empty.
+var ErrEmptyVirtualMachineMemoryConfigWhereInput = errors.New("generated: empty predicate VirtualMachineMemoryConfigWhereInput")
+
+// P returns a predicate for filtering virtualmachinememoryconfigs.
+// An error is returned if the input is empty or invalid.
+func (i *VirtualMachineMemoryConfigWhereInput) P() (predicate.VirtualMachineMemoryConfig, error) {
+	var predicates []predicate.VirtualMachineMemoryConfig
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, virtualmachinememoryconfig.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.VirtualMachineMemoryConfig, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, virtualmachinememoryconfig.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.VirtualMachineMemoryConfig, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, virtualmachinememoryconfig.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, virtualmachinememoryconfig.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, virtualmachinememoryconfig.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.IDLTE(*i.IDLTE))
+	}
+	if i.Size != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeEQ(*i.Size))
+	}
+	if i.SizeNEQ != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeNEQ(*i.SizeNEQ))
+	}
+	if len(i.SizeIn) > 0 {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeIn(i.SizeIn...))
+	}
+	if len(i.SizeNotIn) > 0 {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeNotIn(i.SizeNotIn...))
+	}
+	if i.SizeGT != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeGT(*i.SizeGT))
+	}
+	if i.SizeGTE != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeGTE(*i.SizeGTE))
+	}
+	if i.SizeLT != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeLT(*i.SizeLT))
+	}
+	if i.SizeLTE != nil {
+		predicates = append(predicates, virtualmachinememoryconfig.SizeLTE(*i.SizeLTE))
+	}
+
+	if i.HasVirtualMachine != nil {
+		p := virtualmachinememoryconfig.HasVirtualMachine()
+		if !*i.HasVirtualMachine {
+			p = virtualmachinememoryconfig.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasVirtualMachineWith) > 0 {
+		with := make([]predicate.VirtualMachine, 0, len(i.HasVirtualMachineWith))
+		for _, w := range i.HasVirtualMachineWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasVirtualMachineWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, virtualmachinememoryconfig.HasVirtualMachineWith(with...))
+	}
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyVirtualMachineMemoryConfigWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return virtualmachinememoryconfig.And(predicates...), nil
 	}
 }

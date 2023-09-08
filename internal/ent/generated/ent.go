@@ -28,6 +28,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -88,8 +89,9 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			virtualmachine.Table:          virtualmachine.ValidColumn,
-			virtualmachinecpuconfig.Table: virtualmachinecpuconfig.ValidColumn,
+			virtualmachine.Table:             virtualmachine.ValidColumn,
+			virtualmachinecpuconfig.Table:    virtualmachinecpuconfig.ValidColumn,
+			virtualmachinememoryconfig.Table: virtualmachinememoryconfig.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

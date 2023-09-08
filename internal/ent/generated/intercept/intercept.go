@@ -25,6 +25,7 @@ import (
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/predicate"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 )
 
 // The Query interface represents an operation that queries a graph.
@@ -137,6 +138,33 @@ func (f TraverseVirtualMachineCPUConfig) Traverse(ctx context.Context, q generat
 	return fmt.Errorf("unexpected query type %T. expect *generated.VirtualMachineCPUConfigQuery", q)
 }
 
+// The VirtualMachineMemoryConfigFunc type is an adapter to allow the use of ordinary function as a Querier.
+type VirtualMachineMemoryConfigFunc func(context.Context, *generated.VirtualMachineMemoryConfigQuery) (generated.Value, error)
+
+// Query calls f(ctx, q).
+func (f VirtualMachineMemoryConfigFunc) Query(ctx context.Context, q generated.Query) (generated.Value, error) {
+	if q, ok := q.(*generated.VirtualMachineMemoryConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *generated.VirtualMachineMemoryConfigQuery", q)
+}
+
+// The TraverseVirtualMachineMemoryConfig type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseVirtualMachineMemoryConfig func(context.Context, *generated.VirtualMachineMemoryConfigQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseVirtualMachineMemoryConfig) Intercept(next generated.Querier) generated.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseVirtualMachineMemoryConfig) Traverse(ctx context.Context, q generated.Query) error {
+	if q, ok := q.(*generated.VirtualMachineMemoryConfigQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *generated.VirtualMachineMemoryConfigQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q generated.Query) (Query, error) {
 	switch q := q.(type) {
@@ -144,6 +172,8 @@ func NewQuery(q generated.Query) (Query, error) {
 		return &query[*generated.VirtualMachineQuery, predicate.VirtualMachine, virtualmachine.OrderOption]{typ: generated.TypeVirtualMachine, tq: q}, nil
 	case *generated.VirtualMachineCPUConfigQuery:
 		return &query[*generated.VirtualMachineCPUConfigQuery, predicate.VirtualMachineCPUConfig, virtualmachinecpuconfig.OrderOption]{typ: generated.TypeVirtualMachineCPUConfig, tq: q}, nil
+	case *generated.VirtualMachineMemoryConfigQuery:
+		return &query[*generated.VirtualMachineMemoryConfigQuery, predicate.VirtualMachineMemoryConfig, virtualmachinememoryconfig.OrderOption]{typ: generated.TypeVirtualMachineMemoryConfig, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}

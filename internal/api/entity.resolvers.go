@@ -31,6 +31,11 @@ func (r *entityResolver) FindVirtualMachineCPUConfigByID(ctx context.Context, id
 	return r.client.VirtualMachineCPUConfig.Get(ctx, id)
 }
 
+// FindVirtualMachineMemoryConfigByID is the resolver for the findVirtualMachineMemoryConfigByID field.
+func (r *entityResolver) FindVirtualMachineMemoryConfigByID(ctx context.Context, id gidx.PrefixedID) (*generated.VirtualMachineMemoryConfig, error) {
+	return r.client.VirtualMachineMemoryConfig.Get(ctx, id)
+}
+
 // Entity returns EntityResolver implementation.
 func (r *Resolver) Entity() EntityResolver { return &entityResolver{r} }
 

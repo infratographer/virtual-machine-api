@@ -1,0 +1,11 @@
+extend type Query {
+ """
+  Lookup a virtual machine memory config by ID.
+  """
+  virtualMachineMemoryConfig(
+    """
+    The virtual machine memory config ID.
+    """
+    id: ID!
+  ): VirtualMachineMemoryConfig!
+}

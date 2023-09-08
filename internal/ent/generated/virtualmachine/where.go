@@ -105,6 +105,11 @@ func VMCPUConfigID(v gidx.PrefixedID) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldVMCPUConfigID, v))
 }
 
+// VMMemoryConfigID applies equality check predicate on the "vm_memory_config_id" field. It's identical to VMMemoryConfigIDEQ.
+func VMMemoryConfigID(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldVMMemoryConfigID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldEQ(FieldCreatedAt, v))
@@ -535,6 +540,76 @@ func VMCPUConfigIDContainsFold(v gidx.PrefixedID) predicate.VirtualMachine {
 	return predicate.VirtualMachine(sql.FieldContainsFold(FieldVMCPUConfigID, vc))
 }
 
+// VMMemoryConfigIDEQ applies the EQ predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDEQ(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldEQ(FieldVMMemoryConfigID, v))
+}
+
+// VMMemoryConfigIDNEQ applies the NEQ predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDNEQ(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNEQ(FieldVMMemoryConfigID, v))
+}
+
+// VMMemoryConfigIDIn applies the In predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDIn(vs ...gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldIn(FieldVMMemoryConfigID, vs...))
+}
+
+// VMMemoryConfigIDNotIn applies the NotIn predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDNotIn(vs ...gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldNotIn(FieldVMMemoryConfigID, vs...))
+}
+
+// VMMemoryConfigIDGT applies the GT predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDGT(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGT(FieldVMMemoryConfigID, v))
+}
+
+// VMMemoryConfigIDGTE applies the GTE predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDGTE(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldGTE(FieldVMMemoryConfigID, v))
+}
+
+// VMMemoryConfigIDLT applies the LT predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDLT(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLT(FieldVMMemoryConfigID, v))
+}
+
+// VMMemoryConfigIDLTE applies the LTE predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDLTE(v gidx.PrefixedID) predicate.VirtualMachine {
+	return predicate.VirtualMachine(sql.FieldLTE(FieldVMMemoryConfigID, v))
+}
+
+// VMMemoryConfigIDContains applies the Contains predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDContains(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldContains(FieldVMMemoryConfigID, vc))
+}
+
+// VMMemoryConfigIDHasPrefix applies the HasPrefix predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDHasPrefix(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldHasPrefix(FieldVMMemoryConfigID, vc))
+}
+
+// VMMemoryConfigIDHasSuffix applies the HasSuffix predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDHasSuffix(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldHasSuffix(FieldVMMemoryConfigID, vc))
+}
+
+// VMMemoryConfigIDEqualFold applies the EqualFold predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDEqualFold(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldEqualFold(FieldVMMemoryConfigID, vc))
+}
+
+// VMMemoryConfigIDContainsFold applies the ContainsFold predicate on the "vm_memory_config_id" field.
+func VMMemoryConfigIDContainsFold(v gidx.PrefixedID) predicate.VirtualMachine {
+	vc := string(v)
+	return predicate.VirtualMachine(sql.FieldContainsFold(FieldVMMemoryConfigID, vc))
+}
+
 // HasVirtualMachineCPUConfig applies the HasEdge predicate on the "virtual_machine_cpu_config" edge.
 func HasVirtualMachineCPUConfig() predicate.VirtualMachine {
 	return predicate.VirtualMachine(func(s *sql.Selector) {
@@ -550,6 +625,29 @@ func HasVirtualMachineCPUConfig() predicate.VirtualMachine {
 func HasVirtualMachineCPUConfigWith(preds ...predicate.VirtualMachineCPUConfig) predicate.VirtualMachine {
 	return predicate.VirtualMachine(func(s *sql.Selector) {
 		step := newVirtualMachineCPUConfigStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasVirtualMachineMemoryConfig applies the HasEdge predicate on the "virtual_machine_memory_config" edge.
+func HasVirtualMachineMemoryConfig() predicate.VirtualMachine {
+	return predicate.VirtualMachine(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, VirtualMachineMemoryConfigTable, VirtualMachineMemoryConfigColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasVirtualMachineMemoryConfigWith applies the HasEdge predicate on the "virtual_machine_memory_config" edge with a given conditions (other predicates).
+func HasVirtualMachineMemoryConfigWith(preds ...predicate.VirtualMachineMemoryConfig) predicate.VirtualMachine {
+	return predicate.VirtualMachine(func(s *sql.Selector) {
+		step := newVirtualMachineMemoryConfigStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
