@@ -225,13 +225,13 @@ func newTestServer(options ...testServerOption) (*httptest.Server, error) {
 		}
 	}
 
-	srv, err := echox.NewServer(zap.NewNop(), tsc.echoConfig.WithMiddleware(tsc.handlerMiddleware...), nil)
+	srv, err := echox.NewServer(zap.NewNop(), tsc.echoConfig, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	r := api.NewResolver(EntClient, zap.NewNop().Sugar())
-	srv.AddHandler(r.Handler(false))
+	srv.AddHandler(r.Handler(false, tsc.handlerMiddleware...))
 
 	return httptest.NewServer(srv.Handler()), nil
 }
