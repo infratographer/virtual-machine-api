@@ -5,6 +5,7 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 	"github.com/spf13/cobra"
@@ -101,16 +102,17 @@ func serve(ctx context.Context) error {
 
 	eventhooks.EventHooks(client)
 
-	// var middleware []echo.MiddlewareFunc
+	var middleware []echo.MiddlewareFunc
 
 	// jwt auth middleware
 	if viper.GetBool("oidc.enabled") {
-		// auth, err := echojwtx.NewAuth(ctx, config.AppConfig.OIDC)
+		auth, err := echojwtx.NewAuth(ctx, config.AppConfig.OIDC)
 		if err != nil {
 			logger.Fatalw("failed to initialize jwt authentication", zap.Error(err))
 		}
+
+		middleware = append(middleware, auth.Middleware())
 	}
-	// middleware = append(middleware, auth.Middleware())
 
 	srv, err := echox.NewServer(
 		logger.Desugar(),
@@ -132,7 +134,7 @@ func serve(ctx context.Context) error {
 	}
 
 	r := api.NewResolver(client, logger.Named("resolvers"))
-	handler := r.Handler(enablePlayground)
+	handler := r.Handler(enablePlayground, middleware...)
 
 	srv.AddHandler(handler)
 
