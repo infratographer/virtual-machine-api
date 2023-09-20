@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	entgo.io/contrib v0.4.5
-	entgo.io/ent v0.12.4-0.20230816084614-dc8ea50747ef
+	entgo.io/ent v0.12.4-0.20230918073025-797534a0d1ca
 	github.com/99designs/gqlgen v0.17.36
 	github.com/Yamashou/gqlgenc v0.14.0
 	github.com/brianvoe/gofakeit/v6 v6.23.1
@@ -26,7 +26,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.13.1 // indirect
+	ariga.io/atlas v0.14.1-0.20230918065911-83ad451a4935 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
