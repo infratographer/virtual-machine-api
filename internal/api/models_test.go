@@ -30,11 +30,11 @@ func (p *VirtualMachineCPUConfigBuilder) MustNew(ctx context.Context) *ent.Virtu
 	}
 
 	if p.cores == 0 {
-		p.cores = int64(rand.Intn(128))
+		p.cores = int64(rand.Intn(128) + 1)
 	}
 
 	if p.sockets == 0 {
-		p.sockets = int64(rand.Intn(128))
+		p.sockets = int64(rand.Intn(128) + 1)
 	}
 
 	return EntClient.VirtualMachineCPUConfig.Create().SetID(p.ID).SetCores(p.cores).SetSockets(p.sockets).SaveX(ctx)
@@ -51,7 +51,7 @@ func (m *VirtualMachineMemoryConfigBuilder) MustNew(ctx context.Context) *ent.Vi
 	}
 
 	if m.Size == 0 {
-		m.Size = rand.Intn(128)
+		m.Size = rand.Intn(128) + 1
 	}
 
 	return EntClient.VirtualMachineMemoryConfig.Create().
