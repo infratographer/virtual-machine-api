@@ -16,7 +16,6 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
-	github.com/testcontainers/testcontainers-go/modules/postgres v0.21.0
 	github.com/vektah/gqlparser/v2 v2.5.8
 	github.com/wundergraph/graphql-go-tools v1.66.2
 	go.infratographer.com/permissions-api v0.2.2
@@ -113,6 +112,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/testcontainers/testcontainers-go v0.21.0 // indirect
+	github.com/testcontainers/testcontainers-go/modules/postgres v0.21.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect

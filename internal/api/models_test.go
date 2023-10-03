@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	locationPrefix  = "testloc"
-	ownerPrefix     = "testtnt"
-	nodePrefix      = "testnod"
-	cpuConfigPrefix = "testcpu"
+	locationPrefix     = "testloc"
+	ownerPrefix        = "testtnt"
+	nodePrefix         = "testnod"
+	cpuConfigPrefix    = "testcpu"
+	memoryConfigPrefix = "testmem"
 )
 
 type VirtualMachineCPUConfigBuilder struct {
@@ -39,19 +40,35 @@ func (p *VirtualMachineCPUConfigBuilder) MustNew(ctx context.Context) *ent.Virtu
 	return EntClient.VirtualMachineCPUConfig.Create().SetID(p.ID).SetCores(p.cores).SetSockets(p.sockets).SaveX(ctx)
 }
 
+type VirtualMachineMemoryConfigBuilder struct {
+	ID   gidx.PrefixedID
+	Size int
+}
+
+func (m *VirtualMachineMemoryConfigBuilder) MustNew(ctx context.Context) *ent.VirtualMachineMemoryConfig {
+	if m.ID == "" {
+		m.ID = gidx.MustNewID(memoryConfigPrefix)
+	}
+
+	if m.Size == 0 {
+		m.Size = rand.Intn(128)
+	}
+
+	return EntClient.VirtualMachineMemoryConfig.Create().
+		SetID(m.ID).
+		SetSize(m.Size).
+		SaveX(ctx)
+}
+
 type VirtualMachineBuilder struct {
-	Name       string
-	OwnerID    gidx.PrefixedID
-	LocationID gidx.PrefixedID
-	CPUConfig  *ent.VirtualMachineCPUConfig
+	Name         string
+	OwnerID      gidx.PrefixedID
+	LocationID   gidx.PrefixedID
+	CPUConfig    *ent.VirtualMachineCPUConfig
+	MemoryConfig *ent.VirtualMachineMemoryConfig
 }
 
 func (l *VirtualMachineBuilder) MustNew(ctx context.Context) *ent.VirtualMachine {
-	if l.CPUConfig == nil {
-		pb := &VirtualMachineCPUConfigBuilder{}
-		l.CPUConfig = pb.MustNew(ctx)
-	}
-
 	if l.Name == "" {
 		l.Name = gofakeit.AppName()
 	}
@@ -64,10 +81,21 @@ func (l *VirtualMachineBuilder) MustNew(ctx context.Context) *ent.VirtualMachine
 		l.LocationID = gidx.MustNewID(locationPrefix)
 	}
 
+	if l.CPUConfig == nil {
+		pb := &VirtualMachineCPUConfigBuilder{}
+		l.CPUConfig = pb.MustNew(ctx)
+	}
+
+	if l.MemoryConfig == nil {
+		mb := &VirtualMachineMemoryConfigBuilder{}
+		l.MemoryConfig = mb.MustNew(ctx)
+	}
+
 	return EntClient.VirtualMachine.Create().
 		SetName(l.Name).
 		SetOwnerID(l.OwnerID).
 		SetLocationID(l.LocationID).
 		SetVirtualMachineCPUConfig(l.CPUConfig).
+		SetVirtualMachineMemoryConfig(l.MemoryConfig).
 		SaveX(ctx)
 }

@@ -118,6 +118,9 @@ func (vmu *VirtualMachineUpdate) check() error {
 	if _, ok := vmu.mutation.VirtualMachineCPUConfigID(); vmu.mutation.VirtualMachineCPUConfigCleared() && !ok {
 		return errors.New(`generated: clearing a required unique edge "VirtualMachine.virtual_machine_cpu_config"`)
 	}
+	if _, ok := vmu.mutation.VirtualMachineMemoryConfigID(); vmu.mutation.VirtualMachineMemoryConfigCleared() && !ok {
+		return errors.New(`generated: clearing a required unique edge "VirtualMachine.virtual_machine_memory_config"`)
+	}
 	return nil
 }
 
@@ -254,6 +257,9 @@ func (vmuo *VirtualMachineUpdateOne) check() error {
 	}
 	if _, ok := vmuo.mutation.VirtualMachineCPUConfigID(); vmuo.mutation.VirtualMachineCPUConfigCleared() && !ok {
 		return errors.New(`generated: clearing a required unique edge "VirtualMachine.virtual_machine_cpu_config"`)
+	}
+	if _, ok := vmuo.mutation.VirtualMachineMemoryConfigID(); vmuo.mutation.VirtualMachineMemoryConfigCleared() && !ok {
+		return errors.New(`generated: clearing a required unique edge "VirtualMachine.virtual_machine_memory_config"`)
 	}
 	return nil
 }

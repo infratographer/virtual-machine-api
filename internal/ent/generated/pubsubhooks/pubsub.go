@@ -220,6 +220,28 @@ func VirtualMachineHooks() []ent.Hook {
 						})
 					}
 
+					cv_vm_memory_config_id := ""
+					vm_memory_config_id, ok := m.VMMemoryConfigID()
+
+					if ok {
+						cv_vm_memory_config_id = fmt.Sprintf("%s", fmt.Sprint(vm_memory_config_id))
+						pv_vm_memory_config_id := ""
+						if !m.Op().Is(ent.OpCreate) {
+							ov, err := m.OldVMMemoryConfigID(ctx)
+							if err != nil {
+								pv_vm_memory_config_id = "<unknown>"
+							} else {
+								pv_vm_memory_config_id = fmt.Sprintf("%s", fmt.Sprint(ov))
+							}
+						}
+
+						changeset = append(changeset, events.FieldChange{
+							Field:         "vm_memory_config_id",
+							PreviousValue: pv_vm_memory_config_id,
+							CurrentValue:  cv_vm_memory_config_id,
+						})
+					}
+
 					msg := events.ChangeMessage{
 						EventType:            eventType(m.Op()),
 						SubjectID:            objID,

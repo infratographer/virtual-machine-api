@@ -36,6 +36,9 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	// set up standard logger for tests
+	logger := zap.Must(zap.NewDevelopment())
+	goosex.SetLogger(logger.Sugar())
 	// setup the database if needed
 	setupDB()
 	// run the tests

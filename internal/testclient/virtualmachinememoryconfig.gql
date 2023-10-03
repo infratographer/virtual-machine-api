@@ -1,0 +1,6 @@
+query GetVirtualMachineMemoryConfigByID($id: ID!) {
+  virtualMachineMemoryConfig(id: $id) {
+    id
+    size
+  }
+}

@@ -31,6 +31,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachine"
 	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinecpuconfig"
+	"go.infratographer.com/virtual-machine-api/internal/ent/generated/virtualmachinememoryconfig"
 	"go.infratographer.com/x/events"
 	"go.infratographer.com/x/gidx"
 )
@@ -44,6 +45,8 @@ type Client struct {
 	VirtualMachine *VirtualMachineClient
 	// VirtualMachineCPUConfig is the client for interacting with the VirtualMachineCPUConfig builders.
 	VirtualMachineCPUConfig *VirtualMachineCPUConfigClient
+	// VirtualMachineMemoryConfig is the client for interacting with the VirtualMachineMemoryConfig builders.
+	VirtualMachineMemoryConfig *VirtualMachineMemoryConfigClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -59,6 +62,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.VirtualMachine = NewVirtualMachineClient(c.config)
 	c.VirtualMachineCPUConfig = NewVirtualMachineCPUConfigClient(c.config)
+	c.VirtualMachineMemoryConfig = NewVirtualMachineMemoryConfigClient(c.config)
 }
 
 type (
@@ -150,10 +154,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                     ctx,
-		config:                  cfg,
-		VirtualMachine:          NewVirtualMachineClient(cfg),
-		VirtualMachineCPUConfig: NewVirtualMachineCPUConfigClient(cfg),
+		ctx:                        ctx,
+		config:                     cfg,
+		VirtualMachine:             NewVirtualMachineClient(cfg),
+		VirtualMachineCPUConfig:    NewVirtualMachineCPUConfigClient(cfg),
+		VirtualMachineMemoryConfig: NewVirtualMachineMemoryConfigClient(cfg),
 	}, nil
 }
 
@@ -171,10 +176,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                     ctx,
-		config:                  cfg,
-		VirtualMachine:          NewVirtualMachineClient(cfg),
-		VirtualMachineCPUConfig: NewVirtualMachineCPUConfigClient(cfg),
+		ctx:                        ctx,
+		config:                     cfg,
+		VirtualMachine:             NewVirtualMachineClient(cfg),
+		VirtualMachineCPUConfig:    NewVirtualMachineCPUConfigClient(cfg),
+		VirtualMachineMemoryConfig: NewVirtualMachineMemoryConfigClient(cfg),
 	}, nil
 }
 
@@ -205,6 +211,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.VirtualMachine.Use(hooks...)
 	c.VirtualMachineCPUConfig.Use(hooks...)
+	c.VirtualMachineMemoryConfig.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
@@ -212,6 +219,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.VirtualMachine.Intercept(interceptors...)
 	c.VirtualMachineCPUConfig.Intercept(interceptors...)
+	c.VirtualMachineMemoryConfig.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -221,6 +229,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.VirtualMachine.mutate(ctx, m)
 	case *VirtualMachineCPUConfigMutation:
 		return c.VirtualMachineCPUConfig.mutate(ctx, m)
+	case *VirtualMachineMemoryConfigMutation:
+		return c.VirtualMachineMemoryConfig.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("generated: unknown mutation type %T", m)
 	}
@@ -343,6 +353,22 @@ func (c *VirtualMachineClient) QueryVirtualMachineCPUConfig(vm *VirtualMachine) 
 			sqlgraph.From(virtualmachine.Table, virtualmachine.FieldID, id),
 			sqlgraph.To(virtualmachinecpuconfig.Table, virtualmachinecpuconfig.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, virtualmachine.VirtualMachineCPUConfigTable, virtualmachine.VirtualMachineCPUConfigColumn),
+		)
+		fromV = sqlgraph.Neighbors(vm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryVirtualMachineMemoryConfig queries the virtual_machine_memory_config edge of a VirtualMachine.
+func (c *VirtualMachineClient) QueryVirtualMachineMemoryConfig(vm *VirtualMachine) *VirtualMachineMemoryConfigQuery {
+	query := (&VirtualMachineMemoryConfigClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := vm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(virtualmachine.Table, virtualmachine.FieldID, id),
+			sqlgraph.To(virtualmachinememoryconfig.Table, virtualmachinememoryconfig.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, virtualmachine.VirtualMachineMemoryConfigTable, virtualmachine.VirtualMachineMemoryConfigColumn),
 		)
 		fromV = sqlgraph.Neighbors(vm.driver.Dialect(), step)
 		return fromV, nil
@@ -524,12 +550,162 @@ func (c *VirtualMachineCPUConfigClient) mutate(ctx context.Context, m *VirtualMa
 	}
 }
 
+// VirtualMachineMemoryConfigClient is a client for the VirtualMachineMemoryConfig schema.
+type VirtualMachineMemoryConfigClient struct {
+	config
+}
+
+// NewVirtualMachineMemoryConfigClient returns a client for the VirtualMachineMemoryConfig from the given config.
+func NewVirtualMachineMemoryConfigClient(c config) *VirtualMachineMemoryConfigClient {
+	return &VirtualMachineMemoryConfigClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `virtualmachinememoryconfig.Hooks(f(g(h())))`.
+func (c *VirtualMachineMemoryConfigClient) Use(hooks ...Hook) {
+	c.hooks.VirtualMachineMemoryConfig = append(c.hooks.VirtualMachineMemoryConfig, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `virtualmachinememoryconfig.Intercept(f(g(h())))`.
+func (c *VirtualMachineMemoryConfigClient) Intercept(interceptors ...Interceptor) {
+	c.inters.VirtualMachineMemoryConfig = append(c.inters.VirtualMachineMemoryConfig, interceptors...)
+}
+
+// Create returns a builder for creating a VirtualMachineMemoryConfig entity.
+func (c *VirtualMachineMemoryConfigClient) Create() *VirtualMachineMemoryConfigCreate {
+	mutation := newVirtualMachineMemoryConfigMutation(c.config, OpCreate)
+	return &VirtualMachineMemoryConfigCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of VirtualMachineMemoryConfig entities.
+func (c *VirtualMachineMemoryConfigClient) CreateBulk(builders ...*VirtualMachineMemoryConfigCreate) *VirtualMachineMemoryConfigCreateBulk {
+	return &VirtualMachineMemoryConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *VirtualMachineMemoryConfigClient) MapCreateBulk(slice any, setFunc func(*VirtualMachineMemoryConfigCreate, int)) *VirtualMachineMemoryConfigCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &VirtualMachineMemoryConfigCreateBulk{err: fmt.Errorf("calling to VirtualMachineMemoryConfigClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*VirtualMachineMemoryConfigCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &VirtualMachineMemoryConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for VirtualMachineMemoryConfig.
+func (c *VirtualMachineMemoryConfigClient) Update() *VirtualMachineMemoryConfigUpdate {
+	mutation := newVirtualMachineMemoryConfigMutation(c.config, OpUpdate)
+	return &VirtualMachineMemoryConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *VirtualMachineMemoryConfigClient) UpdateOne(vmmc *VirtualMachineMemoryConfig) *VirtualMachineMemoryConfigUpdateOne {
+	mutation := newVirtualMachineMemoryConfigMutation(c.config, OpUpdateOne, withVirtualMachineMemoryConfig(vmmc))
+	return &VirtualMachineMemoryConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *VirtualMachineMemoryConfigClient) UpdateOneID(id gidx.PrefixedID) *VirtualMachineMemoryConfigUpdateOne {
+	mutation := newVirtualMachineMemoryConfigMutation(c.config, OpUpdateOne, withVirtualMachineMemoryConfigID(id))
+	return &VirtualMachineMemoryConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for VirtualMachineMemoryConfig.
+func (c *VirtualMachineMemoryConfigClient) Delete() *VirtualMachineMemoryConfigDelete {
+	mutation := newVirtualMachineMemoryConfigMutation(c.config, OpDelete)
+	return &VirtualMachineMemoryConfigDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *VirtualMachineMemoryConfigClient) DeleteOne(vmmc *VirtualMachineMemoryConfig) *VirtualMachineMemoryConfigDeleteOne {
+	return c.DeleteOneID(vmmc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *VirtualMachineMemoryConfigClient) DeleteOneID(id gidx.PrefixedID) *VirtualMachineMemoryConfigDeleteOne {
+	builder := c.Delete().Where(virtualmachinememoryconfig.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &VirtualMachineMemoryConfigDeleteOne{builder}
+}
+
+// Query returns a query builder for VirtualMachineMemoryConfig.
+func (c *VirtualMachineMemoryConfigClient) Query() *VirtualMachineMemoryConfigQuery {
+	return &VirtualMachineMemoryConfigQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeVirtualMachineMemoryConfig},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a VirtualMachineMemoryConfig entity by its id.
+func (c *VirtualMachineMemoryConfigClient) Get(ctx context.Context, id gidx.PrefixedID) (*VirtualMachineMemoryConfig, error) {
+	return c.Query().Where(virtualmachinememoryconfig.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *VirtualMachineMemoryConfigClient) GetX(ctx context.Context, id gidx.PrefixedID) *VirtualMachineMemoryConfig {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryVirtualMachine queries the virtual_machine edge of a VirtualMachineMemoryConfig.
+func (c *VirtualMachineMemoryConfigClient) QueryVirtualMachine(vmmc *VirtualMachineMemoryConfig) *VirtualMachineQuery {
+	query := (&VirtualMachineClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := vmmc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(virtualmachinememoryconfig.Table, virtualmachinememoryconfig.FieldID, id),
+			sqlgraph.To(virtualmachine.Table, virtualmachine.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, virtualmachinememoryconfig.VirtualMachineTable, virtualmachinememoryconfig.VirtualMachineColumn),
+		)
+		fromV = sqlgraph.Neighbors(vmmc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *VirtualMachineMemoryConfigClient) Hooks() []Hook {
+	return c.hooks.VirtualMachineMemoryConfig
+}
+
+// Interceptors returns the client interceptors.
+func (c *VirtualMachineMemoryConfigClient) Interceptors() []Interceptor {
+	return c.inters.VirtualMachineMemoryConfig
+}
+
+func (c *VirtualMachineMemoryConfigClient) mutate(ctx context.Context, m *VirtualMachineMemoryConfigMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&VirtualMachineMemoryConfigCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&VirtualMachineMemoryConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&VirtualMachineMemoryConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&VirtualMachineMemoryConfigDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("generated: unknown VirtualMachineMemoryConfig mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		VirtualMachine, VirtualMachineCPUConfig []ent.Hook
+		VirtualMachine, VirtualMachineCPUConfig, VirtualMachineMemoryConfig []ent.Hook
 	}
 	inters struct {
-		VirtualMachine, VirtualMachineCPUConfig []ent.Interceptor
+		VirtualMachine, VirtualMachineCPUConfig,
+		VirtualMachineMemoryConfig []ent.Interceptor
 	}
 )

@@ -9,5 +9,6 @@ query GetVirtualMachineByID($id: ID!) {
       id
     }
     vmCPUConfigID
+    vmMemoryConfigID
   }
 }

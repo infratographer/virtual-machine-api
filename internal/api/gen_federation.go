@@ -160,6 +160,26 @@ func (ec *executionContext) __resolve_entities(ctx context.Context, representati
 				list[idx[i]] = entity
 				return nil
 			}
+		case "VirtualMachineMemoryConfig":
+			resolverName, err := entityResolverNameForVirtualMachineMemoryConfig(ctx, rep)
+			if err != nil {
+				return fmt.Errorf(`finding resolver for Entity "VirtualMachineMemoryConfig": %w`, err)
+			}
+			switch resolverName {
+
+			case "findVirtualMachineMemoryConfigByID":
+				id0, err := ec.unmarshalNID2goᚗinfratographerᚗcomᚋxᚋgidxᚐPrefixedID(ctx, rep["id"])
+				if err != nil {
+					return fmt.Errorf(`unmarshalling param 0 for findVirtualMachineMemoryConfigByID(): %w`, err)
+				}
+				entity, err := ec.resolvers.Entity().FindVirtualMachineMemoryConfigByID(ctx, id0)
+				if err != nil {
+					return fmt.Errorf(`resolving Entity "VirtualMachineMemoryConfig": %w`, err)
+				}
+
+				list[idx[i]] = entity
+				return nil
+			}
 
 		}
 		return fmt.Errorf("%w: %s", ErrUnknownType, typeName)
@@ -295,4 +315,21 @@ func entityResolverNameForVirtualMachineCPUConfig(ctx context.Context, rep map[s
 		return "findVirtualMachineCPUConfigByID", nil
 	}
 	return "", fmt.Errorf("%w for VirtualMachineCPUConfig", ErrTypeNotFound)
+}
+
+func entityResolverNameForVirtualMachineMemoryConfig(ctx context.Context, rep map[string]interface{}) (string, error) {
+	for {
+		var (
+			m   map[string]interface{}
+			val interface{}
+			ok  bool
+		)
+		_ = val
+		m = rep
+		if _, ok = m["id"]; !ok {
+			break
+		}
+		return "findVirtualMachineMemoryConfigByID", nil
+	}
+	return "", fmt.Errorf("%w for VirtualMachineMemoryConfig", ErrTypeNotFound)
 }

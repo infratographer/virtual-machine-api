@@ -28,10 +28,26 @@ func (vm *VirtualMachine) VirtualMachineCPUConfig(ctx context.Context) (*Virtual
 	return result, err
 }
 
+func (vm *VirtualMachine) VirtualMachineMemoryConfig(ctx context.Context) (*VirtualMachineMemoryConfig, error) {
+	result, err := vm.Edges.VirtualMachineMemoryConfigOrErr()
+	if IsNotLoaded(err) {
+		result, err = vm.QueryVirtualMachineMemoryConfig().Only(ctx)
+	}
+	return result, err
+}
+
 func (vmcc *VirtualMachineCPUConfig) VirtualMachine(ctx context.Context) (*VirtualMachine, error) {
 	result, err := vmcc.Edges.VirtualMachineOrErr()
 	if IsNotLoaded(err) {
 		result, err = vmcc.QueryVirtualMachine().Only(ctx)
+	}
+	return result, MaskNotFound(err)
+}
+
+func (vmmc *VirtualMachineMemoryConfig) VirtualMachine(ctx context.Context) (*VirtualMachine, error) {
+	result, err := vmmc.Edges.VirtualMachineOrErr()
+	if IsNotLoaded(err) {
+		result, err = vmmc.QueryVirtualMachine().Only(ctx)
 	}
 	return result, MaskNotFound(err)
 }

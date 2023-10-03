@@ -25,3 +25,6 @@ type VirtualMachine func(*sql.Selector)
 
 // VirtualMachineCPUConfig is the predicate function for virtualmachinecpuconfig builders.
 type VirtualMachineCPUConfig func(*sql.Selector)
+
+// VirtualMachineMemoryConfig is the predicate function for virtualmachinememoryconfig builders.
+type VirtualMachineMemoryConfig func(*sql.Selector)
