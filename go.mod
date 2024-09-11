@@ -1,13 +1,15 @@
 module go.infratographer.com/virtual-machine-api
 
-go 1.20
+go 1.21
+
+toolchain go1.23.1
 
 require (
 	entgo.io/contrib v0.4.5
 	entgo.io/ent v0.12.4-0.20230816084614-dc8ea50747ef
 	github.com/99designs/gqlgen v0.17.36
 	github.com/Yamashou/gqlgenc v0.14.0
-	github.com/brianvoe/gofakeit/v6 v6.23.1
+	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/lib/pq v1.10.9
